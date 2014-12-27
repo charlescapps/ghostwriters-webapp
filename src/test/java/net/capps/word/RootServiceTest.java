@@ -8,13 +8,11 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-import net.capps.word.MyResource;
-
-public class MyResourceTest extends JerseyTest {
+public class RootServiceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(MyResource.class);
+        return new ResourceConfig(RootService.class);
     }
 
     /**
@@ -22,7 +20,7 @@ public class MyResourceTest extends JerseyTest {
      */
     @Test
     public void testGetIt() {
-        final String responseMsg = target().path("myresource").request().get(String.class);
+        final String responseMsg = target().path("api/test").request().get(String.class);
 
         assertEquals("Hello, Heroku!", responseMsg);
     }
