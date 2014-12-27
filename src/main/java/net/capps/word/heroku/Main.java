@@ -1,7 +1,12 @@
 package net.capps.word.heroku;
 
+import net.capps.word.db.TableDefinitions;
+import net.capps.word.db.WordDbManager;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
+
+import java.sql.Connection;
+import java.sql.Statement;
 
 /**
  * This class launches the web application in an embedded Jetty container. This is the entry point to your application. The Java
@@ -9,7 +14,21 @@ import org.eclipse.jetty.webapp.WebAppContext;
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
+        initDatabase();
+        initJetty();
+    }
+
+    private static void initDatabase() throws Exception {
+        WordDbManager wordDbManager = WordDbManager.getInstance();
+
+        try(Connection connection = wordDbManager.getConnection()) {
+            Statement stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS);
+        }
+    }
+
+    private static void initJetty() throws Exception {
         // The port that we should run on can be set into an environment variable
         // Look for that variable and default to 8080 if it isn't there.
         String webPort = System.getenv("PORT");

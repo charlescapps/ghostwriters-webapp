@@ -11,5 +11,5 @@ public class TableDefinitions {
             "email VARCHAR(128)," +
             "hashpass BIT(160)," +
             "salt BIT(32)" +
-            ")";
+            ");";
 }
