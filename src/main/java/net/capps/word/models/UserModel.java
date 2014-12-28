@@ -5,17 +5,17 @@ import java.util.Objects;
 /**
  * Created by charlescapps on 12/26/14.
  */
-public class WordUserModel {
+public class UserModel {
     private Integer id;
     private String username;
     private String email;
     private String password; // Only present when creating a new user
 
-    public WordUserModel() {
+    public UserModel() {
 
     }
 
-    public WordUserModel(Integer id, String username, String email, String password) {
+    public UserModel(Integer id, String username, String email, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -56,10 +56,10 @@ public class WordUserModel {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof WordUserModel)) {
+        if (!(o instanceof UserModel)) {
             return false;
         }
-        WordUserModel other = (WordUserModel)o;
+        UserModel other = (UserModel)o;
         return Objects.equals(id, other.id) &&
                Objects.equals(username, other.username);
     }

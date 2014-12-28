@@ -2,15 +2,13 @@ package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import net.capps.word.db.WordDbManager;
-import net.capps.word.db.dao.WordUsersDAO;
+import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.models.ErrorModel;
-import net.capps.word.models.WordUserModel;
+import net.capps.word.models.UserModel;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,32 +27,32 @@ public class UsersProvider {
 
     private static final int SALT_BYTES = 8;
 
-    private static final WordUsersDAO wordUsersDAO = new WordUsersDAO();
+    private static final UsersDAO USERS_DAO = new UsersDAO();
 
     //------------- Public --------------
-    public Optional<ErrorModel> validateInputUser(WordUserModel wordUserModel) {
-        if (Strings.isNullOrEmpty(wordUserModel.getUsername())) {
+    public Optional<ErrorModel> validateInputUser(UserModel userModel) {
+        if (Strings.isNullOrEmpty(userModel.getUsername())) {
             return Optional.of(new ErrorModel("Missing username"));
         }
-        if (Strings.isNullOrEmpty(wordUserModel.getPassword())) {
+        if (Strings.isNullOrEmpty(userModel.getPassword())) {
             return Optional.of(new ErrorModel("Missing password"));
         }
-        Optional<ErrorModel> usernameError = isValidUsername(wordUserModel.getUsername());
+        Optional<ErrorModel> usernameError = isValidUsername(userModel.getUsername());
         if (usernameError.isPresent()) {
             return usernameError;
         }
 
-        return isValidPassword(wordUserModel.getPassword());
+        return isValidPassword(userModel.getPassword());
     }
 
-    public WordUserModel createNewUser(WordUserModel validatedInput) throws Exception {
+    public UserModel createNewUser(UserModel validatedInput) throws Exception {
         byte[] salt = generateSalt();
         byte[] hashPass = hashPassUsingSha256(validatedInput.getPassword(), salt);
-        return wordUsersDAO.insertNewUser(validatedInput, hashPass, salt);
+        return USERS_DAO.insertNewUser(validatedInput, hashPass, salt);
     }
 
-    public Optional<WordUserModel> getUserById(int id) throws Exception {
-        return wordUsersDAO.getUserById(id);
+    public Optional<UserModel> getUserById(int id) throws Exception {
+        return USERS_DAO.getUserById(id);
     }
 
     //------------- Private ------------

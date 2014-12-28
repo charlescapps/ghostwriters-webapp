@@ -2,7 +2,7 @@ package net.capps.word.db.dao;
 
 import com.google.common.base.Optional;
 import net.capps.word.db.WordDbManager;
-import net.capps.word.models.WordUserModel;
+import net.capps.word.models.UserModel;
 
 import java.net.URISyntaxException;
 import java.sql.*;
@@ -10,7 +10,7 @@ import java.sql.*;
 /**
  * Created by charlescapps on 12/26/14.
  */
-public class WordUsersDAO {
+public class UsersDAO {
     private static final String INSERT_USER_QUERY =
             "INSERT INTO word_users (username, email, hashpass, salt) " +
             "VALUES (?, ?, ?, ?);";
@@ -18,7 +18,7 @@ public class WordUsersDAO {
     private static final String GET_USER_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
 
-    public WordUserModel insertNewUser(WordUserModel validatedUserInput, byte[] hashPass, byte[] salt)
+    public UserModel insertNewUser(UserModel validatedUserInput, byte[] hashPass, byte[] salt)
             throws SQLException, URISyntaxException {
         try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
@@ -35,11 +35,11 @@ public class WordUsersDAO {
             String username = result.getString("username");
             String email = result.getString("email");
 
-            return new WordUserModel(id, username, email, null);
+            return new UserModel(id, username, email, null);
         }
     }
 
-    public Optional<WordUserModel> getUserById(int id) throws SQLException, URISyntaxException {
+    public Optional<UserModel> getUserById(int id) throws SQLException, URISyntaxException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USER_QUERY);
             stmt.setInt(1, id);
@@ -49,7 +49,7 @@ public class WordUsersDAO {
             }
             String username = result.getString("username");
             String email = result.getString("email");
-            return Optional.of(new WordUserModel(id, username, email, null));
+            return Optional.of(new UserModel(id, username, email, null));
         }
     }
 }

@@ -6,6 +6,10 @@ package net.capps.word.models;
 public class ErrorModel {
     private String errorMessage;
 
+    public ErrorModel() {
+        
+    }
+
     public ErrorModel(String errorMessage) {
         this.errorMessage = errorMessage;
     }
