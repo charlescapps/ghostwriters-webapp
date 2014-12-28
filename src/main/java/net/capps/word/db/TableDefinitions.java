@@ -9,7 +9,7 @@ public class TableDefinitions {
             "id integer PRIMARY KEY," +
             "username VARCHAR(16) UNIQUE NOT NULL," +
             "email VARCHAR(128) UNIQUE," +
-            "hashpass BIT(256) NOT NULL," +
-            "salt BIT(64) NOT NULL" +
+            "hashpass VARCHAR(64) NOT NULL," +
+            "salt VARCHAR(16) NOT NULL" +
             ");";
 }

@@ -18,14 +18,14 @@ public class UsersDAO {
     private static final String GET_USER_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
 
-    public UserModel insertNewUser(UserModel validatedUserInput, byte[] hashPass, byte[] salt)
+    public UserModel insertNewUser(UserModel validatedUserInput, String hashPassBase64, String saltBase64)
             throws SQLException, URISyntaxException {
         try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, validatedUserInput.getUsername());
             stmt.setString(2, validatedUserInput.getEmail());
-            stmt.setBytes(3, hashPass);
-            stmt.setBytes(4, salt);
+            stmt.setString(3, hashPassBase64);
+            stmt.setString(4, saltBase64);
             stmt.executeUpdate();
 
             // Populate the returned user from the result

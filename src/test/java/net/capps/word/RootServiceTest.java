@@ -20,7 +20,7 @@ public class RootServiceTest extends JerseyTest {
      */
     @Test
     public void testGetIt() {
-        final String responseMsg = target().path("api/test").request().get(String.class);
+        final String responseMsg = target().path("test").request().get(String.class);
 
         assertEquals("Hello, Heroku!", responseMsg);
     }

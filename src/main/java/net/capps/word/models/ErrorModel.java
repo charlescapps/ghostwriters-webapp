@@ -7,7 +7,7 @@ public class ErrorModel {
     private String errorMessage;
 
     public ErrorModel() {
-        
+
     }
 
     public ErrorModel(String errorMessage) {

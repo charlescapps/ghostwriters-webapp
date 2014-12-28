@@ -5,7 +5,10 @@ import com.google.common.base.Strings;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.models.ErrorModel;
 import net.capps.word.models.UserModel;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +22,7 @@ import java.util.regex.Pattern;
 public class UsersProvider {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_ \\-]*");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("[a-zA-Z0-9!@#$%^&*\\(\\)\\-_=\\+\\[\\]\\{\\}]+");
-    private static final int MIN_USERNAME_LEN = 4;
+    private static final int MIN_USERNAME_LEN = 3;
     private static final int MAX_USERNAME_LEN = 16;
 
     private static final int MIN_PASSWORD_LEN = 4;
@@ -48,7 +51,7 @@ public class UsersProvider {
     public UserModel createNewUser(UserModel validatedInput) throws Exception {
         byte[] salt = generateSalt();
         byte[] hashPass = hashPassUsingSha256(validatedInput.getPassword(), salt);
-        return USERS_DAO.insertNewUser(validatedInput, hashPass, salt);
+        return USERS_DAO.insertNewUser(validatedInput, byteToBase64(hashPass), byteToBase64(salt));
     }
 
     public Optional<UserModel> getUserById(int id) throws Exception {
@@ -72,8 +75,29 @@ public class UsersProvider {
         return salt;
     }
 
-    //------- Validation helpers -------
+    /**
+     * From a base 64 representation, returns the corresponding byte[]
+     * @param data String The base64 representation
+     * @return byte[]
+     * @throws IOException
+     */
+    private static byte[] base64ToByte(String data) throws IOException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        return decoder.decodeBuffer(data);
+    }
 
+    /**
+     * From a byte[] returns a base 64 representation
+     * @param data byte[]
+     * @return String
+     * @throws IOException
+     */
+    private static String byteToBase64(byte[] data){
+        BASE64Encoder endecoder = new BASE64Encoder();
+        return endecoder.encode(data);
+    }
+
+    //------- Validation helpers -------
     private Optional<ErrorModel> isValidUsername(String username) {
         if (username.length() < MIN_USERNAME_LEN || username.length() > MAX_USERNAME_LEN) {
             return Optional.of(new ErrorModel(
