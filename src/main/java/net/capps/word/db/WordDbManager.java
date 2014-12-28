@@ -24,6 +24,7 @@ public class WordDbManager {
     }
 
     public Connection getConnection() throws URISyntaxException, SQLException {
+        System.out.println("DATABASE_URL=" + DATABASE_URL); // testing logging ...
         LOG.debug("Getting connection with DATABASE_URL=" + DATABASE_URL);
         String username = DATABASE_URI.getUserInfo().split(":")[0];
         String password = DATABASE_URI.getUserInfo().split(":")[1];
