@@ -1,0 +1,67 @@
+package net.capps.word.rest.services;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import net.capps.word.models.ErrorModel;
+import net.capps.word.models.WordUserModel;
+import net.capps.word.rest.providers.UsersProvider;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static javax.ws.rs.core.Response.Status.*;
+
+/**
+ * Created by charlescapps on 12/27/14.
+ */
+@Path("/users")
+public class UsersService {
+    private final UsersProvider usersProvider = new UsersProvider();
+
+    @Context
+    private UriInfo uriInfo;
+
+    @POST
+    public Response createUser(WordUserModel inputUser) throws Exception {
+        Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
+        if (validationError.isPresent()) {
+            return Response.status(BAD_REQUEST)
+                    .entity(validationError.get())
+                    .build();
+        }
+
+        WordUserModel createdUser = usersProvider.createNewUser(inputUser);
+        URI uri = getWordUserURI(createdUser.getId());
+        return Response.created(uri)
+                .entity(createdUser)
+                .build();
+    }
+
+    @Path("/{id}")
+    public Response getUser(@PathParam("id") int id) throws Exception {
+        Optional<WordUserModel> result = usersProvider.getUserById(id);
+        if (!result.isPresent()) {
+            return Response.status(NOT_FOUND)
+                    .entity(new ErrorModel("No user exists with id " + id))
+                    .build();
+        }
+        return Response.ok(result.get())
+                .build();
+    }
+
+
+    // ------ Helpers ----
+    public URI getWordUserURI(int id) {
+        return uriInfo.getAbsolutePathBuilder()
+                .path(String.valueOf(id))
+                .build();
+    }
+
+
+}

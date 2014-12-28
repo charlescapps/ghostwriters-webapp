@@ -15,7 +15,7 @@ import java.sql.Statement;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        initDatabase();
+       // initDatabase();
         initJetty();
     }
 
@@ -24,7 +24,7 @@ public class Main {
 
         try(Connection connection = wordDbManager.getConnection()) {
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS);
+            stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
         }
     }
 

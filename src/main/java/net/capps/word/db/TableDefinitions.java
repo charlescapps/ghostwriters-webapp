@@ -4,12 +4,12 @@ package net.capps.word.db;
  * Created by charlescapps on 12/26/14.
  */
 public class TableDefinitions {
-    public static final String CREATE_WORD_USERS =
+    public static final String CREATE_WORD_USERS_TABLE =
             "CREATE TABLE IF NOT EXISTS word_users (" +
             "id integer PRIMARY KEY," +
-            "username VARCHAR(16)," +
-            "email VARCHAR(128)," +
-            "hashpass BIT(160)," +
-            "salt BIT(32)" +
+            "username VARCHAR(16) UNIQUE NOT NULL," +
+            "email VARCHAR(128) UNIQUE," +
+            "hashpass BIT(256) NOT NULL," +
+            "salt BIT(64) NOT NULL" +
             ");";
 }
