@@ -1,10 +1,12 @@
 package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
+import net.capps.word.exceptions.ConflictException;
 import net.capps.word.models.ErrorModel;
 import net.capps.word.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -24,7 +26,7 @@ public class UsersService {
     private UriInfo uriInfo;
 
     @POST
-    public Response createUser(UserModel inputUser) throws Exception {
+    public Response createUser(@Context HttpServletRequest request, UserModel inputUser) throws Exception {
         Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
         if (validationError.isPresent()) {
             return Response.status(BAD_REQUEST)
@@ -32,11 +34,18 @@ public class UsersService {
                     .build();
         }
 
-        UserModel createdUser = usersProvider.createNewUser(inputUser);
-        URI uri = getWordUserURI(createdUser.getId());
-        return Response.created(uri)
-                .entity(createdUser)
-                .build();
+        try {
+            UserModel createdUser = usersProvider.createNewUser(inputUser);
+
+            URI uri = getWordUserURI(createdUser.getId());
+            return Response.created(uri)
+                    .entity(createdUser)
+                    .build();
+        } catch (ConflictException e) {
+            return Response.status(CONFLICT)
+                    .entity(new ErrorModel(e.getMessage()))
+                    .build();
+        }
     }
 
     @Path("/{id}")

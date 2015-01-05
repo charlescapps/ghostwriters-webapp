@@ -2,13 +2,13 @@ package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.models.ErrorModel;
 import net.capps.word.models.UserModel;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
-import java.io.IOException;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +30,7 @@ public class UsersProvider {
 
     private static final int SALT_BYTES = 8;
 
-    private static final UsersDAO USERS_DAO = new UsersDAO();
+    private static final UsersDAO USERS_DAO = UsersDAO.getInstance();
 
     //------------- Public --------------
     public Optional<ErrorModel> validateInputUser(UserModel userModel) {
@@ -44,6 +44,17 @@ public class UsersProvider {
         if (usernameError.isPresent()) {
             return usernameError;
         }
+        // Validate the email, if present.
+        String email = userModel.getEmail();
+        if (email != null) {
+            try {
+                InternetAddress emailAddress = new InternetAddress(email);
+                emailAddress.validate();
+            } catch (AddressException e) {
+                return Optional.of(new ErrorModel(
+                        String.format("The given email address '%s' is not a valid email address.", email)));
+            }
+        }
 
         return isValidPassword(userModel.getPassword());
     }
@@ -51,7 +62,7 @@ public class UsersProvider {
     public UserModel createNewUser(UserModel validatedInput) throws Exception {
         byte[] salt = generateSalt();
         byte[] hashPass = hashPassUsingSha256(validatedInput.getPassword(), salt);
-        return USERS_DAO.insertNewUser(validatedInput, byteToBase64(hashPass), byteToBase64(salt));
+        return USERS_DAO.insertNewUser(validatedInput, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
     }
 
     public Optional<UserModel> getUserById(int id) throws Exception {
@@ -61,7 +72,7 @@ public class UsersProvider {
     //------------- Private ------------
 
     //------- Crypto helpers -----------
-    private byte[] hashPassUsingSha256(String validatedPassword, byte[] salt)
+    public static byte[] hashPassUsingSha256(String validatedPassword, byte[] salt)
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.update(salt);
@@ -73,28 +84,6 @@ public class UsersProvider {
         byte[] salt = new byte[SALT_BYTES];
         random.nextBytes(salt);
         return salt;
-    }
-
-    /**
-     * From a base 64 representation, returns the corresponding byte[]
-     * @param data String The base64 representation
-     * @return byte[]
-     * @throws IOException
-     */
-    private static byte[] base64ToByte(String data) throws IOException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        return decoder.decodeBuffer(data);
-    }
-
-    /**
-     * From a byte[] returns a base 64 representation
-     * @param data byte[]
-     * @return String
-     * @throws IOException
-     */
-    private static String byteToBase64(byte[] data){
-        BASE64Encoder endecoder = new BASE64Encoder();
-        return endecoder.encode(data);
     }
 
     //------- Validation helpers -------

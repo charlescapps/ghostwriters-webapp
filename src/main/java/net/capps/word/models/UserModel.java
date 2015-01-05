@@ -1,21 +1,27 @@
 package net.capps.word.models;
 
+import net.capps.word.db.dao.UserHashInfo;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Objects;
 
 /**
  * Created by charlescapps on 12/26/14.
  */
+@XmlRootElement
 public class UserModel {
     private Integer id;
     private String username;
     private String email;
     private String password; // Only present when creating a new user
+    private UserHashInfo userHashInfo;
 
     public UserModel() {
 
     }
 
-    public UserModel(Integer id, String username, String email, String password) {
+    public UserModel(Integer id, String username, String email, String password, UserHashInfo userHashInfo) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -52,6 +58,11 @@ public class UserModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @XmlTransient
+    public UserHashInfo getUserHashInfo() {
+        return userHashInfo;
     }
 
     @Override

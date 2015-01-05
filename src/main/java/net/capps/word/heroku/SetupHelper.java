@@ -9,17 +9,19 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 /**
- * This class launches the web application in an embedded Jetty container. This is the entry point to your application. The Java
- * command that is used for launching should fire this main method.
+ * Created by charlescapps on 12/28/14.
  */
-public class Main {
+public class SetupHelper {
 
-    public static void main(String[] args) throws Exception {
-        initDatabase();
-        initJetty();
+    private static final SetupHelper INSTANCE = new SetupHelper();
+
+    private SetupHelper() {}
+
+    public static SetupHelper getInstance() {
+        return INSTANCE;
     }
 
-    private static void initDatabase() throws Exception {
+    public void initDatabase() throws Exception {
         WordDbManager wordDbManager = WordDbManager.getInstance();
 
         try(Connection connection = wordDbManager.getConnection()) {
@@ -31,7 +33,11 @@ public class Main {
         }
     }
 
-    private static void initJetty() throws Exception {
+    public void createInitialUser() {
+
+    }
+
+    public void initJetty() throws Exception {
         // The port that we should run on can be set into an environment variable
         // Look for that variable and default to 8080 if it isn't there.
         String webPort = System.getenv("PORT");

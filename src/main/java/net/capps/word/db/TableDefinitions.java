@@ -6,7 +6,7 @@ package net.capps.word.db;
 public class TableDefinitions {
     public static final String CREATE_WORD_USERS_TABLE =
             "CREATE TABLE IF NOT EXISTS word_users (" +
-            "id integer PRIMARY KEY," +
+            "id bigserial PRIMARY KEY," +
             "username VARCHAR(16) UNIQUE NOT NULL," +
             "email VARCHAR(128) UNIQUE," +
             "hashpass VARCHAR(64) NOT NULL," +
