@@ -32,6 +32,14 @@ public class UsersProvider {
 
     private static final UsersDAO USERS_DAO = UsersDAO.getInstance();
 
+    private static final UsersProvider INSTANCE = new UsersProvider();
+
+    private UsersProvider() { }
+
+    public static UsersProvider getInstance() {
+        return INSTANCE;
+    }
+
     //------------- Public --------------
     public Optional<ErrorModel> validateInputUser(UserModel userModel) {
         if (Strings.isNullOrEmpty(userModel.getUsername())) {

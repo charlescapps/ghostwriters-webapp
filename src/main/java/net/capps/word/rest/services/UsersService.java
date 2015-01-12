@@ -19,14 +19,17 @@ import static javax.ws.rs.core.Response.Status.*;
  * Created by charlescapps on 12/27/14.
  */
 @Path("/users")
+@Produces(value = "application/json")
+@Consumes(value = "application/json")
 public class UsersService {
-    private final UsersProvider usersProvider = new UsersProvider();
+    private static final UsersProvider usersProvider = UsersProvider.getInstance();
 
     @Context
     private UriInfo uriInfo;
 
     @POST
     public Response createUser(@Context HttpServletRequest request, UserModel inputUser) throws Exception {
+
         Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
         if (validationError.isPresent()) {
             return Response.status(BAD_REQUEST)

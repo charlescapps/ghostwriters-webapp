@@ -26,6 +26,7 @@ public class UserModel {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.userHashInfo = userHashInfo;
     }
 
     public Integer getId() {

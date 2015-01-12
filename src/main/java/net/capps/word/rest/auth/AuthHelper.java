@@ -2,6 +2,7 @@ package net.capps.word.rest.auth;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HttpHeaders;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UserHashInfo;
 import net.capps.word.db.dao.UsersDAO;
@@ -57,7 +58,7 @@ public class AuthHelper {
 
         UserModel authenticatedUser = authenticate(username, password);
 
-        // Createa a new servlet session
+        // Create a new servlet session
         HttpSession session = request.getSession(true);
         session.setAttribute(SESSION_USER_ID, authenticatedUser.getId());
 
@@ -81,5 +82,23 @@ public class AuthHelper {
 
         return user.get();
 
+    }
+
+    public Optional<UserModel> validateSession(HttpServletRequest request) throws Exception {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute(SESSION_USER_ID) == null) {
+            return Optional.absent();
+        }
+        int userId = (Integer) session.getAttribute(SESSION_USER_ID);
+        return UsersDAO.getInstance().getUserById(userId);
+    }
+
+    public Optional<UserModel> validateSessionLoggedInAsInitialUser(HttpServletRequest request) throws Exception {
+        Optional<UserModel> user = validateSession(request);
+        if (!user.isPresent() ||
+            !WordConstants.INITIAL_USER_USERNAME.equals(user.get().getUsername())) {
+            return Optional.absent();
+        }
+        return user;
     }
 }

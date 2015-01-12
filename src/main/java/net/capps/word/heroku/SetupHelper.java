@@ -1,7 +1,12 @@
 package net.capps.word.heroku;
 
+import com.google.common.base.Optional;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
+import net.capps.word.models.ErrorModel;
+import net.capps.word.models.UserModel;
+import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -33,8 +38,13 @@ public class SetupHelper {
         }
     }
 
-    public void createInitialUser() {
-
+    public void createInitialUser() throws Exception {
+        UserModel initialUser = new UserModel(null, WordConstants.INITIAL_USER_USERNAME, null, WordConstants.INITIAL_USER_PASSWORD, null);
+        Optional<ErrorModel> initialUserError = UsersProvider.getInstance().validateInputUser(initialUser);
+        if (initialUserError.isPresent()) {
+            throw new Exception("Invalid initial user in setup: " + initialUserError.get());
+        }
+        UsersProvider.getInstance().createNewUser(initialUser);
     }
 
     public void initJetty() throws Exception {
