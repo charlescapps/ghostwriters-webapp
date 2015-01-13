@@ -43,6 +43,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                         .build());
             }
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             requestContext.abortWith(Response.status(INTERNAL_SERVER_ERROR).build());
         }
 
