@@ -1,5 +1,7 @@
 package net.capps.word.game.board;
 
+import net.capps.word.exceptions.InvalidBoardException;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -17,20 +19,32 @@ public class SquareSet {
         this.squares = new Square[N][N];
     }
 
-    public void load(InputStreamReader reader) throws IOException {
-        final char[] input = new char[TOTAL_SQUARES];
-        int totalCharsRead = 0;
-        while (totalCharsRead < TOTAL_SQUARES) {
-            int numRead = reader.read(input, totalCharsRead, TOTAL_SQUARES - totalCharsRead);
-            if (numRead < 0) {
-                throw new RuntimeException("End of input reached before N*N tiles were read. Actual chars read = " + totalCharsRead);
-            }
-            totalCharsRead += numRead;
+    public void load(InputStreamReader reader) throws IOException, InvalidBoardException {
+        final char[] input = new char[1024];
+        StringBuffer sb = new StringBuffer();
+        int numRead;
+        do {
+            numRead = reader.read(input);
+            sb.append(input, 0, numRead);
+        } while (numRead != -1);
+
+        String tileConfig = sb.toString();
+
+        // Remove whitespace, which can be added to tile configuration files
+        String compactTiles = tileConfig.replaceAll("\\s+", "");
+
+        if (compactTiles.length() != TOTAL_SQUARES) {
+            final String msg = String.format(
+                    "Invalid Squares config string. Needed NxN tiles (%d) but found %d tiles.\nInvalid config: %s",
+                    TOTAL_SQUARES, compactTiles.length(), tileConfig);
+            throw new InvalidBoardException(msg);
         }
-        for (int i = 0; i < input.length; i++) {
+
+
+        for (int i = 0; i < compactTiles.length(); i++) {
             int row = i / N;
             int col = i % N;
-            squares[row][col] = Square.valueOf(input[i]);
+            this.squares[row][col] = Square.valueOf(compactTiles.charAt(i));
         }
     }
 }
