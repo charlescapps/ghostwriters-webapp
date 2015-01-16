@@ -1,15 +1,20 @@
 package net.capps.word.heroku;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
+import net.capps.word.game.common.GameSize;
+import net.capps.word.game.dict.DictionaryList;
+import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.models.ErrorModel;
 import net.capps.word.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
 
@@ -45,6 +50,12 @@ public class SetupHelper {
             throw new Exception("Invalid initial user in setup: " + initialUserError.get());
         }
         UsersProvider.getInstance().createNewUser(initialUser);
+    }
+
+    public void initDictionary() throws IOException {
+        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, GameSize.VENTI.getNumRows());
+        ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
+        DictionaryList.getInstance().loadDictionary(dict);
     }
 
     public void initJetty() throws Exception {

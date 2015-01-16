@@ -11,6 +11,7 @@ public class DefaultGameGenerator implements GameGenerator {
     @Override
     public TileSet generateRandomFinishedGame(int N, int numWords, int maxWordSize) {
         TileSet tiles = new TileSet(N);
-        // TODO: Implement this! 
+        // TODO: Implement this!
+        return null;
     }
 }
