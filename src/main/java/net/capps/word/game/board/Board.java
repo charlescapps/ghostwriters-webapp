@@ -1,5 +1,7 @@
 package net.capps.word.game.board;
 
+import net.capps.word.exceptions.InvalidBoardException;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -17,7 +19,7 @@ public class Board {
         tileSet = new TileSet(N);
     }
 
-    public void load(InputStreamReader squareReader, InputStreamReader tileReader) throws IOException {
+    public void load(InputStreamReader squareReader, InputStreamReader tileReader) throws IOException, InvalidBoardException {
         squareSet.load(squareReader);
         tileSet.load(tileReader);
     }

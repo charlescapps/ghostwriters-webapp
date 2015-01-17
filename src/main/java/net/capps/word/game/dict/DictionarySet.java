@@ -38,7 +38,7 @@ public class DictionarySet {
      * @throws IOException
      */
     public void loadDictionary(final String resourceFile, final int maxWordLength) throws IOException {
-        if (!words.isEmpty()) {
+        if (words != null) {
             throw new IllegalStateException(
                     String.format("Cannot load dictionary twice! Dictionary already has %d entries!", words.size()));
         }

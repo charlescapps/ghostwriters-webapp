@@ -1,0 +1,102 @@
+package net.capps.word.game.dict;
+
+import com.google.common.collect.Maps;
+import net.capps.word.util.DurationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.lang.String.format;
+
+/**
+ * Created by charlescapps on 1/16/15.
+ */
+public class DictionaryTrie {
+    // ---------------- Static ----------------
+    private static final DictionaryTrie INSTANCE = new DictionaryTrie();
+    private static final Logger LOG = LoggerFactory.getLogger(DictionaryTrie.class);
+
+    public static DictionaryTrie getInstance() {
+        return INSTANCE;
+    }
+
+    // ---------------- Constructor -----------
+    private DictionaryTrie() { }
+
+    // ---------------- Private fields ---------------
+    private final TrieNode root = new TrieNode();
+
+    // ---------------- Public ----------------
+    /**
+     * Load in dictionary from a file.
+     *
+     * @throws java.io.FileNotFoundException
+     * @throws java.io.IOException
+     */
+    public void loadDictionary(Set<String> validDictionary) throws IOException {
+        if (!root.isLeaf()) {
+            throw new IllegalStateException("Cannot load DictionaryTrie twice!");
+        }
+
+        LOG.info("Starting to load dictionary into Trie...");
+        long START = System.currentTimeMillis();
+        for (String word: validDictionary) {
+            insertWord(word, root);
+        }
+        long END = System.currentTimeMillis();
+
+
+        LOG.info(format("SUCCESS - loaded dictionary into DictionaryTrie in %s.", DurationUtil.getDurationPretty(END - START)));
+
+        LOG.info("Starting to build the Level maps...");
+        START = System.currentTimeMillis();
+        buildAllLevelsFromRoot(root);
+        END = System.currentTimeMillis();
+
+        LOG.info(format("SUCCESS - created Level Maps in %s.", DurationUtil.getDurationPretty(END - START)));
+
+    }
+
+    public boolean isPrefix(String str) {
+        return isPrefix(str, root);
+    }
+
+    public Iterable<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints) {
+
+    }
+
+    // --------------- Private ---------------
+    private static boolean isPrefix(String str, TrieNode TrieNode) {
+        if (str.isEmpty()) {
+            return true;
+        }
+        char c = str.charAt(0);
+        TrieNode child = TrieNode.getChild(c);
+        if (child == null) {
+            return false;
+        }
+        return isPrefix(str.substring(1), child);
+    }
+
+    private static void insertWord(String word, TrieNode TrieNode) {
+        if (word.isEmpty()) {
+            TrieNode.setValidWord(true);
+            return;
+        }
+        char c = word.charAt(0);
+        TrieNode child = TrieNode.addChild(c);
+        insertWord(word.substring(1), child);
+    }
+
+    private static void buildAllLevelsFromRoot(TrieNode node) {
+        node.buildLevels();
+        for (TrieNode child: node.getChildren()) {
+            buildAllLevelsFromRoot(child);
+        }
+    }
+
+}

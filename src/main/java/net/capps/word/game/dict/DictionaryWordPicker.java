@@ -12,18 +12,18 @@ import java.util.*;
 /**
  * Created by charlescapps on 1/15/15.
  */
-public class DictionaryList {
+public class DictionaryWordPicker {
     // ---------------- Static ----------------
-    private static final DictionaryList INSTANCE = new DictionaryList();
+    private static final DictionaryWordPicker INSTANCE = new DictionaryWordPicker();
     private static final Random RANDOM = new Random();
-    private static final Logger LOG = LoggerFactory.getLogger(DictionaryList.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DictionaryWordPicker.class);
 
-    public static DictionaryList getInstance() {
+    public static DictionaryWordPicker getInstance() {
         return INSTANCE;
     }
 
     // ---------------- Constructor -----------
-    private DictionaryList() { }
+    private DictionaryWordPicker() { }
 
     // ---------------- Private fields ---------------
     private ImmutableList<String> words;
@@ -40,14 +40,13 @@ public class DictionaryList {
      */
     public void loadDictionary(Set<String> validDictionary) throws IOException {
         if (words != null) {
-            throw new IllegalStateException(
-                    String.format("Cannot load dictionary twice! Dictionary already has %d entries!", words.size()));
+            throw new IllegalStateException("Cannot load DictionaryWordPicker twice!");
         }
 
         words = ImmutableList.<String>builder().addAll(validDictionary).build();
         storeWordsByLength(validDictionary);
 
-        LOG.info("SUCCESS - loaded dictionary into array and by length.");
+        LOG.info("SUCCESS - loaded dictionary into DictionaryWordPicker.");
     }
 
     public String getUniformlyRandomWord() {

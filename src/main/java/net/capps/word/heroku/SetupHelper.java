@@ -6,7 +6,8 @@ import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.GameSize;
-import net.capps.word.game.dict.DictionaryList;
+import net.capps.word.game.dict.DictionaryTrie;
+import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.models.ErrorModel;
 import net.capps.word.models.UserModel;
@@ -55,7 +56,11 @@ public class SetupHelper {
     public void initDictionary() throws IOException {
         DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, GameSize.VENTI.getNumRows());
         ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
-        DictionaryList.getInstance().loadDictionary(dict);
+
+        // Store dictionary in a Trie
+        DictionaryTrie.getInstance().loadDictionary(dict);
+
+        DictionaryWordPicker.getInstance().loadDictionary(dict);
     }
 
     public void initJetty() throws Exception {

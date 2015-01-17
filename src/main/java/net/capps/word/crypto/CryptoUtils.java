@@ -1,7 +1,6 @@
 package net.capps.word.crypto;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import com.google.common.io.BaseEncoding;
 
 import java.io.IOException;
 
@@ -16,8 +15,8 @@ public class CryptoUtils {
      * @throws java.io.IOException
      */
     public static byte[] base64ToByte(String data) throws IOException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        return decoder.decodeBuffer(data);
+        BaseEncoding encoder = BaseEncoding.base64();
+        return encoder.decode(data);
     }
 
     /**
@@ -27,7 +26,7 @@ public class CryptoUtils {
      * @throws java.io.IOException
      */
     public static String byteToBase64(byte[] data){
-        BASE64Encoder endecoder = new BASE64Encoder();
-        return endecoder.encode(data);
+        BaseEncoding encoder = BaseEncoding.base64();
+        return encoder.encode(data);
     }
 }
