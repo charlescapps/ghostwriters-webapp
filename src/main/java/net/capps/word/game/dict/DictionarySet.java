@@ -37,7 +37,7 @@ public class DictionarySet {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void loadDictionary(final String resourceFile, final int maxWordLength) throws IOException {
+    public void loadDictionary(final String resourceFile, final int minWordLength, final int maxWordLength) throws IOException {
         if (words != null) {
             throw new IllegalStateException(
                     String.format("Cannot load dictionary twice! Dictionary already has %d entries!", words.size()));
@@ -57,8 +57,9 @@ public class DictionarySet {
             while ((line = br.readLine()) != null) {
                 String word = line.trim().toUpperCase();
                 Matcher m = VALID_WORD_PATTERN.matcher(word);
-                if (word.length() > maxWordLength) {
-                    LOG.info("Ignoring word longer than {}: {}", maxWordLength, word);
+                if (word.length() > maxWordLength || word.length() < minWordLength) {
+                    LOG.info("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
+                    continue;
                 }
                 if (!m.matches()) {
                     LOG.error("Error - invalid word found in dictionary: '{}'", word);

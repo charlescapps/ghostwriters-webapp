@@ -1,10 +1,8 @@
 package net.capps.word.game.dict;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,19 +10,23 @@ import java.util.Map;
  */
 public class TrieNode {
     private final Map<Character, TrieNode> branches = Maps.newHashMap();
+    private final TrieNode parent;
+    private final String word;
 
     // Structure so we can get the words having character at position i in O(1) time.
-    private final Map<Integer, Map<Character, List<TrieNode>>> levels = Maps.newHashMap();
+    private final Map<Integer, TrieLevel> levels = Maps.newHashMap();
 
     private boolean validWord = false;
 
-    public TrieNode() {
+    public TrieNode(TrieNode parent, String word) {
+        this.parent = parent;
+        this.word = word;
     }
 
     public TrieNode addChild(Character c) {
         TrieNode child = branches.get(c);
         if (child == null) {
-            child = new TrieNode();
+            child = new TrieNode(this, word + c);
             branches.put(c, child);
         }
 
@@ -53,26 +55,34 @@ public class TrieNode {
         }
     }
 
+    public Map<Integer, TrieLevel> getLevels() {
+        return levels;
+    }
+
     public Collection<TrieNode> getChildren() {
         return branches.values();
     }
 
+    public String getWord() {
+        return word;
+    }
+
     // --------- Private -------
-    private static void buildLevels(Map<Integer, Map<Character, List<TrieNode>>> levels, TrieNode node, int level, char branch) {
+
+    private static void buildLevels(Map<Integer, TrieLevel> levels, TrieNode node, int depth, char branch) {
         // Add the current node to the level map.
-        if (!levels.containsKey(level)) {
-            levels.put(level, Maps.<Character, List<TrieNode>>newHashMap());
+        if (!levels.containsKey(depth)) {
+            levels.put(depth, new TrieLevel());
         }
-        Map<Character, List<TrieNode>> levelMap = levels.get(level);
-        if (!levelMap.containsKey(branch)) {
-            levelMap.put(branch, Lists.<TrieNode>newArrayList());
-        }
-        levelMap.get(branch).add(node);
+
+        TrieLevel level = levels.get(depth);
+
+        level.addNode(branch, node);
 
         // Recurse on children
         for (Character c: node.branches.keySet()) {
             TrieNode child = node.branches.get(c);
-            buildLevels(levels, child, level + 1, c);
+            buildLevels(levels, child, depth + 1, c);
         }
     }
 }

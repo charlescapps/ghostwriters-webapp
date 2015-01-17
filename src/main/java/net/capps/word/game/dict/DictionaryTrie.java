@@ -1,13 +1,12 @@
 package net.capps.word.game.dict;
 
-import com.google.common.collect.Maps;
 import net.capps.word.util.DurationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -28,7 +27,7 @@ public class DictionaryTrie {
     private DictionaryTrie() { }
 
     // ---------------- Private fields ---------------
-    private final TrieNode root = new TrieNode();
+    private final TrieNode root = new TrieNode(null, "");
 
     // ---------------- Public ----------------
     /**
@@ -65,8 +64,12 @@ public class DictionaryTrie {
         return isPrefix(str, root);
     }
 
-    public Iterable<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints) {
+    public Iterator<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints, int len) {
+        return new RandomWordIterator(root, constraints, len);
+    }
 
+    public Iterator<String> getWordsOfLengthInRandomOrder(int len) {
+        return new WordsOfLengthIterator(root, len);
     }
 
     // --------------- Private ---------------
