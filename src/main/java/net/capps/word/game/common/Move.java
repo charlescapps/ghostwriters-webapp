@@ -10,27 +10,23 @@ import java.util.List;
  */
 public class Move {
     private final List<Tile> tilesPlayed;
+    private final String wordPlayed;
     private final Pos start;
     private final Dir dir;
 
-    public Move(List<Tile> tilesPlayed, Pos start, Dir dir) {
+    public Move(List<Tile> tilesPlayed, String wordPlayed, Pos start, Dir dir) {
         this.tilesPlayed = tilesPlayed;
-        this.start = start;
-        this.dir = dir;
-    }
-
-    public Move(String word, Pos start, Dir dir) {
-        tilesPlayed = Lists.newArrayList();
-        for (int i = 0; i < word.length(); i++) {
-            Tile tile = Tile.of(word.charAt(i));
-            tilesPlayed.add(tile);
-        }
+        this.wordPlayed = wordPlayed;
         this.start = start;
         this.dir = dir;
     }
 
     public List<Tile> getTilesPlayed() {
         return tilesPlayed;
+    }
+
+    public String getWordPlayed() {
+        return wordPlayed;
     }
 
     public Pos getStart() {

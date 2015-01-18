@@ -29,7 +29,7 @@ public abstract class Tile {
 
     // ---------- Public ----------
 
-    public boolean isPlayable() {
+    public boolean isLetterTile() {
         return Character.isAlphabetic(getLetter());
     }
 

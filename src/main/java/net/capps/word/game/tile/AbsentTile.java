@@ -26,4 +26,9 @@ public class AbsentTile extends Tile {
     public boolean isAbsent() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof AbsentTile;
+    }
 }

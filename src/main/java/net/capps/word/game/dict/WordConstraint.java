@@ -17,6 +17,10 @@ public class WordConstraint implements Predicate<String> {
         this.c = Character.toUpperCase(c);
     }
 
+    public static WordConstraint of(int pos, char c) {
+        return new WordConstraint(pos, c);
+    }
+
     @Override
     public boolean apply(String s) {
         return s != null &&
