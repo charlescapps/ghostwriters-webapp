@@ -1,6 +1,5 @@
 package net.capps.word.game.gen;
 
-import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
 
 /**

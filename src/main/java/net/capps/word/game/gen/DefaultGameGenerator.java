@@ -1,9 +1,9 @@
 package net.capps.word.game.gen;
 
-import net.capps.word.game.tile.Tile;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.dict.DictionaryWordPicker;
+import net.capps.word.game.tile.Tile;
 
 import java.util.Random;
 

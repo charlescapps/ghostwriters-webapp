@@ -53,6 +53,9 @@ public class TrieNode {
         for (Character c: branches.keySet()) {
             buildLevels(levels, branches.get(c), 0, c);
         }
+        for (TrieLevel level: levels.values()) {
+            level.finalize();
+        }
     }
 
     public Map<Integer, TrieLevel> getLevels() {
@@ -85,4 +88,5 @@ public class TrieNode {
             buildLevels(levels, child, depth + 1, c);
         }
     }
+
 }
