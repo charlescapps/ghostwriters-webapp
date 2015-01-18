@@ -13,7 +13,7 @@ public class AbsentTile extends Tile {
     }
 
     @Override
-    public char getChosenLetter() {
+    public char getLetter() {
         return ABSENT_CHAR;
     }
 

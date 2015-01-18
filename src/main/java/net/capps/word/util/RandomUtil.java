@@ -27,4 +27,8 @@ public class RandomUtil {
 
         return output;
     }
+
+    public static int randomInt(int minInclusive, int maxInclusive) {
+        return minInclusive + RANDOM.nextInt(maxInclusive - minInclusive + 1);
+    }
 }

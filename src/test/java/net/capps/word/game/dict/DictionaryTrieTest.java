@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.game.common.GameSize;
+import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DurationUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,10 +26,7 @@ public class DictionaryTrieTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, GameSize.VENTI.getNumRows());
-        Set<String> dict = DictionarySet.getInstance().getWords();
-
-        DictionaryTrie.getInstance().loadDictionary(dict);
+        SetupHelper.getInstance().initDatabase();
 
     }
 

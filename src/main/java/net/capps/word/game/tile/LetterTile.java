@@ -16,7 +16,7 @@ public class LetterTile extends Tile {
     }
 
     @Override
-    public char getChosenLetter() {
+    public char getLetter() {
         return ch;
     }
 

@@ -5,7 +5,7 @@ package net.capps.word.game.tile;
  */
 
 public abstract class Tile {
-    public abstract char getChosenLetter();
+    public abstract char getLetter();
     public abstract boolean isWild();
     public abstract boolean isAbsent();
 
@@ -30,7 +30,12 @@ public abstract class Tile {
     // ---------- Public ----------
 
     public boolean isPlayable() {
-        return Character.isAlphabetic(getChosenLetter());
+        return Character.isAlphabetic(getLetter());
+    }
+
+    @Override
+    public String toString() {
+        return Character.toString(getLetter());
     }
 
 }

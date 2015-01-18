@@ -82,11 +82,41 @@ public class TileSet {
         }
     }
 
+    public void placeWord(String word, Pos start, Dir dir) {
+
+        switch (dir) {
+            case E:
+                final int r = start.r;
+                for (int i = 0; i < word.length(); i++) {
+                    tiles[r][start.c + i] = Tile.of(word.charAt(i));
+                }
+                break;
+            case S:
+                final int c = start.c;
+                for (int i = 0; i < word.length(); i++) {
+                    tiles[start.r + i][c] = Tile.of(word.charAt(i));
+                }
+                break;
+        }
+    }
+
     public void checkTilesAreValid(List<Tile> tilesPlayed) {
         for (Tile tile: tilesPlayed) {
             if (!tile.isPlayable()) {
                 throw new IllegalArgumentException("Cannot play absent tiles or wild tiles without a character on the board!");
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
+                sb.append(tiles[r][c]).append(" ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

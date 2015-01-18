@@ -3,6 +3,7 @@ package net.capps.word.game.dict;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,19 +75,11 @@ public class DictionaryWordPicker {
             throw new IllegalArgumentException("The max word length for a random word cannot be less than 2");
         }
 
-        int i = Math.min(maxLength - 1, lengths.size() - 1);
+        int chosenLength = RandomUtil.randomInt(2, maxLength);
+        List<String> wordsOfLen = wordsByLen.get(chosenLength);
 
-        while (lengths.get(i) > maxLength) {
-            --i;
-        }
-
-        int index = RANDOM.nextInt(i + 1);
-        int chosenLen = lengths.get(index);
-        
-        List<String> wordsOfLen = wordsByLen.get(chosenLen);
-
-        index = RANDOM.nextInt(wordsOfLen.size());
-        return words.get(index);
+        int index = RANDOM.nextInt(wordsOfLen.size());
+        return wordsOfLen.get(index);
     }
 
     // ------------- Private helpers -----------

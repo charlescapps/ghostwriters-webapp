@@ -24,7 +24,7 @@ public class WildTile extends Tile {
     }
 
     @Override
-    public char getChosenLetter() {
+    public char getLetter() {
         return chosenLetter;
     }
 

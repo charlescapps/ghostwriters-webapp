@@ -2,10 +2,16 @@ package net.capps.word.game.gen;
 
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
+import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.tile.Tile;
+import net.capps.word.util.RandomUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
+
+import static net.capps.word.game.common.Dir.S;
 
 
 /**
@@ -13,12 +19,14 @@ import java.util.Random;
  */
 public class DefaultGameGenerator implements GameGenerator {
     private static final Random random = new Random();
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
 
     @Override
     public TileSet generateRandomFinishedGame(int N, int numWords, int maxWordSize) {
         TileSet tileSet = new TileSet(N);
         // TODO: Implement this!
-        return null;
+        generateFirstMove(tileSet, maxWordSize);
+        return tileSet;
     }
 
     private void generateFirstMove(TileSet tileSet, int maxWordSize) {
@@ -31,9 +39,10 @@ public class DefaultGameGenerator implements GameGenerator {
         int minStartPos = Math.max(0, N / 2 - len + 1);
         int maxStartPos = N / 2;
 
-        int startPos = minStartPos + random.nextInt(maxStartPos - minStartPos + 1);
+        int startPos = RandomUtil.randomInt(minStartPos, maxStartPos);
+        Pos pos = dir == S ? new Pos(startPos, N / 2) : new Pos(N / 2, startPos);
 
-
+        tileSet.placeWord(word, pos, dir);
 
     }
 }
