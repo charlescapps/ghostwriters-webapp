@@ -2,7 +2,6 @@ package net.capps.word.game.board;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.sun.javafx.tools.packager.Log;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Move;

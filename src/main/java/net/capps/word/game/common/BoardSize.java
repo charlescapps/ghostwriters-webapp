@@ -3,7 +3,7 @@ package net.capps.word.game.common;
 /**
  * Created by charlescapps on 1/15/15.
  */
-public enum GameSize {
+public enum BoardSize {
     TALL(9, "net/capps/word/layouts/DefaultTallSquareConfig.txt"),
     GRANDE(13, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt"),
     VENTI(15, "net/capps/word/layouts/DefaultVentiSquareConfig.txt");
@@ -11,7 +11,7 @@ public enum GameSize {
     private final int numRows;
     private final String defaultLayoutFile;
 
-    private GameSize(int numRows, String defaultLayoutFile) {
+    private BoardSize(int numRows, String defaultLayoutFile) {
         this.numRows = numRows;
         this.defaultLayoutFile = defaultLayoutFile;
     }

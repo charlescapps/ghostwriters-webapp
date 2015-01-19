@@ -1,0 +1,65 @@
+package net.capps.word.rest.services;
+
+import com.google.common.base.Optional;
+import net.capps.word.rest.auth.AuthHelper;
+import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.providers.GamesProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+
+import static javax.ws.rs.core.Response.Status;
+
+/**
+ * Created by charlescapps on 1/18/15.
+ */
+@Path(GamesService.GAMES_PATH)
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class GamesService {
+    public static final String GAMES_PATH = "/games";
+    private static final AuthHelper authHelper = AuthHelper.getInstance();
+    private static final GamesProvider gamesProvider = GamesProvider.getInstance();
+
+    @Context
+    private UriInfo uriInfo;
+
+    @POST
+    public Response createNewGame(@Context HttpServletRequest request, GameModel input) throws Exception {
+        Optional<UserModel> authUserOpt = authHelper.validateSession(request);
+        if (!authUserOpt.isPresent()) {
+            return Response.status(Status.UNAUTHORIZED)
+                    .entity(new ErrorModel("You must be logged in to create a new game!"))
+                    .build();
+        }
+
+        UserModel player1 = authUserOpt.get();
+        Optional<ErrorModel> errorOpt = gamesProvider.validateInputForCreateGame(input, player1);
+        if (errorOpt.isPresent()) {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(errorOpt.get())
+                    .build();
+        }
+
+        GameModel created = gamesProvider.createNewGame(input, player1);
+
+        URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
+
+        return Response.created(uri)
+                .entity(created)
+                .build();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response getGameById(@Context HttpServletRequest request, int id) {
+        return null; // TODO: implement this
+    }
+}

@@ -5,12 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
-import net.capps.word.game.common.GameSize;
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
-import net.capps.word.models.ErrorModel;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -54,7 +54,7 @@ public class SetupHelper {
     }
 
     public void initDictionary() throws IOException {
-        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, GameSize.VENTI.getNumRows());
+        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, BoardSize.VENTI.getNumRows());
         ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
 
         // Store dictionary in a Trie

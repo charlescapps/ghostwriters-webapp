@@ -1,6 +1,5 @@
 package net.capps.word.game.common;
 
-import com.google.common.collect.Lists;
 import net.capps.word.game.tile.Tile;
 
 import java.util.List;

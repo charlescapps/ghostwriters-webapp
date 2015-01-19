@@ -1,7 +1,7 @@
 package net.capps.word.rest.auth;
 
 import com.google.common.base.Preconditions;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.UserModel;
 
 /**
  * Created by charlescapps on 12/28/14.

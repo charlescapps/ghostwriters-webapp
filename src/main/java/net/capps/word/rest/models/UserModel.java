@@ -1,4 +1,4 @@
-package net.capps.word.models;
+package net.capps.word.rest.models;
 
 import net.capps.word.db.dao.UserHashInfo;
 

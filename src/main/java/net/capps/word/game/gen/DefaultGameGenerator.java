@@ -11,7 +11,6 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.dict.WordConstraint;
-import net.capps.word.game.tile.Tile;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

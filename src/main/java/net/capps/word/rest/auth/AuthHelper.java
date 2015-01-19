@@ -8,7 +8,7 @@ import net.capps.word.db.dao.UserHashInfo;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.AuthError;
 import net.capps.word.exceptions.WordAuthException;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,10 +93,10 @@ public class AuthHelper {
         return UsersDAO.getInstance().getUserById(userId);
     }
 
-    public Optional<UserModel> validateSessionLoggedInAsInitialUser(HttpServletRequest request) throws Exception {
+    public Optional<UserModel> validateSessionUser(HttpServletRequest request, String username) throws Exception {
         Optional<UserModel> user = validateSession(request);
         if (!user.isPresent() ||
-            !WordConstants.INITIAL_USER_USERNAME.equals(user.get().getUsername())) {
+            !username.equals(user.get().getUsername())) {
             return Optional.absent();
         }
         return user;

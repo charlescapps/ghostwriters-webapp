@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
-import net.capps.word.models.ErrorModel;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.UserModel;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;

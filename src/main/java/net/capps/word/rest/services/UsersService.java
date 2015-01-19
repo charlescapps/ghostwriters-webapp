@@ -2,13 +2,14 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import net.capps.word.exceptions.ConflictException;
-import net.capps.word.models.ErrorModel;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -18,10 +19,11 @@ import static javax.ws.rs.core.Response.Status.*;
 /**
  * Created by charlescapps on 12/27/14.
  */
-@Path("/users")
-@Produces(value = "application/json")
-@Consumes(value = "application/json")
+@Path(UsersService.USERS_PATH)
+@Produces(value = MediaType.APPLICATION_JSON)
+@Consumes(value = MediaType.APPLICATION_JSON)
 public class UsersService {
+    public static final String USERS_PATH = "/users";
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
 
     @Context

@@ -1,4 +1,4 @@
-package net.capps.word.models;
+package net.capps.word.rest.models;
 
 /**
  * Created by charlescapps on 12/27/14.

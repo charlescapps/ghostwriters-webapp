@@ -7,7 +7,7 @@
         </layout>
     </appender>
 
-    <logger name="net.capps.word" level="TRACE"/>
+    <logger name="net.capps.word" level="DEBUG"/>
 
     <root level="warn">
         <appender-ref ref="STDOUT" />

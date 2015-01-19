@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
-import net.capps.word.models.UserModel;
+import net.capps.word.rest.models.UserModel;
 
 import java.net.URISyntaxException;
 import java.sql.*;

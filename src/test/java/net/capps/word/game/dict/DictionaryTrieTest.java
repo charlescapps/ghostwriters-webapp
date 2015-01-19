@@ -2,8 +2,6 @@ package net.capps.word.game.dict;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.capps.word.constants.WordConstants;
-import net.capps.word.game.common.GameSize;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DurationUtil;
 import org.junit.Assert;
