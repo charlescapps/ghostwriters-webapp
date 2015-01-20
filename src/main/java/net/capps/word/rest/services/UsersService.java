@@ -2,6 +2,7 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import net.capps.word.exceptions.ConflictException;
+import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
@@ -30,6 +31,7 @@ public class UsersService {
     private UriInfo uriInfo;
 
     @POST
+    @Filters.InitialUserAuthRequired
     public Response createUser(@Context HttpServletRequest request, UserModel inputUser) throws Exception {
 
         Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
@@ -54,6 +56,7 @@ public class UsersService {
     }
 
     @Path("/{id}")
+    @Filters.RegularUserAuthRequired
     public Response getUser(@PathParam("id") int id) throws Exception {
         Optional<UserModel> result = usersProvider.getUserById(id);
         if (!result.isPresent()) {

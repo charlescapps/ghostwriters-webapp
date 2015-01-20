@@ -2,6 +2,7 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import net.capps.word.rest.auth.AuthHelper;
+import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -23,6 +24,7 @@ import static javax.ws.rs.core.Response.Status;
 @Path(GamesService.GAMES_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Filters.RegularUserAuthRequired
 public class GamesService {
     public static final String GAMES_PATH = "/games";
     private static final AuthHelper authHelper = AuthHelper.getInstance();

@@ -5,10 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
+import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
+import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
@@ -61,6 +63,10 @@ public class SetupHelper {
         DictionaryTrie.getInstance().loadDictionary(dict);
 
         DictionaryWordPicker.getInstance().loadDictionary(dict);
+    }
+
+    public void initLayouts() throws IOException, InvalidBoardException {
+        FixedLayouts.getInstance().initLayouts();
     }
 
     public void initJetty() throws Exception {

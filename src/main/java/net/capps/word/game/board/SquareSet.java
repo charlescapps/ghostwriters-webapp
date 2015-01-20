@@ -1,6 +1,7 @@
 package net.capps.word.game.board;
 
 import net.capps.word.exceptions.InvalidBoardException;
+import net.capps.word.game.common.BoardSize;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,6 +18,10 @@ public class SquareSet {
         this.N = N;
         this.TOTAL_SQUARES = N*N;
         this.squares = new Square[N][N];
+    }
+
+    public SquareSet(BoardSize boardSize) {
+        this(boardSize.getNumRows());
     }
 
     public void load(InputStreamReader reader) throws IOException, InvalidBoardException {

@@ -2,6 +2,14 @@ package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
 import net.capps.word.db.dao.UsersDAO;
+import net.capps.word.game.board.FixedLayouts;
+import net.capps.word.game.board.SquareSet;
+import net.capps.word.game.board.TileSet;
+import net.capps.word.game.common.BoardSize;
+import net.capps.word.game.common.BonusesType;
+import net.capps.word.game.common.GameDensity;
+import net.capps.word.game.gen.DefaultGameGenerator;
+import net.capps.word.game.gen.GameGenerator;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -18,6 +26,7 @@ import static java.lang.String.format;
 public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
+    private static final GameGenerator gameGenerator = new DefaultGameGenerator();
 
     // -------------- Private fields ---------
 
@@ -62,10 +71,17 @@ public class GamesProvider {
                 .build();
     }
 
-    public GameModel createNewGame(GameModel input, UserModel player1) throws Exception {
-        GameModel mock = new GameModel();
-        mock.setId(1024);
-        return mock; // TODO: implement this.
+    public GameModel createNewGame(GameModel validatedInputGame, UserModel player1) throws Exception {
+        BoardSize bs = validatedInputGame.getBoardSize();
+        GameDensity gd = validatedInputGame.getGameDensity();
+        int numWords = gd.getNumWords(bs);
+
+        TileSet tileSet = gameGenerator.generateRandomFinishedGame(bs.getNumRows(), numWords, bs.getMaxInitialWordSize());
+
+        BonusesType bt = validatedInputGame.getBonusesType();
+        SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
+                FixedLayouts.getInstance().getFixedLayout(bs) :
+
     }
 
 
