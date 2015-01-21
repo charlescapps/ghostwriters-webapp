@@ -56,7 +56,7 @@ public class SetupHelper {
     }
 
     public void initDictionary() throws IOException {
-        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, BoardSize.VENTI.getNumRows());
+        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, BoardSize.VENTI.getN());
         ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
 
         // Store dictionary in a Trie

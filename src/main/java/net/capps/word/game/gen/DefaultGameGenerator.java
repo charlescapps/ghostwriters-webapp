@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import static net.capps.word.game.common.Dir.E;
@@ -28,7 +27,6 @@ import static net.capps.word.game.common.Dir.S;
  * Created by charlescapps on 1/13/15.
  */
 public class DefaultGameGenerator implements GameGenerator {
-    private static final Random random = new Random();
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
 
     private final DictionaryTrie TRIE;

@@ -3,10 +3,7 @@ package net.capps.word.game.board;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
-import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.Move;
-import net.capps.word.game.common.Placement;
-import net.capps.word.game.common.Pos;
+import net.capps.word.game.common.*;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.tile.Tile;
 import org.slf4j.Logger;
@@ -14,12 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by charlescapps on 1/12/15.
  */
-public class TileSet {
+public class TileSet implements Iterable<Pos> {
     private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
 
     public final Tile[][] tiles;
@@ -36,6 +34,13 @@ public class TileSet {
                 tiles[r][c] = Tile.absent();
             }
         }
+    }
+
+    public Tile get(Pos p) {
+        if (!p.isValid()) {
+            throw new IllegalArgumentException("Must provide a valid Position!");
+        }
+        return tiles[p.r][p.c];
     }
 
     public char getLetterAt(Pos p) {
@@ -358,5 +363,10 @@ public class TileSet {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    @Override
+    public Iterator<Pos> iterator() {
+        return new PosIterator(N);
     }
 }

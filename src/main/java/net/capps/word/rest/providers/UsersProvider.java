@@ -12,7 +12,7 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,9 +88,8 @@ public class UsersProvider {
     }
 
     private byte[] generateSalt() {
-        Random random = new Random();
         byte[] salt = new byte[SALT_BYTES];
-        random.nextBytes(salt);
+        ThreadLocalRandom.current().nextBytes(salt);
         return salt;
     }
 

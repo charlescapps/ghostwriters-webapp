@@ -1,6 +1,7 @@
 package net.capps.word.game.common;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 1/16/15.
@@ -8,10 +9,9 @@ import java.util.Random;
 public enum Dir {
     S, E, N, W;
 
-    private static final Random random = new Random();
 
     public static Dir randomPlayDir() {
-        boolean b = random.nextBoolean();
+        boolean b = ThreadLocalRandom.current().nextBoolean();
         return b ? S : E;
     }
 

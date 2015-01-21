@@ -9,7 +9,9 @@ import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.game.gen.DefaultGameGenerator;
+import net.capps.word.game.gen.DefaultLayoutGenerator;
 import net.capps.word.game.gen.GameGenerator;
+import net.capps.word.game.gen.LayoutGenerator;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -27,6 +29,7 @@ public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
     private static final GameGenerator gameGenerator = new DefaultGameGenerator();
+    private static final LayoutGenerator layoutGenerator = new DefaultLayoutGenerator();
 
     // -------------- Private fields ---------
 
@@ -76,12 +79,15 @@ public class GamesProvider {
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
 
-        TileSet tileSet = gameGenerator.generateRandomFinishedGame(bs.getNumRows(), numWords, bs.getMaxInitialWordSize());
+        TileSet tileSet = gameGenerator.generateRandomFinishedGame(bs.getN(), numWords, bs.getMaxInitialWordSize());
 
         BonusesType bt = validatedInputGame.getBonusesType();
+
         SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
                 FixedLayouts.getInstance().getFixedLayout(bs) :
+                layoutGenerator.generateRandomBonusLayout(bs);
 
+        
     }
 
 

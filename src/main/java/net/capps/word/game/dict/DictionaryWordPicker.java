@@ -8,7 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 1/15/15.
@@ -16,7 +20,6 @@ import java.util.*;
 public class DictionaryWordPicker {
     // ---------------- Static ----------------
     private static final DictionaryWordPicker INSTANCE = new DictionaryWordPicker();
-    private static final Random RANDOM = new Random();
     private static final Logger LOG = LoggerFactory.getLogger(DictionaryWordPicker.class);
 
     public static DictionaryWordPicker getInstance() {
@@ -51,7 +54,7 @@ public class DictionaryWordPicker {
     }
 
     public String getUniformlyRandomWord() {
-        int index = RANDOM.nextInt(words.size());
+        int index = ThreadLocalRandom.current().nextInt(words.size());
         return words.get(index);
     }
 
@@ -78,7 +81,7 @@ public class DictionaryWordPicker {
         int chosenLength = RandomUtil.randomInt(2, maxLength);
         List<String> wordsOfLen = wordsByLen.get(chosenLength);
 
-        int index = RANDOM.nextInt(wordsOfLen.size());
+        int index = ThreadLocalRandom.current().nextInt(wordsOfLen.size());
         return wordsOfLen.get(index);
     }
 

@@ -2,14 +2,17 @@ package net.capps.word.game.board;
 
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.BoardSize;
+import net.capps.word.game.common.Pos;
+import net.capps.word.game.common.PosIterator;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 
 /**
  * Created by charlescapps on 1/12/15.
  */
-public class SquareSet {
+public class SquareSet implements Iterable<Pos> {
     public final int N;
     public final Square[][] squares;
     private final int TOTAL_SQUARES;
@@ -21,7 +24,21 @@ public class SquareSet {
     }
 
     public SquareSet(BoardSize boardSize) {
-        this(boardSize.getNumRows());
+        this(boardSize.getN());
+    }
+
+    public Square get(Pos p) {
+        if (!p.isValid() || p.N != N) {
+            throw new IllegalArgumentException("Must provide a valid position!");
+        }
+        return squares[p.r][p.c];
+    }
+
+    public void set(Pos p, Square s) {
+        if (!p.isValid() || p.N != N) {
+            throw new IllegalArgumentException("Must provide a valid position!");
+        }
+        squares[p.r][p.c] = s;
     }
 
     public void load(InputStreamReader reader) throws IOException, InvalidBoardException {
@@ -52,4 +69,11 @@ public class SquareSet {
             this.squares[row][col] = Square.valueOf(compactTiles.charAt(i));
         }
     }
+
+    @Override
+    public Iterator<Pos> iterator() {
+        return new PosIterator(N);
+    }
+
+
 }
