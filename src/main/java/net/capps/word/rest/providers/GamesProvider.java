@@ -41,7 +41,7 @@ public class GamesProvider {
     private GamesProvider() { }
 
     // --------------- Public --------------
-    public Optional<ErrorModel> validateInputForCreateGame(GameModel input, UserModel user) throws Exception {
+    public Optional<ErrorModel> validateInputForCreateGame(GameModel input, UserModel authUser) throws Exception {
         if (input.getId() != null) {
             return Optional.of(new ErrorModel("The game id should not be specified prior to creation."));
         }
@@ -57,7 +57,7 @@ public class GamesProvider {
         if (input.getGameDensity() == null) {
             return Optional.of(new ErrorModel("Missing gameDensity field!"));
         }
-        if (!input.getPlayer1().equals(user.getId())) {
+        if (!input.getPlayer1().equals(authUser.getId())) {
             return Optional.of(new ErrorModel("Player 1 must be the currently authenticated user."));
         }
         Optional<UserModel> player2 = UsersDAO.getInstance().getUserById(input.getPlayer2());
@@ -87,7 +87,7 @@ public class GamesProvider {
                 FixedLayouts.getInstance().getFixedLayout(bs) :
                 layoutGenerator.generateRandomBonusLayout(bs);
 
-        
+
     }
 
 

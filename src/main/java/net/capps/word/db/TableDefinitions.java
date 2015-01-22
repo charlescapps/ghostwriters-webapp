@@ -15,7 +15,7 @@ public class TableDefinitions {
             ");";
 
     public static final String CREATE_GAMES_TABLE =
-            "CREATE TABLE IF NOT EXISTS games " +
+            "CREATE TABLE IF NOT EXISTS word_games " +
                     "( id SERIAL PRIMARY KEY, " +
                     "  player1 INTEGER NOT NULL," +
                     "  player2 INTEGER NOT NULL," +
@@ -24,6 +24,6 @@ public class TableDefinitions {
                     "  game_density INTEGER NOT NULL," +
                     "  squares VARCHAR(400) NOT NULL," +
                     "  tiles varchar(400) NOT NULL," +
-                    "  date_started TIMESTAMP WITH TIME ZONE NOT NULL," +
-                    "  moves JSONB)";
+                    "  moves JSONB," +
+                    "  date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
 }

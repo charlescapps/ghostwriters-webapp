@@ -31,7 +31,7 @@ public class TileSet implements Iterable<Pos> {
         this.tiles = new Tile[N][N];
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < N; c++) {
-                tiles[r][c] = Tile.absent();
+                tiles[r][c] = Tile.absentTile();
             }
         }
     }
@@ -48,11 +48,6 @@ public class TileSet implements Iterable<Pos> {
             throw new IllegalArgumentException("Position is invalid: " + p);
         }
         Tile tile = tiles[p.r][p.c];
-        if (!tile.isLetterTile()) {
-            LOG.info("Tiles:\n{}", this);
-            LOG.info("Pos to get letter: {}", p);
-            throw new IllegalArgumentException("Cannot get letter from tile: " + tile);
-        }
         return tile.getLetter();
     }
 
@@ -103,21 +98,26 @@ public class TileSet implements Iterable<Pos> {
 
         String tileConfig = sb.toString();
 
-        // Remove whitespace, which can be added to tile configuration files
-        String compactTiles = tileConfig.replaceAll("\\s+", "");
-
-        if (compactTiles.length() != TOTAL_TILES) {
-            final String msg = String.format(
-                    "Invalid Tile config string. Needed NxN tiles (%d) but found %d tiles.\nInvalid config: %s",
-                    TOTAL_TILES, compactTiles.length(), tileConfig);
-            throw new InvalidBoardException(msg);
+        boolean wild = false;
+        int numChars = 0;
+        for (int i = 0; i < tileConfig.length(); i++) {
+            char c = tileConfig.charAt(i);
+            if (Character.isWhitespace(c)) {
+                continue; // ignore whitespace.
+            }
+            // If the char is alphabetic, add a Tile to the matrix.
+            if (Character.isAlphabetic(c)) {
+                int row = numChars / N;
+                int col = numChars % N;
+                tiles[row][col] = Tile.fromSerializedForm(c, wild);
+                ++numChars;
+            }
+            // If a '*' is encountered, the subsequent Tile is marked as a Wildcard
+            wild = c == Tile.WILD_TILE;
         }
-
-
-        for (int i = 0; i < compactTiles.length(); i++) {
-            int row = i / N;
-            int col = i % N;
-            this.tiles[row][col] = Tile.of(compactTiles.charAt(i));
+        if (numChars != N * N) {
+            throw new IllegalStateException(
+                    String.format("The input tileconfig didn't have N*N = %d characters:\n%s", N*N, tileConfig));
         }
     }
 
@@ -125,7 +125,6 @@ public class TileSet implements Iterable<Pos> {
         Dir dir = move.getDir();
         Pos start = move.getStart();
         List<Tile> tilesPlayed = move.getTilesPlayed();
-        checkTilesAreValid(tilesPlayed);
 
         switch (dir) {
             case E:
@@ -145,20 +144,20 @@ public class TileSet implements Iterable<Pos> {
 
     public void placeWord(Placement placement) {
         final Dir dir = placement.getDir();
-        final Pos start = placement.getStartPos();
+        final Pos start = placement.getStart();
         final String word = placement.getWord();
 
         switch (dir) {
             case E:
                 final int r = start.r;
                 for (int i = 0; i < word.length(); i++) {
-                    tiles[r][start.c + i] = Tile.of(word.charAt(i));
+                    tiles[r][start.c + i] = Tile.startTile(word.charAt(i));
                 }
                 break;
             case S:
                 final int c = start.c;
                 for (int i = 0; i < word.length(); i++) {
-                    tiles[start.r + i][c] = Tile.of(word.charAt(i));
+                    tiles[start.r + i][c] = Tile.startTile(word.charAt(i));
                 }
                 break;
         }
@@ -193,7 +192,7 @@ public class TileSet implements Iterable<Pos> {
 
     private boolean isValidPlacementInPrimaryDir(Placement placement) {
         final String word = placement.getWord();
-        final Pos start = placement.getStartPos();
+        final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
         Pos previous = start.go(dir.negate());
@@ -223,7 +222,7 @@ public class TileSet implements Iterable<Pos> {
 
     private boolean isValidPlacementInPerpendicular(Placement placement) {
         final String word = placement.getWord();
-        final Pos start = placement.getStartPos();
+        final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
         for (int i = 0; i < word.length(); i++) {
@@ -297,14 +296,6 @@ public class TileSet implements Iterable<Pos> {
             return false;
         }
         return !tiles[pos.r][pos.c].isAbsent();
-    }
-
-    public void checkTilesAreValid(List<Tile> tilesPlayed) {
-        for (Tile tile: tilesPlayed) {
-            if (!tile.isLetterTile()) {
-                throw new IllegalArgumentException("Cannot play absent tiles or wild tiles without a character on the board!");
-            }
-        }
     }
 
     public Optional<Pos> getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {

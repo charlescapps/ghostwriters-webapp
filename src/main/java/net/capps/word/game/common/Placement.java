@@ -13,15 +13,15 @@ public class Placement {
     public static final Set<Placement> EMPTY_SET = ImmutableSet.of();
 
     private final String word;
-    private final Pos startPos;
+    private final Pos start;
     private final Dir dir;
 
-    public Placement(String word, Pos startPos, Dir dir) {
+    public Placement(String word, Pos start, Dir dir) {
         Preconditions.checkNotNull(word);
-        Preconditions.checkNotNull(startPos);
+        Preconditions.checkNotNull(start);
         Preconditions.checkNotNull(dir);
         this.word = word;
-        this.startPos = startPos;
+        this.start = start;
         this.dir = dir;
     }
 
@@ -29,8 +29,8 @@ public class Placement {
         return word;
     }
 
-    public Pos getStartPos() {
-        return startPos;
+    public Pos getStart() {
+        return start;
     }
 
     public Dir getDir() {
@@ -41,7 +41,7 @@ public class Placement {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("word", word)
-                .add("startPos", startPos)
+                .add("start", start)
                 .add("dir", dir)
                 .toString();
     }
@@ -53,12 +53,12 @@ public class Placement {
         }
         Placement other = (Placement)o;
         return word.equals(other.word) &&
-                startPos.equals(other.startPos) &&
+                start.equals(other.start) &&
                 dir == other.dir;
     }
 
     @Override
     public int hashCode() {
-        return word.hashCode() ^ startPos.hashCode() ^ dir.hashCode();
+        return word.hashCode() ^ start.hashCode() ^ dir.hashCode();
     }
 }
