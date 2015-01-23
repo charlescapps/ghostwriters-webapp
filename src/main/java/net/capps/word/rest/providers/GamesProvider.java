@@ -48,6 +48,9 @@ public class GamesProvider {
         if (input.getPlayer1() == null || input.getPlayer2() == null) {
             return Optional.of(new ErrorModel("Missing id1 or id2 field!"));
         }
+        if (input.getPlayer1().equals(input.getPlayer2())) {
+            return Optional.of(new ErrorModel("Cannot start a game with yourself!"));
+        }
         if (input.getBoardSize() == null) {
             return Optional.of(new ErrorModel("Missing boardSize field!"));
         }
@@ -86,7 +89,7 @@ public class GamesProvider {
         SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
                 FixedLayouts.getInstance().getFixedLayout(bs) :
                 layoutGenerator.generateRandomBonusLayout(bs);
-
+        return null;
 
     }
 

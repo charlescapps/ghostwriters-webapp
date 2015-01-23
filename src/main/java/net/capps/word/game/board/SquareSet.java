@@ -28,17 +28,21 @@ public class SquareSet implements Iterable<Pos> {
     }
 
     public Square get(Pos p) {
-        if (!p.isValid() || p.N != N) {
+        if (!isValid(p)) {
             throw new IllegalArgumentException("Must provide a valid position!");
         }
         return squares[p.r][p.c];
     }
 
     public void set(Pos p, Square s) {
-        if (!p.isValid() || p.N != N) {
+        if (!isValid(p)) {
             throw new IllegalArgumentException("Must provide a valid position!");
         }
         squares[p.r][p.c] = s;
+    }
+
+    public boolean isValid(Pos p) {
+        return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
     }
 
     public void load(InputStreamReader reader) throws IOException, InvalidBoardException {
@@ -47,7 +51,9 @@ public class SquareSet implements Iterable<Pos> {
         int numRead;
         do {
             numRead = reader.read(input);
-            sb.append(input, 0, numRead);
+            if (numRead > 0) {
+                sb.append(input, 0, numRead);
+            }
         } while (numRead != -1);
 
         String tileConfig = sb.toString();
@@ -62,7 +68,6 @@ public class SquareSet implements Iterable<Pos> {
             throw new InvalidBoardException(msg);
         }
 
-
         for (int i = 0; i < compactTiles.length(); i++) {
             int row = i / N;
             int col = i % N;
@@ -75,5 +80,16 @@ public class SquareSet implements Iterable<Pos> {
         return new PosIterator(N);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
+                sb.append(squares[r][c].getCharRep()).append(" ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
 }

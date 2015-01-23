@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.*;
 import net.capps.word.game.dict.DictionarySet;
+import net.capps.word.game.move.PlayMove;
+import net.capps.word.game.tile.RackTile;
 import net.capps.word.game.tile.Tile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +39,23 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public Tile get(Pos p) {
-        if (!p.isValid()) {
+        if (!isValid(p)) {
             throw new IllegalArgumentException("Must provide a valid Position!");
         }
         return tiles[p.r][p.c];
     }
 
+    public void set(Pos p, Tile tile) {
+        Preconditions.checkArgument(isValid(p));
+        tiles[p.r][p.c] = tile;
+    }
+
+    public boolean isValid(Pos p) {
+        return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
+    }
+
     public char getLetterAt(Pos p) {
-        if (!p.isValid()) {
+        if (!isValid(p)) {
             throw new IllegalArgumentException("Position is invalid: " + p);
         }
         Tile tile = tiles[p.r][p.c];
@@ -52,7 +63,7 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public String getWord(Pos start, Pos end) {
-        if (!start.isValid() || !end.isValid()) {
+        if (!isValid(start) || !isValid(end)) {
             throw new IllegalArgumentException("Cannot find word for invalid positions");
         }
 
@@ -68,7 +79,7 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public String getPerpWord(Pos start, Pos end, Pos middle, char c) {
-        if (!start.isValid() || !end.isValid()) {
+        if (!isValid(start) || !isValid(end)) {
             throw new IllegalArgumentException("Cannot find word for invalid positions");
         }
 
@@ -121,25 +132,27 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public void placeMove(Move move) {
+    public void placeMove(PlayMove move) {
         Dir dir = move.getDir();
         Pos start = move.getStart();
-        List<Tile> tilesPlayed = move.getTilesPlayed();
+        List<RackTile> tilesPlayed = move.getTilesPlayed();
+        String word = move.getWord();
 
-        switch (dir) {
-            case E:
-                final int r = start.r;
-                for (int i = 0; i < tilesPlayed.size(); i++) {
-                    tiles[r][start.c + i] = tilesPlayed.get(i);
+        int rackIndex = 0;
+        for (int i = 0; i < word.length(); i++) {
+            char letter = word.charAt(i);
+            Pos p = start.go(dir, i);
+            Tile existing = get(p);
+            if (existing.isAbsent()) {
+                RackTile rackTile = tilesPlayed.get(rackIndex++);
+                set(p, rackTile.toTile(letter));
+            } else {
+                if (existing.getLetter() != letter) {
+                    throw new IllegalStateException("Attempting to place invalid move: " + move);
                 }
-                break;
-            case S:
-                final int c = start.c;
-                for (int i = 0; i < tilesPlayed.size(); i++) {
-                    tiles[start.r + i][c] = tilesPlayed.get(i);
-                }
-                break;
+            }
         }
+
     }
 
     public void placeWord(Placement placement) {
@@ -206,7 +219,7 @@ public class TileSet implements Iterable<Pos> {
             Pos p = start.go(dir, i);
 
             // Placement can't go off end of board
-            if (!p.isValid()) {
+            if (!isValid(p)) {
                 return false;
             }
 
@@ -284,15 +297,15 @@ public class TileSet implements Iterable<Pos> {
         return Optional.absent();
     }
 
-    public boolean isOccupiedOrAdjacentOccupied(Pos pos) {
-        if (!pos.isValid()) {
+    public boolean isOccupiedOrAdjacentOccupied(Pos p) {
+        if (!isValid(p)) {
             return false;
         }
-        return isOccupied(pos) || isOccupied(pos.s()) || isOccupied(pos.e()) || isOccupied(pos.n()) || isOccupied(pos.w());
+        return isOccupied(p) || isOccupied(p.s()) || isOccupied(p.e()) || isOccupied(p.n()) || isOccupied(p.w());
     }
 
     public boolean isOccupied(Pos pos) {
-        if (!pos.isValid()) {
+        if (!isValid(pos)) {
             return false;
         }
         return !tiles[pos.r][pos.c].isAbsent();
@@ -301,12 +314,12 @@ public class TileSet implements Iterable<Pos> {
     public Optional<Pos> getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
 
         for (int i = 0; i < maxLen; i++) {
-            Pos pos = start.go(dir, i);
-            if (!pos.isValid()) {
+            Pos p = start.go(dir, i);
+            if (!isValid(p)) {
                 return Optional.absent();
             }
-            if (isOccupiedOrAdjacentOccupied(pos)) {
-                return Optional.of(pos);
+            if (isOccupiedOrAdjacentOccupied(p)) {
+                return Optional.of(p);
             }
         }
         return Optional.absent();
@@ -314,7 +327,7 @@ public class TileSet implements Iterable<Pos> {
 
     public Pos getEndOfOccupied(Pos start, Dir dir) {
         Pos p = start;
-        while (p.isValid() && isOccupied(p)) {
+        while (isValid(p) && isOccupied(p)) {
             p = p.go(dir);
         }
         return p.go(dir, -1);
@@ -323,21 +336,21 @@ public class TileSet implements Iterable<Pos> {
     public Pos getEndOfOccupiedFromOccupiedOrAdj(Pos start, Dir dir) {
         // Case 1: start is occupied.
         if (isOccupied(start)) {
-            Pos pos = start;
+            Pos p = start;
 
-            while (pos.isValid() && isOccupied(pos)) {
-                pos = pos.go(dir);
+            while (isValid(p) && isOccupied(p)) {
+                p = p.go(dir);
             }
-            return pos.go(dir, -1);
+            return p.go(dir, -1);
         }
 
         // Case 2: start is unoccupied
-        Pos pos = start.go(dir);
-        if (isOccupied(pos)) {
-          while (pos.isValid() && isOccupied(pos)) {
-              pos = pos.go(dir);
+        Pos p = start.go(dir);
+        if (isOccupied(p)) {
+          while (isValid(p) && isOccupied(p)) {
+              p = p.go(dir);
           }
-          return pos.go(dir, -1);
+          return p.go(dir, -1);
         } else {
             return start;
         }

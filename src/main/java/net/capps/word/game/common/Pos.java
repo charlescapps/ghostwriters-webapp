@@ -13,47 +13,45 @@ import static java.lang.String.format;
 public class Pos {
     public final int r;
     public final int c;
-    public final int N; // The length of the board this is a position on.
 
     // (r,c,N) - how a Pos is stored when stored in the Database or in JSON
     private static final Pattern SERIAL_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\)");
 
-    private Pos(int r, int c, int N) {
+    private Pos(int r, int c) {
         this.r = r;
         this.c = c;
-        this.N = N;
     }
 
     public Pos s() {
-        return new Pos(r + 1, c, N);
+        return new Pos(r + 1, c);
     }
 
     public Pos s(int n) {
-        return new Pos(r + n, c, N);
+        return new Pos(r + n, c);
     }
 
     public Pos e() {
-        return new Pos(r, c + 1, N);
+        return new Pos(r, c + 1);
     }
 
     public Pos e(int n) {
-        return new Pos(r, c + n, N);
+        return new Pos(r, c + n);
     }
 
     public Pos n() {
-        return new Pos(r - 1, c, N);
+        return new Pos(r - 1, c);
     }
 
     public Pos n(int n) {
-        return new Pos(r - n, c, N);
+        return new Pos(r - n, c);
     }
 
     public Pos w() {
-        return new Pos(r, c - 1, N);
+        return new Pos(r, c - 1);
     }
 
     public Pos w(int n) {
-        return new Pos(r, c - n, N);
+        return new Pos(r, c - n);
     }
 
     public Pos go(Dir dir) {
@@ -68,10 +66,6 @@ public class Pos {
             case N: return n(num);
         }
         throw new IllegalStateException();
-    }
-
-    public boolean isValid() {
-        return r >= 0 && c >= 0 && r < N && c < N;
     }
 
     public int minus(Pos other) {
@@ -100,7 +94,7 @@ public class Pos {
     }
 
     public static Pos of(int r, int c, int N) {
-        return new Pos(r, c, N);
+        return new Pos(r, c);
     }
 
     @Override
@@ -115,8 +109,7 @@ public class Pos {
         StringBuilder sb = new StringBuilder();
         return sb.append("(")
                 .append(r).append(",")
-                .append(c).append(",")
-                .append(N)
+                .append(c)
                 .append(")")
                 .toString();
     }
@@ -129,7 +122,7 @@ public class Pos {
         String r = m.group(1);
         String c = m.group(2);
         String N = m.group(3);
-        return new Pos(Integer.parseInt(r), Integer.parseInt(c), Integer.parseInt(N));
+        return new Pos(Integer.parseInt(r), Integer.parseInt(c));
     }
 
     @Override

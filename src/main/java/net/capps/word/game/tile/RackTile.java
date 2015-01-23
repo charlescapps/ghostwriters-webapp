@@ -45,6 +45,15 @@ public class RackTile {
         return WILD_RACK_TILE == letter;
     }
 
+    public Tile toTile(char c) {
+        Preconditions.checkArgument(LetterUtils.isUppercase(c));
+        if (isWild()) {
+            return Tile.wildPlayedTile(c);
+        }
+        Preconditions.checkArgument(c == letter);
+        return Tile.playedTile(c);
+    }
+
     @Override
     public String toString() {
         return Character.toString(letter);

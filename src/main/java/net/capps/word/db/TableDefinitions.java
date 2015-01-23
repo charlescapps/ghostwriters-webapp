@@ -19,11 +19,25 @@ public class TableDefinitions {
                     "( id SERIAL PRIMARY KEY, " +
                     "  player1 INTEGER NOT NULL," +
                     "  player2 INTEGER NOT NULL," +
+                    "  player1_rack VARCHAR(16) NOT NULL," +
+                    "  player2_rack VARCHAR(16) NOT NULL," +
                     "  board_size INTEGER NOT NULL," +
                     "  bonuses_type INTEGER NOT NULL," +
                     "  game_density INTEGER NOT NULL," +
                     "  squares VARCHAR(400) NOT NULL," +
-                    "  tiles varchar(400) NOT NULL," +
-                    "  moves JSONB," +
+                    "  tiles VARCHAR(800) NOT NULL," +
                     "  date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
+
+    public static final String CREATE_MOVES_TABLE =
+            "CREATE TABLE IF NOT EXISTS word_moves " +
+                    "( id BIGSERIAL PRIMARY KEY," +
+                    "  game_id INTEGER NOT NULL," +
+                    "  move_type SMALLINT NOT NULL," +
+                    "  start_row SMALLINT NOT NULL," +
+                    "  start_col SMALLINT NOT NULL," +
+                    "  direction CHAR(1) NOT NULL," +
+                    "  word VARCHAR(32)," +
+                    "  tiles_played VARCHAR(16)," +
+                    "  date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
+                    ");";
 }

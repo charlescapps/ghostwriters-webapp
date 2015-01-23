@@ -43,6 +43,12 @@ public class SetupHelper {
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_GAMES_TABLE);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
         }
     }
 

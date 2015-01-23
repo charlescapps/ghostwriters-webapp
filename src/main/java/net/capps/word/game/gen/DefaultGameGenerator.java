@@ -124,7 +124,7 @@ public class DefaultGameGenerator implements GameGenerator {
                 continue;
             }
             Pos p = start.go(dir, i);
-            if (!p.isValid()) {
+            if (!tileSet.isValid(p)) {
                 break;
             }
 
