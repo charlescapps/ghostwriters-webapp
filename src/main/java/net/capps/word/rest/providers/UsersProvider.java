@@ -30,7 +30,7 @@ public class UsersProvider {
 
     private static final int SALT_BYTES = 8;
 
-    private static final UsersDAO USERS_DAO = UsersDAO.getInstance();
+    private static final UsersDAO usersDao = UsersDAO.getInstance();
 
     private static final UsersProvider INSTANCE = new UsersProvider();
 
@@ -70,11 +70,25 @@ public class UsersProvider {
     public UserModel createNewUser(UserModel validatedInput) throws Exception {
         byte[] salt = generateSalt();
         byte[] hashPass = hashPassUsingSha256(validatedInput.getPassword(), salt);
-        return USERS_DAO.insertNewUser(validatedInput, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
+        return usersDao.insertNewUser(validatedInput, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
+    }
+
+    public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {
+        Optional<UserModel> existing = usersDao.getUserByUsername(validatedInput.getUsername());
+        if (existing.isPresent()) {
+            return Optional.absent();
+        }
+        if (validatedInput.getEmail() != null) {
+            Optional<UserModel> existingEmail = usersDao.getUserByEmail(validatedInput.getEmail());
+            if (existingEmail.isPresent()) {
+                return Optional.absent();
+            }
+        }
+        return Optional.of(createNewUser(validatedInput));
     }
 
     public Optional<UserModel> getUserById(int id) throws Exception {
-        return USERS_DAO.getUserById(id);
+        return usersDao.getUserById(id);
     }
 
     //------------- Private ------------

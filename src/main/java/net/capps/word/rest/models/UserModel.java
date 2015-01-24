@@ -14,8 +14,10 @@ public class UserModel {
     private Integer id;
     private String username;
     private String email;
+    private Long dateJoined;
     private String password; // Only present when creating a new user
-    private UserHashInfo userHashInfo;
+    private UserHashInfo userHashInfo; // Not serialized
+
 
     public UserModel() {
 
@@ -51,6 +53,14 @@ public class UserModel {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Long getDateJoined() {
+        return dateJoined;
+    }
+
+    public void setDateJoined(Long dateJoined) {
+        this.dateJoined = dateJoined;
     }
 
     public String getPassword() {

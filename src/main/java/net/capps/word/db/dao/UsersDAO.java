@@ -57,12 +57,9 @@ public class UsersDAO {
 
             // Populate the returned user from the result
             ResultSet result = stmt.getGeneratedKeys();
-            result.next(); // This should always succeed since no SQL exception was thrown!
-            int id = result.getInt("id");
-            String username = result.getString("username");
-            String email = result.getString("email");
+            result.next();
 
-            return new UserModel(id, username, email, null, null);
+            return getUserFromResultSet(result);
         }
     }
 
@@ -74,9 +71,7 @@ public class UsersDAO {
             if (!result.next()) {
                 return Optional.absent();
             }
-            String username = result.getString("username");
-            String email = result.getString("email");
-            return Optional.of(new UserModel(id, username, email, null, null));
+            return Optional.of(getUserFromResultSet(result));
         }
     }
 
@@ -88,11 +83,7 @@ public class UsersDAO {
             if (!result.next()) {
                 return Optional.absent();
             }
-            int id = result.getInt("id");
-            String email = result.getString("email");
-            String hashpass = result.getString("hashpass");
-            String salt = result.getString("salt");
-            return Optional.of(new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt)));
+            return Optional.of(getUserFromResultSet(result));
         }
     }
 
@@ -104,11 +95,19 @@ public class UsersDAO {
             if (!result.next()) {
                 return Optional.absent();
             }
-            int id = result.getInt("id");
-            String username = result.getString("username");
-            String hashpass = result.getString("hashpass");
-            String salt = result.getString("salt");
-            return Optional.of(new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt)));
+            return Optional.of(getUserFromResultSet(result));
         }
+    }
+
+    private UserModel getUserFromResultSet(ResultSet result) throws SQLException {
+        int id = result.getInt("id");
+        String username = result.getString("username");
+        String email = result.getString("email");
+        String hashpass = result.getString("hashpass");
+        String salt = result.getString("salt");
+        Timestamp dateJoined = result.getTimestamp("date_joined");
+        UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt));
+        user.setDateJoined(dateJoined.getTime());
+        return user;
     }
 }

@@ -12,6 +12,7 @@ public class Main {
         setupHelper.initDatabase();
         setupHelper.createInitialUser();
         setupHelper.initDictionary();
+        setupHelper.initLayouts();
         setupHelper.initJetty();
     }
 

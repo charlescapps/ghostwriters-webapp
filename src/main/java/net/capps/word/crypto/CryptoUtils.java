@@ -29,4 +29,9 @@ public class CryptoUtils {
         BaseEncoding encoder = BaseEncoding.base64();
         return encoder.encode(data);
     }
+
+    public static String getBasicAuthHeader(String username, String pass) {
+        String toEncrypt = username + ":" + pass;
+        return byteToBase64(toEncrypt.getBytes());
+    }
 }
