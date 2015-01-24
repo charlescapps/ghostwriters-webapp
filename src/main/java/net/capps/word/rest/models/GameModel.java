@@ -23,7 +23,7 @@ public class GameModel {
     private String squares;
     private String tiles;
     private GameResult gameResult;
-    private String dateCreated;
+    private Long dateCreated;
 
     public GameModel() {
 
@@ -117,11 +117,11 @@ public class GameModel {
         this.gameResult = gameResult;
     }
 
-    public String getDateCreated() {
+    public Long getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(String dateCreated) {
+    public void setDateCreated(Long dateCreated) {
         this.dateCreated = dateCreated;
     }
 }

@@ -1,6 +1,7 @@
 package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
+import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
@@ -61,7 +62,13 @@ public class GamesService {
 
     @GET
     @Path("/{id}")
-    public Response getGameById(@Context HttpServletRequest request, int id) {
-        return null; // TODO: implement this
+    public Response getGameById(@PathParam("id") int id) throws Exception {
+        Optional<GameModel> game = GamesDAO.getInstance().getGameById(id);
+        if (game.isPresent()) {
+            return Response.ok(game.get()).build();
+        }
+        return Response.status(Status.NOT_FOUND)
+                .entity(new ErrorModel(String.format("No game found with id %d", id)))
+                .build();
     }
 }

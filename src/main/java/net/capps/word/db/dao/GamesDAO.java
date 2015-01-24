@@ -9,7 +9,6 @@ import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.rest.models.GameModel;
-import net.capps.word.util.DateUtil;
 
 import java.sql.*;
 import java.util.Date;
@@ -41,12 +40,12 @@ public class GamesDAO {
             stmt.setInt(2, validatedInputGame.getPlayer2());
             stmt.setString(3, "");
             stmt.setString(4, "");
-            stmt.setShort(5, (short)validatedInputGame.getBoardSize().ordinal());
-            stmt.setShort(6, (short)validatedInputGame.getBonusesType().ordinal());
-            stmt.setShort(7, (short)validatedInputGame.getGameDensity().ordinal());
+            stmt.setShort(5, (short) validatedInputGame.getBoardSize().ordinal());
+            stmt.setShort(6, (short) validatedInputGame.getBonusesType().ordinal());
+            stmt.setShort(7, (short) validatedInputGame.getGameDensity().ordinal());
             stmt.setString(8, squares);
             stmt.setString(9, tiles);
-            stmt.setShort(10, (short)GameResult.IN_PROGRESS.ordinal());
+            stmt.setShort(10, (short) GameResult.IN_PROGRESS.ordinal());
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
             stmt.setTimestamp(11, timestamp);
@@ -87,7 +86,7 @@ public class GamesDAO {
             game.setTiles(result.getString("tiles"));
             game.setGameResult(GameResult.values()[result.getShort("game_result")]);
             Timestamp dateStarted = result.getTimestamp("date_started");
-            game.setDateCreated(DateUtil.format(dateStarted));
+            game.setDateCreated(dateStarted.getTime());
             return Optional.of(game);
         }
     }

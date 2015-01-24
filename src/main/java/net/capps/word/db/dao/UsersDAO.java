@@ -14,8 +14,8 @@ import java.sql.*;
  */
 public class UsersDAO {
     private static final String INSERT_USER_QUERY =
-            "INSERT INTO word_users (username, email, hashpass, salt) " +
-            "VALUES (?, ?, ?, ?);";
+            "INSERT INTO word_users (username, email, hashpass, salt, date_joined) " +
+            "VALUES (?, ?, ?, ?, ?);";
 
     private static final String GET_USER_BY_ID_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
@@ -52,6 +52,7 @@ public class UsersDAO {
             stmt.setString(2, validatedUserInput.getEmail());
             stmt.setString(3, hashPassBase64);
             stmt.setString(4, saltBase64);
+            stmt.setTimestamp(5, new Timestamp(new java.util.Date().getTime()));
             stmt.executeUpdate();
 
             // Populate the returned user from the result
