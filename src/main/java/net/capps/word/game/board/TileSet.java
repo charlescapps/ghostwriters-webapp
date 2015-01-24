@@ -369,6 +369,16 @@ public class TileSet implements Iterable<Pos> {
         return sb.toString();
     }
 
+    public String toCompactString() {
+        StringBuilder sb = new StringBuilder();
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
+                sb.append(tiles[r][c]);
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public Iterator<Pos> iterator() {
         return new PosIterator(N);

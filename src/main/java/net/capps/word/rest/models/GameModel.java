@@ -3,6 +3,7 @@ package net.capps.word.rest.models;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
+import net.capps.word.game.common.GameResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,11 +15,15 @@ public class GameModel {
     private Integer id;
     private Integer player1;
     private Integer player2;
+    private String player1Rack;
+    private String player2Rack;
     private BoardSize boardSize;
     private BonusesType bonusesType;
     private GameDensity gameDensity;
     private String squares;
     private String tiles;
+    private GameResult gameResult;
+    private String dateCreated;
 
     public GameModel() {
 
@@ -46,6 +51,22 @@ public class GameModel {
 
     public void setPlayer2(Integer player2) {
         this.player2 = player2;
+    }
+
+    public String getPlayer1Rack() {
+        return player1Rack;
+    }
+
+    public void setPlayer1Rack(String player1Rack) {
+        this.player1Rack = player1Rack;
+    }
+
+    public String getPlayer2Rack() {
+        return player2Rack;
+    }
+
+    public void setPlayer2Rack(String player2Rack) {
+        this.player2Rack = player2Rack;
     }
 
     public BoardSize getBoardSize() {
@@ -86,5 +107,21 @@ public class GameModel {
 
     public void setTiles(String tiles) {
         this.tiles = tiles;
+    }
+
+    public GameResult getGameResult() {
+        return gameResult;
+    }
+
+    public void setGameResult(GameResult gameResult) {
+        this.gameResult = gameResult;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
     }
 }

@@ -16,17 +16,18 @@ public class TableDefinitions {
 
     public static final String CREATE_GAMES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_games " +
-                    "( id SERIAL PRIMARY KEY, " +
-                    "  player1 INTEGER NOT NULL," +
-                    "  player2 INTEGER NOT NULL," +
-                    "  player1_rack VARCHAR(16) NOT NULL," +
-                    "  player2_rack VARCHAR(16) NOT NULL," +
-                    "  board_size INTEGER NOT NULL," +
-                    "  bonuses_type INTEGER NOT NULL," +
-                    "  game_density INTEGER NOT NULL," +
-                    "  squares VARCHAR(400) NOT NULL," +
-                    "  tiles VARCHAR(800) NOT NULL," +
-                    "  date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
+                    "( id SERIAL PRIMARY KEY," +
+                    "player1 INTEGER NOT NULL," +
+                    "player2 INTEGER NOT NULL," +
+                    "player1_rack VARCHAR(16) NOT NULL," +
+                    "player2_rack VARCHAR(16) NOT NULL," +
+                    "board_size SMALLINT NOT NULL," +
+                    "bonuses_type SMALLINT NOT NULL," +
+                    "game_density SMALLINT NOT NULL," +
+                    "squares VARCHAR(400) NOT NULL," +
+                    "tiles VARCHAR(800) NOT NULL," +
+                    "game_result SMALLINT NOT NULL," +
+                    "date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
 
     public static final String CREATE_MOVES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_moves " +

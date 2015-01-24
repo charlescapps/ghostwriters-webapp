@@ -50,7 +50,7 @@ public class GamesService {
                     .build();
         }
 
-        GameModel created = gamesProvider.createNewGame(input, player1);
+        GameModel created = gamesProvider.createNewGame(input);
 
         URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
 

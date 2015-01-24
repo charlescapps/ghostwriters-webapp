@@ -2,7 +2,7 @@ package net.capps.word.game.dict;
 
 import net.capps.word.game.dict.iterators.RandomWordIterator;
 import net.capps.word.game.dict.iterators.WordsOfLengthIterator;
-import net.capps.word.util.DurationUtil;
+import net.capps.word.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +51,14 @@ public class DictionaryTrie {
         long END = System.currentTimeMillis();
 
 
-        LOG.info(format("SUCCESS - loaded dictionary into DictionaryTrie in %s.", DurationUtil.getDurationPretty(END - START)));
+        LOG.info(format("SUCCESS - loaded dictionary into DictionaryTrie in %s.", DateUtil.getDurationPretty(END - START)));
 
         LOG.info("Starting to build the Level maps...");
         START = System.currentTimeMillis();
         buildAllLevelsFromRoot(root);
         END = System.currentTimeMillis();
 
-        LOG.info(format("SUCCESS - created Level Maps in %s.", DurationUtil.getDurationPretty(END - START)));
+        LOG.info(format("SUCCESS - created Level Maps in %s.", DateUtil.getDurationPretty(END - START)));
 
     }
 

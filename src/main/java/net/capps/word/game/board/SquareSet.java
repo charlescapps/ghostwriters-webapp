@@ -92,4 +92,14 @@ public class SquareSet implements Iterable<Pos> {
         return sb.toString();
     }
 
+    public String toCompactString() {
+        StringBuilder sb = new StringBuilder();
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
+                sb.append(squares[r][c].getCharRep());
+            }
+        }
+        return sb.toString();
+    }
+
 }

@@ -1,6 +1,7 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
+import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.board.SquareSet;
@@ -77,7 +78,7 @@ public class GamesProvider {
                 .build();
     }
 
-    public GameModel createNewGame(GameModel validatedInputGame, UserModel player1) throws Exception {
+    public GameModel createNewGame(GameModel validatedInputGame) throws Exception {
         BoardSize bs = validatedInputGame.getBoardSize();
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
@@ -89,7 +90,8 @@ public class GamesProvider {
         SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
                 FixedLayouts.getInstance().getFixedLayout(bs) :
                 layoutGenerator.generateRandomBonusLayout(bs);
-        return null;
+
+        return GamesDAO.getInstance().createNewGame(validatedInputGame, tileSet, squareSet);
 
     }
 
