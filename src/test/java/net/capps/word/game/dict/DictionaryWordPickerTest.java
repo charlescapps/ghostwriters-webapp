@@ -13,7 +13,7 @@ import java.io.IOException;
 public class DictionaryWordPickerTest {
     @BeforeClass
     public static void setup() throws IOException {
-        SetupHelper.getInstance().initDictionary();
+        SetupHelper.getInstance().initDictionaryDataStructures();
     }
 
     @Test

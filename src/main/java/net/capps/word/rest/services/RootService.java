@@ -1,4 +1,4 @@
-package net.capps.word;
+package net.capps.word.rest.services;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

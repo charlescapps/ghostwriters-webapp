@@ -1,5 +1,6 @@
 package net.capps.word.rest.models;
 
+import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
@@ -150,5 +151,25 @@ public class GameModel {
 
     public void setDateCreated(Long dateCreated) {
         this.dateCreated = dateCreated;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("player1", player1)
+                .add("player2", player2)
+                .add("player1Rack", player1Rack)
+                .add("player2Rack", player2Rack)
+                .add("player1Points", player1Points)
+                .add("player2Points", player2Points)
+                .add("boardSize", boardSize)
+                .add("bonusesType", bonusesType)
+                .add("gameDensity", gameDensity)
+                .add("squares", squares)
+                .add("tiles", tiles)
+                .add("gameResult", gameResult)
+                .add("player1Turn", player1Turn)
+                .toString();
     }
 }

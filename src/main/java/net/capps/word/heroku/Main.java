@@ -11,8 +11,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         setupHelper.initDatabase();
         setupHelper.createInitialUser();
-        setupHelper.initDictionary();
+        setupHelper.initDictionaryDataStructures();
         setupHelper.initLayouts();
+        setupHelper.initPoints();
         setupHelper.initJetty();
     }
 

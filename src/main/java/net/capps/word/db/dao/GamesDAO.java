@@ -25,7 +25,7 @@ public class GamesDAO {
     private static final String INSERT_GAME_QUERY =
         "INSERT INTO word_games (player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
                     "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_GAME_QUERY =
             "UPDATE word_games SET (player1_rack = ?,player2_rack = ?,player1_points=?,player2_points=?,squares = ?,tiles = ?,game_result = ?,player1_turn = ?) " +
@@ -58,7 +58,7 @@ public class GamesDAO {
             stmt.setBoolean(13, true); // Always starts as player 1's turn.
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
-            stmt.setTimestamp(12, timestamp);
+            stmt.setTimestamp(14, timestamp);
 
             stmt.executeUpdate();
 

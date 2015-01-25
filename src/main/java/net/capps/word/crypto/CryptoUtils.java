@@ -23,7 +23,6 @@ public class CryptoUtils {
      * From a byte[] returns a base 64 representation
      * @param data byte[]
      * @return String
-     * @throws java.io.IOException
      */
     public static String byteToBase64(byte[] data){
         BaseEncoding encoder = BaseEncoding.base64();

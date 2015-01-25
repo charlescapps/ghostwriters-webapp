@@ -26,6 +26,9 @@ public class SquareSet implements Iterable<Pos> {
         this.N = N;
         this.TOTAL_SQUARES = N*N;
         this.squares = new Square[N][N];
+        for (Pos p: this) {
+            set(p, Square.NORMAL);
+        }
     }
 
     public SquareSet(BoardSize boardSize) {

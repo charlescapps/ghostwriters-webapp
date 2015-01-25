@@ -2,6 +2,7 @@ package net.capps.word;
 
 import javax.ws.rs.core.Application;
 
+import net.capps.word.rest.services.RootService;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 

@@ -1,68 +1,59 @@
 package net.capps.word.rest.services;
 
-import net.capps.word.RootService;
-import net.capps.word.crypto.CryptoUtils;
-import net.capps.word.db.dao.UsersDAO;
-import net.capps.word.heroku.SetupHelper;
-import net.capps.word.rest.auth.AuthHelper;
-import net.capps.word.rest.models.UserModel;
-import net.capps.word.rest.providers.UsersProvider;
+import net.capps.word.game.common.BoardSize;
+import net.capps.word.game.common.BonusesType;
+import net.capps.word.game.common.GameDensity;
+import net.capps.word.rest.filters.InitialUserAuthFilter;
+import net.capps.word.rest.filters.RegularUserAuthFilter;
+import net.capps.word.rest.models.GameModel;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Created by charlescapps on 1/24/15.
  */
-public class GamesServiceTest extends JerseyTest {
+public class GamesServiceTest extends BaseWordServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(GamesServiceTest.class);
 
-    private static UserModel fooUser;
-    private static UserModel barUser;
-
     @Override
     protected Application configure() {
-        return new ResourceConfig(RootService.class);
-    }
-
-    @BeforeClass
-    public static void beforeTest() throws Exception {
-        SetupHelper setupHelper = SetupHelper.getInstance();
-        setupHelper.initDatabase();
-        setupHelper.createInitialUser();
-        setupHelper.initDictionary();
-        setupHelper.initLayouts();
-
-        // Create 2 regular users
-        UserModel fooInput = new UserModel(null, "Foo", "foo@example.com", "foo", null);
-        UserModel barInput = new UserModel(null, "Bar", "bar@example.com", "bar", null);
-        fooUser = UsersProvider.getInstance().createNewUser(fooUser);
-        barUser = UsersProvider.getInstance().createNewUser(barUser);
-
-    }
-
-    private String login(String username, String password) {
-        Response response =
-                target().path("login").request()
-                .header("Authentication",CryptoUtils.getBasicAuthHeader(username, password))
-                .build("POST")
-                .invoke();
-        return response.getHeaderString("Set-Cookie");
+        return new ResourceConfig(LoginService.class, GamesService.class, MovesService.class,
+                RegularUserAuthFilter.class, InitialUserAuthFilter.class);
     }
 
     @Test
     public void testCreateGame() {
         String cookie = login(fooUser.getUsername(), "foo");
+        LOG.info("Cookie={}", cookie);
+
+        GameModel input = new GameModel();
+        input.setBoardSize(BoardSize.VENTI);
+        input.setBonusesType(BonusesType.RANDOM_BONUSES);
+        input.setGameDensity(GameDensity.REGULAR);
+        input.setPlayer1(fooUser.getId());
+        input.setPlayer2(barUser.getId());
+
+        GameModel result = target("games")
+                            .request()
+                            .header("Cookie", cookie)
+                            .build("POST", Entity.entity(input, MediaType.APPLICATION_JSON))
+                            .invoke(GameModel.class);
+
+        LOG.info(result.toString());
 
 
     }
+
+    // ------------ Private ----------
+
+
 
 
 }
