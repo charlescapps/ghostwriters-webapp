@@ -24,7 +24,7 @@ import static javax.ws.rs.core.Response.Status.*;
 @Produces(value = MediaType.APPLICATION_JSON)
 @Consumes(value = MediaType.APPLICATION_JSON)
 public class UsersService {
-    public static final String USERS_PATH = "/users";
+    public static final String USERS_PATH = "users";
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
 
     @Context

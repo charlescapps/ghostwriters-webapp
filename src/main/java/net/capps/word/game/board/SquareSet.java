@@ -6,7 +6,7 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Iterator;
 
 /**
@@ -45,7 +45,7 @@ public class SquareSet implements Iterable<Pos> {
         return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
     }
 
-    public void load(InputStreamReader reader) throws IOException, InvalidBoardException {
+    public void load(Reader reader) throws IOException, InvalidBoardException {
         final char[] input = new char[1024];
         StringBuffer sb = new StringBuffer();
         int numRead;

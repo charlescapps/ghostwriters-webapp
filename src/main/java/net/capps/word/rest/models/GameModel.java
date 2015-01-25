@@ -23,6 +23,7 @@ public class GameModel {
     private String squares;
     private String tiles;
     private GameResult gameResult;
+    private Boolean player1Turn;
     private Long dateCreated;
 
     public GameModel() {
@@ -115,6 +116,14 @@ public class GameModel {
 
     public void setGameResult(GameResult gameResult) {
         this.gameResult = gameResult;
+    }
+
+    public Boolean getPlayer1Turn() {
+        return player1Turn;
+    }
+
+    public void setPlayer1Turn(Boolean player1Turn) {
+        this.player1Turn = player1Turn;
     }
 
     public Long getDateCreated() {

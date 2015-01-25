@@ -51,7 +51,7 @@ public class Tile {
         if (LetterUtils.isUppercase(c)) {
             return new Tile(c, false, wild);
         } else if (LetterUtils.isLowercase(c)) {
-            return new Tile(c, true, wild);
+            return new Tile(Character.toUpperCase(c), true, wild);
         }
         throw new IllegalArgumentException(
                 String.format("Invalid char for creating tile from serialized form: '%c'", c));

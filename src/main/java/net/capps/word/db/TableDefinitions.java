@@ -27,6 +27,7 @@ public class TableDefinitions {
                     "squares VARCHAR(400) NOT NULL," +
                     "tiles VARCHAR(800) NOT NULL," +
                     "game_result SMALLINT NOT NULL," +
+                    "player1_turn BOOLEAN NOT NULL," +
                     "date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
 
     public static final String CREATE_MOVES_TABLE =

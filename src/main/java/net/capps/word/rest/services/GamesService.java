@@ -27,7 +27,7 @@ import static javax.ws.rs.core.Response.Status;
 @Consumes(MediaType.APPLICATION_JSON)
 @Filters.RegularUserAuthRequired
 public class GamesService {
-    public static final String GAMES_PATH = "/games";
+    public static final String GAMES_PATH = "games";
     private static final AuthHelper authHelper = AuthHelper.getInstance();
     private static final GamesProvider gamesProvider = GamesProvider.getInstance();
 

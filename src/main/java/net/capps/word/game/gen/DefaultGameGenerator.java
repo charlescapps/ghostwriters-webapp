@@ -148,7 +148,7 @@ public class DefaultGameGenerator implements GameGenerator {
             while (iter.hasNext()) {
                 String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
-                if (tileSet.isValidPlacement(placement)) {
+                if (!tileSet.isValidPlacement(placement).isPresent()) {
                     placements.add(placement);
                     break; // Only add one possible play per length to reduce computation
                 }

@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
  */
 @Path(LoginService.LOGIN_PATH)
 public class LoginService {
-    public static final String LOGIN_PATH = "/login";
+    public static final String LOGIN_PATH = "login";
     private static final AuthHelper authHelper = AuthHelper.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(LoginService.class);
 

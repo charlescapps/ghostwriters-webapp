@@ -22,8 +22,8 @@ public class GamesDAO {
 
     private static final String INSERT_GAME_QUERY =
         "INSERT INTO word_games (player1, player2, player1_rack, player2_rack," +
-                    " board_size, bonuses_type, game_density, squares, tiles, game_result, date_started)" +
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    " board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
@@ -47,9 +47,10 @@ public class GamesDAO {
             stmt.setString(8, squares);
             stmt.setString(9, tiles);
             stmt.setShort(10, (short) GameResult.IN_PROGRESS.ordinal());
+            stmt.setBoolean(11, true); // Always starts as player 1's turn.
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
-            stmt.setTimestamp(11, timestamp);
+            stmt.setTimestamp(12, timestamp);
 
             stmt.executeUpdate();
 
@@ -77,6 +78,8 @@ public class GamesDAO {
     }
 
     private GameModel getGameByResultSetRow(ResultSet result) throws SQLException {
+        Preconditions.checkArgument(!result.isClosed() && !result.isAfterLast() && !result.isBeforeFirst(),
+                "Error - attempting to create a Game from an invalid ResultSet.");
         GameModel game = new GameModel();
         game.setId(result.getInt("id"));
         game.setPlayer1(result.getInt("player1"));
@@ -89,6 +92,7 @@ public class GamesDAO {
         game.setSquares(result.getString("squares"));
         game.setTiles(result.getString("tiles"));
         game.setGameResult(GameResult.values()[result.getShort("game_result")]);
+        game.setPlayer1Turn(result.getBoolean("player1_turn"));
         Timestamp dateStarted = result.getTimestamp("date_started");
         game.setDateCreated(dateStarted.getTime());
         return game;
