@@ -3,16 +3,13 @@ package net.capps.word.game.board;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
-import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.Rack;
 import net.capps.word.game.move.Move;
-import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.GameModel;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.List;
 
 import static java.lang.String.format;
 
@@ -61,12 +58,53 @@ public class GameState {
         return tileSet;
     }
 
+    public Rack getPlayer1Rack() {
+        return player1Rack;
+    }
+
+    public Rack getPlayer2Rack() {
+        return player2Rack;
+    }
+
+    public boolean isPlayer1Turn() {
+        return player1Turn;
+    }
+
+    public Rack getCurrentPlayerRack() {
+        return player1Turn ? player1Rack : player2Rack;
+    }
+
     public Optional<String> isValidMove(Move move) {
         switch (move.getMoveType()) {
             case PLAY_WORD: return isValidPlayWordMove(move);
             case GRAB_TILES: return isValidGrabTilesMove(move);
         }
         throw new IllegalStateException();
+    }
+
+    public void playMove(Move validatedMove) {
+        switch (validatedMove.getMoveType()) {
+            case PLAY_WORD:
+                playWordMove(validatedMove);
+                break;
+            case GRAB_TILES:
+                playGrabTilesMove(validatedMove);
+                break;
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private void playWordMove(Move move) {
+        tileSet.playWordMove(move);
+        getCurrentPlayerRack().removeTiles(move.getTiles());
+        player1Turn = !player1Turn;
+    }
+
+    private void playGrabTilesMove(Move move) {
+        tileSet.playGrabTilesMove(move);
+        getCurrentPlayerRack().addTiles(move.getTiles());
+        player1Turn = !player1Turn;
     }
 
     private Optional<String> isValidPlayWordMove(Move move) {

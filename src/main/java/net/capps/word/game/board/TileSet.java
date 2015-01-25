@@ -140,7 +140,7 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public void playWord(Move move) {
+    public void playWordMove(Move move) {
         Preconditions.checkArgument(move.getMoveType() == MoveType.PLAY_WORD, "Move type must be Play Word.");
         Dir dir = move.getDir();
         Pos start = move.getStart();
@@ -161,6 +161,19 @@ public class TileSet implements Iterable<Pos> {
                 }
             }
         }
+        if (rackIndex != tilesPlayed.size()) {
+            throw new IllegalStateException("All the played tiles should have been used. Invalid move: " + move);
+        }
+
+    }
+
+    public void playGrabTilesMove(Move move) {
+        Preconditions.checkArgument(move.getMoveType() == MoveType.GRAB_TILES, "Move type must be Grab Tiles.");
+        Dir dir = move.getDir();
+        Pos start = move.getStart();
+        List<RackTile> tilesGrabbed = move.getTiles();
+        String word = move.getLetters();
+
 
     }
 

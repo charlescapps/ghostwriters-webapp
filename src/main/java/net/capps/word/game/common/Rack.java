@@ -35,6 +35,7 @@ public class Rack {
         return tiles;
     }
 
+
     public boolean hasTiles(List<RackTile> tilesToPlay) {
         List<RackTile> copyTilesToPlay = Lists.newArrayList(tilesToPlay);
         List<RackTile> copyTiles = Lists.newArrayList(tiles);
@@ -56,8 +57,31 @@ public class Rack {
         tiles.addAll(tilesToAdd);
     }
 
+    public void removeTiles(List<RackTile> tilesToRemove) {
+        if (!hasTiles(tilesToRemove)) {
+            throw new IllegalArgumentException(format("Cannot remove tiles \"%s\" from Rack \"%s\"",
+                    tilesToString(tilesToRemove), tilesToString(tiles)));
+        }
+        for (RackTile tileToRemove: tilesToRemove) {
+            tiles.remove(tileToRemove);
+        }
+    }
+
     public boolean canAddTiles(List<RackTile> tilesToAdd) {
         return tiles.size() + tilesToAdd.size() <= MAX_TILES_IN_RACK;
+    }
+
+    @Override
+    public String toString() {
+        return tilesToString(tiles);
+    }
+
+    public static String tilesToString(List<RackTile> rackTiles) {
+        StringBuilder sb = new StringBuilder();
+        for (RackTile rackTile: rackTiles) {
+            sb.append(rackTile.toString());
+        }
+        return sb.toString();
     }
 
 

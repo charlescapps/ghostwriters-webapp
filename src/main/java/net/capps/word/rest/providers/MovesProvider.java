@@ -1,6 +1,7 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.common.BoardSize;
@@ -25,13 +26,13 @@ public class MovesProvider {
     private MovesProvider() { } // Singleton pattern
 
     public Optional<ErrorModel> validateMove(MoveModel inputMoveModel, UserModel authUser) throws Exception {
-        if (inputMoveModel == null) {
-            return Optional.of(new ErrorModel("Must provide a request body with an input move."));
+
+        Optional<ErrorModel> errorOpt = validateFieldsArePresent(inputMoveModel);
+        if (errorOpt.isPresent()) {
+            return errorOpt;
         }
+
         Integer gameId = inputMoveModel.getGameId();
-        if (gameId == null) {
-            return Optional.of(new ErrorModel("Must provide a gameId"));
-        }
 
         // Get the full Game using the gameId
         Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId);
@@ -54,14 +55,6 @@ public class MovesProvider {
             }
         }
 
-        // Validate all Move fields.
-        if (inputMoveModel.getDir() == null || inputMoveModel.getStart() == null || inputMoveModel.getLetters() == null || inputMoveModel.getMoveType() == null) {
-            return Optional.of(new ErrorModel("Must provide 'dir', 'start', 'letters', and 'moveType' fields"));
-        }
-        if (inputMoveModel.getTiles() == null || inputMoveModel.getTiles().isEmpty()) {
-            return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
-        }
-
         // Create a Board object
         BoardSize bs = game.getBoardSize();
         GameState gameState = new GameState(game);
@@ -77,5 +70,30 @@ public class MovesProvider {
 
 
         
+    }
+
+    private Optional<ErrorModel> validateFieldsArePresent(MoveModel inputMoveModel) {
+        if (inputMoveModel == null) {
+            return Optional.of(new ErrorModel("Must provide a request body with an input move."));
+        }
+        if (inputMoveModel.getGameId() == null) {
+            return Optional.of(new ErrorModel("Must provide \"gameId\" field"));
+        }
+        if (inputMoveModel.getDir() == null) {
+            return Optional.of(new ErrorModel("Must provide \"dir\" field"));
+        }
+        if (inputMoveModel.getStart() == null) {
+            return Optional.of(new ErrorModel("Must provide \"start\" field"));
+        }
+        if (Strings.isNullOrEmpty(inputMoveModel.getLetters())) {
+            return Optional.of(new ErrorModel("Must provide non-empty \"letters\" field"));
+        }
+        if (inputMoveModel.getMoveType() == null) {
+            return Optional.of(new ErrorModel("Must provide \"moveType\" field"));
+        }
+        if (inputMoveModel.getTiles() == null || inputMoveModel.getTiles().isEmpty()) {
+            return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
+        }
+        return Optional.absent();
     }
 }
