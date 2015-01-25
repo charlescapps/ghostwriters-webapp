@@ -2,6 +2,7 @@ package net.capps.word.game.common;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.RackTile;
 
 import java.util.List;
@@ -35,6 +36,17 @@ public class Rack {
         return tiles;
     }
 
+    public boolean isEmpty() {
+        return tiles.isEmpty();
+    }
+
+    public int getSumOfPoints() {
+        int points = 0;
+        for (RackTile rackTile: tiles) {
+            points += rackTile.getPointValueForEndGame();
+        }
+        return points;
+    }
 
     public boolean hasTiles(List<RackTile> tilesToPlay) {
         List<RackTile> copyTilesToPlay = Lists.newArrayList(tilesToPlay);

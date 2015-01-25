@@ -70,7 +70,7 @@ public class DefaultGameGenerator implements GameGenerator {
         int maxStartPos = Math.min(N / 2, N - len);
 
         int startPos = RandomUtil.randomInt(minStartPos, maxStartPos);
-        Pos pos = dir == S ? Pos.of(startPos, N / 2, N) : Pos.of(N / 2, startPos, N);
+        Pos pos = dir == S ? Pos.of(startPos, N / 2) : Pos.of(N / 2, startPos);
 
         return new Placement(word, pos, dir);
     }
@@ -82,7 +82,7 @@ public class DefaultGameGenerator implements GameGenerator {
 
         for (int r = 0; r < N - 1; r++) {
             for (int c = 0; c < N - 1; c++) {
-                Pos p = Pos.of(r, c, N);
+                Pos p = Pos.of(r, c);
                 if (!tileSet.isOccupied(p)) {
                     placements.addAll(getValidPlacementsFromUnoccupiedStart(tileSet, p, S, maxWordSize));
                     placements.addAll(getValidPlacementsFromUnoccupiedStart(tileSet, p, E, maxWordSize));

@@ -56,7 +56,6 @@ public class MovesProvider {
         }
 
         // Create a Board object
-        BoardSize bs = game.getBoardSize();
         GameState gameState = new GameState(game);
         Move move = new Move(inputMoveModel);
 
@@ -66,10 +65,24 @@ public class MovesProvider {
             return Optional.of(new ErrorModel(moveErrorOpt.get()));
         }
 
-        // If so, play the move.
+        return Optional.absent();
+    }
 
+    public GameModel playMove(MoveModel validatedMove) throws Exception {
+        // Get the full Game using the gameId
+        int gameId = validatedMove.getGameId();
 
-        
+        Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId);
+        if (!gameOpt.isPresent()) {
+            throw new IllegalStateException(format("gameId %d is not a valid game.", gameId));
+        }
+        GameModel gameModel = gameOpt.get();
+        GameState gameState = new GameState(gameModel);
+        Move move = new Move(validatedMove);
+
+        int numPoints = gameState.playMove(move); // Play the move, updating the game state.
+
+        return GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints);
     }
 
     private Optional<ErrorModel> validateFieldsArePresent(MoveModel inputMoveModel) {

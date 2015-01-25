@@ -3,6 +3,7 @@ package net.capps.word.db.dao;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.db.WordDbManager;
+import net.capps.word.game.board.GameState;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.BoardSize;
@@ -10,6 +11,7 @@ import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.MoveModel;
 
 import java.sql.*;
 import java.util.Date;
@@ -21,9 +23,13 @@ public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
 
     private static final String INSERT_GAME_QUERY =
-        "INSERT INTO word_games (player1, player2, player1_rack, player2_rack," +
-                    " board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
+        "INSERT INTO word_games (player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
+                    "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String UPDATE_GAME_QUERY =
+            "UPDATE word_games SET (player1_rack = ?,player2_rack = ?,player1_points=?,player2_points=?,squares = ?,tiles = ?,game_result = ?,player1_turn = ?) " +
+            "WHERE id = ?;";
 
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
@@ -41,13 +47,15 @@ public class GamesDAO {
             stmt.setInt(2, validatedInputGame.getPlayer2());
             stmt.setString(3, "");
             stmt.setString(4, "");
-            stmt.setShort(5, (short) validatedInputGame.getBoardSize().ordinal());
-            stmt.setShort(6, (short) validatedInputGame.getBonusesType().ordinal());
-            stmt.setShort(7, (short) validatedInputGame.getGameDensity().ordinal());
-            stmt.setString(8, squares);
-            stmt.setString(9, tiles);
-            stmt.setShort(10, (short) GameResult.IN_PROGRESS.ordinal());
-            stmt.setBoolean(11, true); // Always starts as player 1's turn.
+            stmt.setInt(5, 0); // Player 1 starts with 0 points
+            stmt.setInt(6, 0); // Player 2 starts with 0 points
+            stmt.setShort(7, (short) validatedInputGame.getBoardSize().ordinal());
+            stmt.setShort(8, (short) validatedInputGame.getBonusesType().ordinal());
+            stmt.setShort(9, (short) validatedInputGame.getGameDensity().ordinal());
+            stmt.setString(10, squares);
+            stmt.setString(11, tiles);
+            stmt.setShort(12, (short) GameResult.IN_PROGRESS.ordinal());
+            stmt.setBoolean(13, true); // Always starts as player 1's turn.
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
             stmt.setTimestamp(12, timestamp);
@@ -77,6 +85,45 @@ public class GamesDAO {
         }
     }
 
+    public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints) throws Exception {
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            try {
+                // Set auto-commit to false, to update Games table and Moves table and rollback if anything fails.
+                dbConn.setAutoCommit(false);
+
+                PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
+                updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());
+                updateGameStmt.setString(2, updatedGame.getPlayer2Rack().toString());
+                updateGameStmt.setInt(3, updatedGame.getPlayer1Points());
+                updateGameStmt.setInt(4, updatedGame.getPlayer2Points());
+                updateGameStmt.setString(5, updatedGame.getSquareSet().toCompactString());
+                updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
+                updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
+                updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
+                updateGameStmt.setInt(9, updatedGame.getGameId());
+
+                int rowCount = updateGameStmt.executeUpdate();
+
+                if (rowCount != 1) {
+                    throw new SQLException("Row count isn't 1 after updating game, row count is: " + rowCount);
+                }
+                ResultSet result = updateGameStmt.getGeneratedKeys();
+                result.next();
+
+                GameModel updatedGameModel = getGameByResultSetRow(result);
+
+                // Now insert the Move.
+                MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
+
+                return updatedGameModel;
+
+            } catch (Exception e) {
+                dbConn.rollback();
+                throw e;
+            }
+        }
+    }
+
     private GameModel getGameByResultSetRow(ResultSet result) throws SQLException {
         Preconditions.checkArgument(!result.isClosed() && !result.isAfterLast() && !result.isBeforeFirst(),
                 "Error - attempting to create a Game from an invalid ResultSet.");
@@ -86,6 +133,8 @@ public class GamesDAO {
         game.setPlayer2(result.getInt("player2"));
         game.setPlayer1Rack(result.getString("player1_rack"));
         game.setPlayer2Rack(result.getString("player2_rack"));
+        game.setPlayer1Points(result.getInt("player1_points"));
+        game.setPlayer2Points(result.getInt("player2_points"));
         game.setBoardSize(BoardSize.values()[result.getInt("board_size")]);
         game.setBonusesType(BonusesType.values()[result.getInt("bonuses_type")]);
         game.setGameDensity(GameDensity.values()[result.getInt("game_density")]);

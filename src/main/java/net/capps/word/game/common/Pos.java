@@ -93,7 +93,7 @@ public class Pos {
         throw new IllegalStateException("Cannot subtract 2 positions that aren't on the same row or column!");
     }
 
-    public static Pos of(int r, int c, int N) {
+    public static Pos of(int r, int c) {
         return new Pos(r, c);
     }
 

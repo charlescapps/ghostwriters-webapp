@@ -92,13 +92,6 @@ public class Tile {
 
     @Override
     public String toString() {
-        if (wild) {
-            return WILD_TILE_STR + letter;
-        }
-        return Character.toString(letter);
-    }
-
-    public String toSerializedForm() {
         StringBuilder sb = new StringBuilder();
         if (wild) {
             sb.append('*');
@@ -109,6 +102,13 @@ public class Tile {
             sb.append(Character.toLowerCase(letter));
         }
         return sb.toString();
+    }
+
+    public RackTile toRackTile() {
+        if (wild) {
+            return RackTile.wild();
+        }
+        return RackTile.of(letter);
     }
 
 }

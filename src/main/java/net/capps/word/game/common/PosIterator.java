@@ -25,7 +25,7 @@ public class PosIterator implements Iterator<Pos> {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        Pos p = Pos.of(r, c, N);
+        Pos p = Pos.of(r, c);
 
         c = (c + 1) % N;
 

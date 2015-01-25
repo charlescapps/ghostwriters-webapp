@@ -5,7 +5,6 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.move.MoveType;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Created by charlescapps on 1/16/15.
@@ -18,14 +17,18 @@ public class MoveModel {
     private final Dir dir;
     private final String tiles;
     private final MoveType moveType;
+    private final Integer points;
+    private final Long datePlayed;
 
-    public MoveModel(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, String tiles) {
+    public MoveModel(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, String tiles, Integer points, Long datePlayed) {
         this.gameId = gameId;
         this.moveType = moveType;
         this.letters = letters;
         this.start = start;
         this.dir = dir;
         this.tiles = tiles;
+        this.points = points;
+        this.datePlayed = datePlayed;
     }
 
     public Integer getGameId() {
@@ -48,8 +51,16 @@ public class MoveModel {
         return tiles;
     }
 
+    public Integer getPoints() {
+        return points;
+    }
+
     public MoveType getMoveType() {
         return moveType;
+    }
+
+    public Long getDatePlayed() {
+        return datePlayed;
     }
 
 }

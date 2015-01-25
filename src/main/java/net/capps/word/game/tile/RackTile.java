@@ -54,6 +54,13 @@ public class RackTile {
         return Tile.playedTile(c);
     }
 
+    public int getPointValueForEndGame() {
+        if (isWild()) {
+            return 1;
+        }
+        return LetterPoints.getInstance().getPointValue(letter);
+    }
+
     @Override
     public String toString() {
         return Character.toString(letter);

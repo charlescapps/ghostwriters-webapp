@@ -17,6 +17,8 @@ public class GameModel {
     private Integer player2;
     private String player1Rack;
     private String player2Rack;
+    private Integer player1Points;
+    private Integer player2Points;
     private BoardSize boardSize;
     private BonusesType bonusesType;
     private GameDensity gameDensity;
@@ -68,6 +70,22 @@ public class GameModel {
 
     public void setPlayer2Rack(String player2Rack) {
         this.player2Rack = player2Rack;
+    }
+
+    public Integer getPlayer1Points() {
+        return player1Points;
+    }
+
+    public void setPlayer1Points(Integer player1Points) {
+        this.player1Points = player1Points;
+    }
+
+    public Integer getPlayer2Points() {
+        return player2Points;
+    }
+
+    public void setPlayer2Points(Integer player2Points) {
+        this.player2Points = player2Points;
     }
 
     public BoardSize getBoardSize() {

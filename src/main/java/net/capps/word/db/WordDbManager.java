@@ -19,17 +19,22 @@ public class WordDbManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(WordDbManager.class);
 
+    private final String username;
+    private final String password;
+    private final String dbUrl;
+
+    private WordDbManager() {
+        LOG.info("DATABASE_URL=" + DATABASE_URL);
+        username = DATABASE_URI.getUserInfo().split(":")[0];
+        password = DATABASE_URI.getUserInfo().split(":")[1];
+        dbUrl = "jdbc:postgresql://" + DATABASE_URI.getHost() + DATABASE_URI.getPath();
+    }
+
     public static WordDbManager getInstance() {
         return INSTANCE;
     }
 
     public Connection getConnection() throws URISyntaxException, SQLException {
-        System.out.println("DATABASE_URL=" + DATABASE_URL); // testing logging ...
-        LOG.debug("Getting connection with DATABASE_URL=" + DATABASE_URL);
-        String username = DATABASE_URI.getUserInfo().split(":")[0];
-        String password = DATABASE_URI.getUserInfo().split(":")[1];
-        String dbUrl = "jdbc:postgresql://" + DATABASE_URI.getHost() + DATABASE_URI.getPath();
-
         return DriverManager.getConnection(dbUrl, username, password);
     }
 }

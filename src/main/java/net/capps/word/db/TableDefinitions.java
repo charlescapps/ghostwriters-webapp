@@ -21,6 +21,8 @@ public class TableDefinitions {
                     "player2 INTEGER NOT NULL," +
                     "player1_rack VARCHAR(16) NOT NULL," +
                     "player2_rack VARCHAR(16) NOT NULL," +
+                    "player1_points INTEGER NOT NULL," +
+                    "player2_points INTEGER NOT NULL," +
                     "board_size SMALLINT NOT NULL," +
                     "bonuses_type SMALLINT NOT NULL," +
                     "game_density SMALLINT NOT NULL," +
@@ -33,13 +35,14 @@ public class TableDefinitions {
     public static final String CREATE_MOVES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_moves " +
                     "( id BIGSERIAL PRIMARY KEY," +
-                    "  game_id INTEGER NOT NULL," +
-                    "  move_type SMALLINT NOT NULL," +
-                    "  start_row SMALLINT NOT NULL," +
-                    "  start_col SMALLINT NOT NULL," +
-                    "  direction CHAR(1) NOT NULL," +
-                    "  word VARCHAR(32)," +
-                    "  tiles_played VARCHAR(16)," +
-                    "  date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
+                      "game_id INTEGER NOT NULL," +
+                      "move_type SMALLINT NOT NULL," +
+                      "start_row SMALLINT NOT NULL," +
+                      "start_col SMALLINT NOT NULL," +
+                      "direction CHAR(1) NOT NULL," +
+                      "word VARCHAR(32) NOT NULL," +
+                      "tiles_played VARCHAR(16) NOT NULL," +
+                      "points INTEGER NOT NULL," +
+                      "date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
                     ");";
 }

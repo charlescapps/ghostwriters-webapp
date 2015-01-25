@@ -1,9 +1,14 @@
 package net.capps.word.game.board;
 
+import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.BoardSize;
+import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
+import net.capps.word.game.move.Move;
+import net.capps.word.game.move.MoveType;
+import net.capps.word.game.tile.LetterPoints;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -73,6 +78,30 @@ public class SquareSet implements Iterable<Pos> {
             int col = i % N;
             this.squares[row][col] = Square.valueOf(compactTiles.charAt(i));
         }
+    }
+
+    public int computePoints(Move move) {
+        Preconditions.checkArgument(move.getMoveType() == MoveType.PLAY_WORD, "Can only compute points for a Play Word move.");
+        int wordPoints = 0;
+        int wordScale = 1;
+        String word = move.getLetters();
+        Pos start = move.getStart();
+        Dir dir = move.getDir();
+        LetterPoints letterPoints = LetterPoints.getInstance();
+
+        for (int i = 0; i < word.length(); i++) {
+            Pos p = start.go(dir, i);
+            Square square = get(p);
+            char c = word.charAt(i);
+            wordPoints += letterPoints.getPointValue(c) * square.getLetterMultiplier();
+            wordScale *= square.getWordMultiplier();
+        }
+
+        int totalPoints =  wordPoints * wordScale;
+        if (totalPoints <= 0) {
+            throw new IllegalStateException("Something went wrong computing the points - any move must earn > 0 points!");
+        }
+        return totalPoints;
     }
 
     @Override

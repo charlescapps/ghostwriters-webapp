@@ -62,6 +62,19 @@ public class TileSet implements Iterable<Pos> {
         return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
     }
 
+    public boolean areAllTilesPlayed() {
+        for (Pos p: this) {
+            Tile tile = get(p);
+            if (tile.isAbsent()) {
+                continue;
+            }
+            if (tile.isStartTile()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public char getLetterAt(Pos p) {
         if (!isValid(p)) {
             throw new IllegalArgumentException("Position is invalid: " + p);
@@ -174,6 +187,21 @@ public class TileSet implements Iterable<Pos> {
         List<RackTile> tilesGrabbed = move.getTiles();
         String word = move.getLetters();
 
+        for (int i = 0; i < word.length(); i++) {
+            Pos p = start.go(dir, i);
+            Tile existing = get(p);
+            if (existing.isAbsent()) {
+                throw new IllegalStateException("Cannot grab an empty tile!");
+            }
+            RackTile rackTile = existing.toRackTile();
+            if (!rackTile.equals(tilesGrabbed.get(i))) {
+                throw new IllegalStateException(
+                        format("For grab tiles move, at index %d, board has %s but tile grabbed is %s. Move: %s",
+                                i, existing.toString(), tilesGrabbed.get(i).toString(), move.toString()));
+            }
+            // Remove the tile being grabbed.
+            set(p, Tile.absentTile());
+        }
 
     }
 
@@ -216,13 +244,12 @@ public class TileSet implements Iterable<Pos> {
 
     public Optional<String> isValidGrabTilesMove(Move move) {
         // Check if the move starts in a valid place.
-        Optional<String> errorOpt = doesMoveStartInValidPosition(move.getStart(), move.getDir());
-        if (errorOpt.isPresent()) {
-            return errorOpt;
+        if (!isOccupied(move.getStart())) {
+            return Optional.of("Grab Tiles move must start on an occupied tile");
         }
 
         // Check if the tiles being added to the Rack match what's taken from the board.
-        errorOpt = lettersMatchTilesGrabbed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles());
+        Optional<String> errorOpt = lettersMatchTilesGrabbed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles());
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
@@ -270,7 +297,6 @@ public class TileSet implements Iterable<Pos> {
     }
 
     private Optional<String> lettersMatchTilesGrabbed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
-        int rackIndex = 0;
         if (tiles.size() != letters.length()) {
             return Optional.of(format("The letters \"%s\" don't match the number of tiles grabbed, %d", letters, tiles.size()));
         }
@@ -279,20 +305,31 @@ public class TileSet implements Iterable<Pos> {
             Pos p = start.go(dir, i);
             Tile tile = get(p);
             RackTile rackTile = tiles.get(i);
+            // Can't grab an absent tile
             if (tile.isAbsent()) {
                 return Optional.of("Cannot grab an empty space!");
-            } else {
-                if (tile.isWild() != rackTile.isWild()) {
-                    return Optional.of(format("Grabbed tile \"%s\" on board, but rack tile is \"%s\"", tile.toString(), rackTile.toString()));
-                }
-                // The tile on the board must match the next character of the word being played
-                if (c != tile.getLetter()) {
-                    return Optional.of("The tile on the board must match the next character of the word played.");
-                }
-                if (!tile.isWild() && tile.getLetter() != rackTile.getLetter()) {
-                    return Optional.of(format("The next tile, \"%s\" doesn't match the rack tile, \"%s\"", tile.toString(), rackTile.toString()));
-                }
             }
+            // Can't grab a tile that was played by a player
+            if (!tile.isStartTile()) {
+                return Optional.of("Cannot grab a played tile!");
+            }
+            // A grabbed wildcard tile becomes a wildcard tile in the player's rack
+            if (tile.isWild() != rackTile.isWild()) {
+                return Optional.of(format("Grabbed tile \"%s\" on board, but rack tile is \"%s\"", tile.toString(), rackTile.toString()));
+            }
+            // The tile on the board must match the next character of the word being played
+            if (c != tile.getLetter()) {
+                return Optional.of("The tile on the board must match the next character of the word grabbed.");
+            }
+            // Letters must match
+            if (!tile.isWild() && tile.getLetter() != rackTile.getLetter()) {
+                return Optional.of(format("The next tile, \"%s\" doesn't match the rack tile, \"%s\"", tile.toString(), rackTile.toString()));
+            }
+
+        }
+        Pos afterEnd = start.go(dir, letters.length());
+        if (isOccupied(afterEnd)) {
+            return Optional.of("Must grab all contiguous tiles in one direction.");
         }
 
         return Optional.absent();
