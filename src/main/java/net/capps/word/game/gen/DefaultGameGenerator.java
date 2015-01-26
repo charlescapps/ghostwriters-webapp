@@ -53,7 +53,7 @@ public class DefaultGameGenerator implements GameGenerator {
                 throw new IllegalStateException("Could not find any valid placements!!");
             }
             Placement placement = validPlacementOpt.get();
-            LOG.info("Placing word: " + placement);
+           // LOG.trace("Placing word: " + placement);
             tileSet.placeWord(placement);
         }
 

@@ -27,15 +27,14 @@ import static java.lang.String.format;
  */
 public class TileSet implements Iterable<Pos> {
     private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
+    private static final DictionarySet DICTIONARY_SET = DictionarySet.getInstance();
 
     public final Tile[][] tiles;
     public final int N;
-    private final int TOTAL_TILES;
 
     public TileSet(int N) {
         Preconditions.checkArgument(N > 6, "The board size, N, must be at least 7.");
         this.N = N;
-        this.TOTAL_TILES = N * N;
         this.tiles = new Tile[N][N];
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < N; c++) {
@@ -45,14 +44,10 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public Tile get(Pos p) {
-        if (!isValid(p)) {
-            throw new IllegalArgumentException("Must provide a valid Position!");
-        }
         return tiles[p.r][p.c];
     }
 
     public void set(Pos p, Tile tile) {
-        Preconditions.checkArgument(isValid(p));
         tiles[p.r][p.c] = tile;
     }
 
@@ -74,17 +69,11 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public char getLetterAt(Pos p) {
-        if (!isValid(p)) {
-            throw new IllegalArgumentException("Position is invalid: " + p);
-        }
         Tile tile = tiles[p.r][p.c];
         return tile.getLetter();
     }
 
     public String getWord(Pos start, Pos end) {
-        if (!isValid(start) || !isValid(end)) {
-            throw new IllegalArgumentException("Cannot find word for invalid positions");
-        }
 
         int diff = end.minus(start);
         Dir dir = start.getDirTo(end);
@@ -97,11 +86,7 @@ public class TileSet implements Iterable<Pos> {
         return sb.toString();
     }
 
-    public String getPerpWord(Pos start, Pos end, Pos middle, char c) {
-        if (!isValid(start) || !isValid(end)) {
-            throw new IllegalArgumentException("Cannot find word for invalid positions");
-        }
-
+    public String getWordWithMissingChar(Pos start, Pos end, Pos middle, char middleChar) {
         int diff = end.minus(start);
         Dir dir = start.getDirTo(end);
 
@@ -109,7 +94,7 @@ public class TileSet implements Iterable<Pos> {
         for (int i = 0; i <= diff; i++) {
             Pos p = start.go(dir, i);
             if (p.equals(middle)) {
-                sb.append(c);
+                sb.append(middleChar);
             } else {
                 sb.append(getLetterAt(p));
             }
@@ -338,7 +323,7 @@ public class TileSet implements Iterable<Pos> {
         final Dir dir = placement.getDir();
 
         // Must be a valid dictionary word
-        if (!DictionarySet.getInstance().contains(word)) {
+        if (!DICTIONARY_SET.contains(word)) {
             return Optional.of(format("\"%s\" is not a valid dictionary word.", word));
         }
 
@@ -359,7 +344,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         // Must be a valid play with words formed perpendicularly
-        errorOpt = isValidPlacementInPerpendicular(placement);
+        errorOpt = getErrorForPerpendicularPlacement(placement);
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
@@ -390,7 +375,7 @@ public class TileSet implements Iterable<Pos> {
         return Optional.absent();
     }
 
-    private Optional<String> isValidPlacementInPerpendicular(Placement placement) {
+    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
@@ -404,7 +389,7 @@ public class TileSet implements Iterable<Pos> {
             char c = word.charAt(i);
             Optional<String> perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord.isPresent()) {
-                if (!DictionarySet.getInstance().contains(perpWord.get())) {
+                if (!DICTIONARY_SET.contains(perpWord.get())) {
                     return Optional.of(format("Word formed, \"%s\", is not a valid dictionary word.", perpWord.get()));
                 }
             }
@@ -412,44 +397,25 @@ public class TileSet implements Iterable<Pos> {
         return Optional.absent();
     }
 
-    private Optional<String> getPerpWordForAttemptedPlacement(final Pos pos, char c, Dir dir) {
+    private Optional<String> getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
         if (isOccupied(pos)) {
             throw new IllegalArgumentException("Cannot get perpendicular word for occupied space.");
         }
         switch (dir) {
             case E:
             case W:
-                Pos n = pos.n();
-                Pos s = pos.s();
-                if (!isOccupied(n) && !isOccupied(s)) {
+                Pos start = getEndOfOccupied(pos.n(), Dir.N);
+                Pos end = getEndOfOccupied(pos.s(), Dir.S);
+                if (start.equals(end)) {
                     return Optional.absent();
                 }
-                Pos start = pos;
-                if (isOccupied(n)) {
-                    start = getEndOfOccupied(n, Dir.N);
-                }
-                Pos end = pos;
-                if (isOccupied(s)) {
-                    end = getEndOfOccupied(s, Dir.S);
-                }
-                return Optional.of(getPerpWord(start, end, pos, c));
+                return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
 
             case S:
             case N:
-                Pos e = pos.e();
-                Pos w = pos.w();
-                if (!isOccupied(e) && !isOccupied(w)) {
-                    return Optional.absent();
-                }
-                start = pos;
-                if (isOccupied(w)) {
-                    start = getEndOfOccupied(w, Dir.W);
-                }
-                end = pos;
-                if (isOccupied(e)) {
-                    end = getEndOfOccupied(e, Dir.E);
-                }
-                return Optional.of(getPerpWord(start, end, pos, c));
+                start = getEndOfOccupied(pos.w(), Dir.W);
+                end = getEndOfOccupied(pos.e(), Dir.E);
+                return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
         }
         return Optional.absent();
     }
@@ -484,7 +450,7 @@ public class TileSet implements Iterable<Pos> {
 
     public Pos getEndOfOccupied(Pos start, Dir dir) {
         Pos p = start;
-        while (isValid(p) && isOccupied(p)) {
+        while (isOccupied(p)) {
             p = p.go(dir);
         }
         return p.go(dir, -1);

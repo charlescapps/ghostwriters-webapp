@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DateUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,8 +25,50 @@ public class DictionaryTrieTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        SetupHelper.getInstance().initDatabase();
+        SetupHelper.getInstance().initDictionaryDataStructures();
+    }
 
+    @Test
+    public void testTrieContainsMethod() {
+        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionarySet SET = DictionarySet.getInstance();
+
+        LOG.info("Verifying that the Trie contains every word...");
+        for (String word: SET.getWords()) {
+            Assert.assertTrue("Expect Trie to contan every word added to dictionary", TRIE.contains(word));
+        }
+
+        for (int i = 0 ; i < 100 ; i++) {
+            String random = RandomStringUtils.randomAlphabetic(8).toUpperCase();
+            if (SET.contains(random)) {
+                Assert.assertTrue(TRIE.contains(random));
+            } else {
+                Assert.assertTrue(!TRIE.contains(random));
+            }
+        }
+        LOG.info("SUCCESS - Trie contains() method is valid");
+    }
+
+    @Test
+    public void testContainsPerformance() {
+        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionarySet SET = DictionarySet.getInstance();
+        Set<String> words = SET.getWords();
+
+        long START = System.currentTimeMillis();
+        for (String word: words) {
+            boolean contains = SET.contains(word);
+        }
+        long END = System.currentTimeMillis();
+        LOG.info("Checking words are contained in Set took: {}", DateUtil.getDurationPrettyMillis(END - START));
+
+        START = System.currentTimeMillis();
+        for (String word: words) {
+            boolean contains = TRIE.contains(word);
+        }
+
+        END = System.currentTimeMillis();
+        LOG.info("Checking words are contained in Trie took: {}", DateUtil.getDurationPrettyMillis(END - START));
     }
 
     @Test

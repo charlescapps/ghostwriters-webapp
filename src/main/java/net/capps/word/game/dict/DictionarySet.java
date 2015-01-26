@@ -73,8 +73,7 @@ public class DictionarySet {
     }
 
     public boolean contains(String word) {
-        String uppercase = word.toUpperCase();
-        return words.contains(uppercase);
+        return words.contains(word);
     }
 
     public ImmutableSet<String> getWords() {

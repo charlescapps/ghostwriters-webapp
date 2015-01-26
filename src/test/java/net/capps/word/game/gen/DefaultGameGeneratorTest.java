@@ -1,7 +1,9 @@
 package net.capps.word.game.gen;
 
 import net.capps.word.game.board.TileSet;
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.heroku.SetupHelper;
+import net.capps.word.util.DateUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,7 +37,7 @@ public class DefaultGameGeneratorTest {
     @Test
     public void testGenerateGamesWithTwoMoves() {
         GameGenerator gg = new DefaultGameGenerator();
-        final int SIZE = 15;
+        final int SIZE = BoardSize.VENTI.getN();
         for (int i = 0; i < 10; i++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, 2, 8);
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
@@ -45,12 +47,15 @@ public class DefaultGameGeneratorTest {
 
     @Test
     public void testGenerateGamesWithManyMoves() {
+        final long START = System.currentTimeMillis();
         GameGenerator gg = new DefaultGameGenerator();
-        final int SIZE = 15;
-        for (int numWOrds = 2; numWOrds < 20; numWOrds++) {
-            TileSet game = gg.generateRandomFinishedGame(SIZE, numWOrds, 10);
+        final int SIZE = BoardSize.VENTI.getN();
+        for (int numWords = 2; numWords < 40; numWords++) {
+            TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getMaxInitialWordSize());
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
             LOG.info("\n{}", game);
         }
+        final long END = System.currentTimeMillis();
+        LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
     }
 }

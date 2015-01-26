@@ -79,13 +79,13 @@ public class Pos {
 
     public Dir getDirTo(Pos pos) {
         if (r == pos.r) {
-            if (r <= pos.r) {
+            if (c <= pos.c) {
                 return Dir.E;
             }
             return Dir.W;
         }
         if (c == pos.c) {
-            if (c <= pos.c) {
+            if (r <= pos.r) {
                 return Dir.S;
             }
             return Dir.N;
