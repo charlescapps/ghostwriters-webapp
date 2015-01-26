@@ -40,8 +40,7 @@ public class BaseWordServiceTest extends JerseyTest {
         setupHelper.initDatabase();
         setupHelper.createInitialUser();
         setupHelper.initDictionaryDataStructures();
-        setupHelper.initLayouts();
-        setupHelper.initPoints();
+        setupHelper.initGameDataStructures();
 
         // Create 2 regular users
         final String fooUsername = "Foo_" + System.currentTimeMillis() / 1000;

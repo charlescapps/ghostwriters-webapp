@@ -15,7 +15,7 @@ public class FixedLayoutsTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        SetupHelper.getInstance().initLayouts();
+        FixedLayouts.getInstance().initLayouts();
     }
 
     @Test

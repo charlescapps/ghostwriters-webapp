@@ -12,8 +12,7 @@ public class Main {
         setupHelper.initDatabase();
         setupHelper.createInitialUser();
         setupHelper.initDictionaryDataStructures();
-        setupHelper.initLayouts();
-        setupHelper.initPoints();
+        setupHelper.initGameDataStructures();
         setupHelper.initJetty();
     }
 

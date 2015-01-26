@@ -11,6 +11,7 @@ import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.board.FixedLayouts;
+import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
@@ -62,6 +63,12 @@ public class SetupHelper {
         UsersProvider.getInstance().createNewUserIfNotExists(initialUser);
     }
 
+    public void initGameDataStructures() throws Exception {
+        FixedLayouts.getInstance().initLayouts();
+        LetterPoints.getInstance().load();
+        PositionLists.getInstance().load();
+    }
+
     public void initDictionaryDataStructures() throws IOException {
         DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, BoardSize.VENTI.getN());
         ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
@@ -70,14 +77,6 @@ public class SetupHelper {
         DictionaryTrie.getInstance().loadDictionary(dict);
 
         DictionaryWordPicker.getInstance().loadDictionary(dict);
-    }
-
-    public void initLayouts() throws IOException, InvalidBoardException {
-        FixedLayouts.getInstance().initLayouts();
-    }
-
-    public void initPoints() throws Exception {
-        LetterPoints.getInstance().load();
     }
 
     public void initJetty() throws Exception {

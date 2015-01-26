@@ -17,6 +17,7 @@ public class DefaultGameGeneratorTest {
     @BeforeClass
     public static void initDict() throws Exception {
         SetupHelper.getInstance().initDictionaryDataStructures();
+        SetupHelper.getInstance().initGameDataStructures();
     }
 
     @Test

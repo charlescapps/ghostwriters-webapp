@@ -1,5 +1,9 @@
 package net.capps.word.game.common;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
 /**
  * Created by charlescapps on 1/15/15.
  */

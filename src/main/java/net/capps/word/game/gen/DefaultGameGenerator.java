@@ -2,8 +2,8 @@ package net.capps.word.game.gen;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import static net.capps.word.game.common.Dir.E;
 import static net.capps.word.game.common.Dir.S;
@@ -28,11 +27,12 @@ import static net.capps.word.game.common.Dir.S;
  */
 public class DefaultGameGenerator implements GameGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
+    private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
 
-    private final DictionaryTrie TRIE;
+    private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+    private static final ImmutableList<Dir> VALID_PLAY_DIRS = ImmutableList.of(E, S);
 
     public DefaultGameGenerator() {
-        this.TRIE = Preconditions.checkNotNull(DictionaryTrie.getInstance());
     }
 
     @Override
@@ -48,13 +48,13 @@ public class DefaultGameGenerator implements GameGenerator {
         tileSet.placeWord(firstPlacement);
 
         for (int i = 1; i < numWords; i++) {
-            Set<Placement> validPlacements = generateValidPlacements(tileSet, maxWordSize);
-            if (validPlacements.isEmpty()) {
+            Optional<Placement> validPlacementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
+            if (!validPlacementOpt.isPresent()) {
                 throw new IllegalStateException("Could not find any valid placements!!");
             }
-            Placement chosen = RandomUtil.pickRandomElementFromSet(validPlacements);
-            LOG.info("Placing word: " + chosen);
-            tileSet.placeWord(chosen);
+            Placement placement = validPlacementOpt.get();
+            LOG.info("Placing word: " + placement);
+            tileSet.placeWord(placement);
         }
 
         return tileSet;
@@ -75,25 +75,30 @@ public class DefaultGameGenerator implements GameGenerator {
         return new Placement(word, pos, dir);
     }
 
-    private Set<Placement> generateValidPlacements(TileSet tileSet, int maxWordSize) {
+    private Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
 
-        Set<Placement> placements = Sets.newHashSet();
+        ImmutableList<Pos> positions = POSITION_LISTS.getPositionList(N);
 
-        for (int r = 0; r < N - 1; r++) {
-            for (int c = 0; c < N - 1; c++) {
-                Pos p = Pos.of(r, c);
-                if (!tileSet.isOccupied(p)) {
-                    placements.addAll(getValidPlacementsFromUnoccupiedStart(tileSet, p, S, maxWordSize));
-                    placements.addAll(getValidPlacementsFromUnoccupiedStart(tileSet, p, E, maxWordSize));
+        // Search the possible start positions in a random order.
+        List<Pos> randomOrderPositions = RandomUtil.randomizeList(positions);
+
+        for (Pos p: randomOrderPositions) {
+            if (!tileSet.isOccupied(p)) {
+                List<Dir> randomOrderDirs = RandomUtil.randomizeList(VALID_PLAY_DIRS);
+                for (Dir dir: randomOrderDirs) {
+                    Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize);
+                    if (optValidPlacement.isPresent()) {
+                        return optValidPlacement;
+                    }
                 }
             }
         }
 
-        return placements;
+        return Optional.absent();
     }
 
-    private Set<Placement> getValidPlacementsFromUnoccupiedStart(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
+    private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
         if (tileSet.isOccupied(start)) {
             throw new IllegalStateException();
         }
@@ -101,7 +106,7 @@ public class DefaultGameGenerator implements GameGenerator {
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
-            return Placement.EMPTY_SET;
+            return Optional.absent();
         }
 
         Pos occOrAdj = firstOccupiedOrAdjacent.get();
@@ -113,7 +118,6 @@ public class DefaultGameGenerator implements GameGenerator {
             start = tileSet.getEndOfOccupied(previous, dir.negate());
         }
 
-        Set<Placement> placements = Sets.newHashSet();
         final int diff = occOrAdj.minus(start);
 
         int maxSearched = -1;
@@ -148,14 +152,13 @@ public class DefaultGameGenerator implements GameGenerator {
             while (iter.hasNext()) {
                 String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.isValidPlacement(placement).isPresent()) {
-                    placements.add(placement);
-                    break; // Only add one possible play per length to reduce computation
+                if (!tileSet.getPlacementError(placement).isPresent()) {
+                    return Optional.of(placement);
                 }
             }
         }
 
-        return placements;
+        return Optional.absent();
     }
 
 }

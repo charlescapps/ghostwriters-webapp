@@ -2,8 +2,6 @@ package net.capps.word.game.board;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import net.capps.word.exceptions.IllegalMoveException;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
@@ -234,7 +232,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         Placement placement = move.getPlacement();
-        errorOpt = isValidPlacement(placement);
+        errorOpt = getPlacementError(placement);
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
@@ -335,7 +333,7 @@ public class TileSet implements Iterable<Pos> {
         return Optional.absent();
     }
 
-    public Optional<String> isValidPlacement(Placement placement) {
+    public Optional<String> getPlacementError(Placement placement) {
         final String word = placement.getWord();
         final Dir dir = placement.getDir();
 
