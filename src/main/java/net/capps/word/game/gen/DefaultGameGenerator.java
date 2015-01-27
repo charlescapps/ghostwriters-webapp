@@ -122,7 +122,9 @@ public class DefaultGameGenerator implements GameGenerator {
 
         int maxSearched = -1;
 
-        // Try words of valid sizes
+        // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
+        List<Integer> diffsToTry = Lists.newArrayList();
+
         for (int i = diff; i < maxWordSize; i++) {
             if (i <= maxSearched) {
                 continue;
@@ -136,6 +138,13 @@ public class DefaultGameGenerator implements GameGenerator {
             int totalDiff = wordEndPos.minus(start);
 
             maxSearched = Math.max(maxSearched, totalDiff);
+            diffsToTry.add(totalDiff);
+        }
+
+        // Try all possible word lengths in a random order.
+        List<Integer> randomOrderDiffs = RandomUtil.randomizeList(diffsToTry);
+
+        for (int totalDiff : randomOrderDiffs) {
 
             List<WordConstraint> wcs = Lists.newArrayList();
 

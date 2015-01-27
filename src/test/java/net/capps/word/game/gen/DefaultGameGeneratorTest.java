@@ -57,5 +57,6 @@ public class DefaultGameGeneratorTest {
         }
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
+        LOG.info("Duration in seconds: {}", (END - START)/1000);
     }
 }
