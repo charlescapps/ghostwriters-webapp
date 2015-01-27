@@ -10,6 +10,7 @@ import net.capps.word.game.common.PosIterator;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
+import net.capps.word.game.tile.LetterUtils;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.game.tile.Tile;
 import org.slf4j.Logger;
@@ -68,6 +69,16 @@ public class TileSet implements Iterable<Pos> {
         return true;
     }
 
+    public boolean isEmpty() {
+        for (Pos p: this) {
+            Tile tile = get(p);
+            if (!tile.isAbsent()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public char getLetterAt(Pos p) {
         Tile tile = tiles[p.r][p.c];
         return tile.getLetter();
@@ -108,29 +119,31 @@ public class TileSet implements Iterable<Pos> {
         int numRead;
         do {
             numRead = reader.read(input);
-            sb.append(input, 0, numRead);
+            if (numRead > 0) {
+                sb.append(input, 0, numRead);
+            }
         } while (numRead != -1);
 
         String tileConfig = sb.toString();
 
         boolean wild = false;
-        int numChars = 0;
+        int numTilesRead = 0;
         for (int i = 0; i < tileConfig.length(); i++) {
             char c = tileConfig.charAt(i);
             if (Character.isWhitespace(c)) {
                 continue; // ignore whitespace.
             }
             // If the char is alphabetic, add a Tile to the matrix.
-            if (Character.isAlphabetic(c)) {
-                int row = numChars / N;
-                int col = numChars % N;
+            if (LetterUtils.isLowercase(c) || LetterUtils.isUppercase(c) || c == Tile.ABSENT_TILE) {
+                int row = numTilesRead / N;
+                int col = numTilesRead % N;
                 tiles[row][col] = Tile.fromSerializedForm(c, wild);
-                ++numChars;
+                ++numTilesRead;
             }
             // If a '*' is encountered, the subsequent Tile is marked as a Wildcard
             wild = c == Tile.WILD_TILE;
         }
-        if (numChars != N * N) {
+        if (numTilesRead != N * N) {
             throw new IllegalStateException(
                     format("The input tileconfig didn't have N*N = %d characters:\n%s", N * N, tileConfig));
         }
@@ -415,6 +428,9 @@ public class TileSet implements Iterable<Pos> {
             case N:
                 start = getEndOfOccupied(pos.w(), Dir.W);
                 end = getEndOfOccupied(pos.e(), Dir.E);
+                if (start.equals(end)) {
+                    return Optional.absent();
+                }
                 return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
         }
         return Optional.absent();
@@ -454,30 +470,6 @@ public class TileSet implements Iterable<Pos> {
             p = p.go(dir);
         }
         return p.go(dir, -1);
-    }
-
-    public Pos getEndOfOccupiedFromOccupiedOrAdj(Pos start, Dir dir) {
-        // Case 1: start is occupied.
-        if (isOccupied(start)) {
-            Pos p = start;
-
-            while (isValid(p) && isOccupied(p)) {
-                p = p.go(dir);
-            }
-            return p.go(dir, -1);
-        }
-
-        // Case 2: start is unoccupied
-        Pos p = start.go(dir);
-        if (isOccupied(p)) {
-          while (isValid(p) && isOccupied(p)) {
-              p = p.go(dir);
-          }
-          return p.go(dir, -1);
-        } else {
-            return start;
-        }
-
     }
 
     @Override

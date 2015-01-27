@@ -1,6 +1,6 @@
 package net.capps.word.game.dict;
 
-import net.capps.word.game.dict.iterators.RandomWordIterator;
+import net.capps.word.game.dict.iterators.RandomWordIteratorFactory;
 import net.capps.word.game.dict.iterators.WordsOfLengthIterator;
 import net.capps.word.util.DateUtil;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class DictionaryTrie {
     }
 
     public Iterator<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints, int len) {
-        return RandomWordIterator.create(root, constraints, len);
+        return RandomWordIteratorFactory.create(root, constraints, len);
     }
 
     public Iterator<String> getWordsOfLengthInRandomOrder(int len) {

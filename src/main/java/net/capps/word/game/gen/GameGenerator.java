@@ -7,4 +7,5 @@ import net.capps.word.game.board.TileSet;
  */
 public interface GameGenerator {
     TileSet generateRandomFinishedGame(int N, int numWords, int maxWordSize);
+    void generateRandomWord(TileSet tileSet, int maxWordSize);
 }

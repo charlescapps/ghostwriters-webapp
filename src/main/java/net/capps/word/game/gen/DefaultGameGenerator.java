@@ -11,6 +11,7 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.dict.WordConstraint;
+import net.capps.word.util.PermutationUtil;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import static net.capps.word.game.common.Dir.S;
 public class DefaultGameGenerator implements GameGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
+    private static final PermutationUtil PERMUTATION_UTIL = PermutationUtil.getInstance();
 
     private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
     private static final ImmutableList<Dir> VALID_PLAY_DIRS = ImmutableList.of(E, S);
@@ -50,14 +52,29 @@ public class DefaultGameGenerator implements GameGenerator {
         for (int i = 1; i < numWords; i++) {
             Optional<Placement> validPlacementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
             if (!validPlacementOpt.isPresent()) {
+                LOG.error("ERROR - couldn't find placement for board:\n{}", tileSet);
                 throw new IllegalStateException("Could not find any valid placements!!");
             }
             Placement placement = validPlacementOpt.get();
-           // LOG.trace("Placing word: " + placement);
+            // LOG.trace("Placing word: " + placement);
             tileSet.placeWord(placement);
         }
 
         return tileSet;
+    }
+
+    @Override
+    public void generateRandomWord(TileSet tileSet, int maxWordSize) {
+        if (tileSet.isEmpty()) {
+            Placement placement = generateFirstPlacement(tileSet, maxWordSize);
+            tileSet.placeWord(placement);
+            return;
+        }
+        Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
+        if (!placementOpt.isPresent()) {
+            throw new IllegalStateException("Failed to find a valid placement!");
+        }
+        tileSet.placeWord(placementOpt.get());
     }
 
     private Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
@@ -134,7 +151,7 @@ public class DefaultGameGenerator implements GameGenerator {
                 break;
             }
 
-            Pos wordEndPos = tileSet.getEndOfOccupiedFromOccupiedOrAdj(p, dir);
+            Pos wordEndPos = tileSet.getEndOfOccupied(p.go(dir), dir);
             int totalDiff = wordEndPos.minus(start);
 
             maxSearched = Math.max(maxSearched, totalDiff);

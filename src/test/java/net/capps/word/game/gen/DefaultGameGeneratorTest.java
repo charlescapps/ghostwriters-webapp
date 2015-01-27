@@ -10,6 +10,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * Created by charlescapps on 1/18/15.
  */
@@ -58,5 +61,23 @@ public class DefaultGameGeneratorTest {
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
         LOG.info("Duration in seconds: {}", (END - START)/1000);
+    }
+
+    @Test
+    public void testGenerateWordsForBoardThatHadBug() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            TileSet tileSet = new TileSet(BoardSize.VENTI.getN());
+
+            try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/capps/word/games/bug.txt")) {
+                tileSet.load(new InputStreamReader(is));
+            }
+
+            LOG.info("Board:\n{}", tileSet);
+
+            GameGenerator gg = new DefaultGameGenerator();
+            gg.generateRandomWord(tileSet, BoardSize.VENTI.getMaxInitialWordSize());
+
+            LOG.info("Board after move:\n{}", tileSet);
+        }
     }
 }

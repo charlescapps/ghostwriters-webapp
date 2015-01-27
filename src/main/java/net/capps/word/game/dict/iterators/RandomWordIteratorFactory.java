@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.capps.word.game.dict.TrieLevel;
 import net.capps.word.game.dict.TrieNode;
 import net.capps.word.game.dict.WordConstraint;
+import net.capps.word.util.PermutationUtil;
 import net.capps.word.util.RandomUtil;
 
 import java.util.Iterator;
@@ -12,7 +13,8 @@ import java.util.List;
 /**
  * Created by charlescapps on 1/17/15.
  */
-public class RandomWordIterator {
+public class RandomWordIteratorFactory {
+    private static final PermutationUtil permutationUtil = PermutationUtil.getInstance();
 
     public static Iterator<String> create(TrieNode node, List<WordConstraint> constraints, int len) {
         if (len < 0) {
