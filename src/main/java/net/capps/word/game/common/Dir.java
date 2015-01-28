@@ -1,6 +1,5 @@
 package net.capps.word.game.common;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

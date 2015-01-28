@@ -10,7 +10,6 @@ import java.util.Map;
  */
 public class TrieNode {
     private final Map<Character, TrieNode> branches = Maps.newHashMap();
-    private final TrieNode parent;
     private final String word;
 
     // Structure so we can get the words having character at position i in O(1) time.
@@ -18,15 +17,14 @@ public class TrieNode {
 
     private boolean validWord = false;
 
-    public TrieNode(TrieNode parent, String word) {
-        this.parent = parent;
+    public TrieNode(String word) {
         this.word = word;
     }
 
     public TrieNode addChild(Character c) {
         TrieNode child = branches.get(c);
         if (child == null) {
-            child = new TrieNode(this, word + c);
+            child = new TrieNode(word + c);
             branches.put(c, child);
         }
 
@@ -54,7 +52,7 @@ public class TrieNode {
             buildLevels(levels, branches.get(c), 0, c);
         }
         for (TrieLevel level: levels.values()) {
-            level.finalize();
+            level.storeValidWordNodes();
         }
     }
 

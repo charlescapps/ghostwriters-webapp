@@ -46,7 +46,7 @@ public class TrieLevel {
         }
     }
 
-    public void finalize() {
+    public void storeValidWordNodes() {
         List<TrieNode> validWordNodeList = Lists.newArrayList();
         for (List<TrieNode> nodes: nodesByChar.values()) {
             for (TrieNode node: nodes) {

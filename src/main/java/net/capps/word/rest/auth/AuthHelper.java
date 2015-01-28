@@ -2,7 +2,6 @@ package net.capps.word.rest.auth;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HttpHeaders;
-import net.capps.word.constants.WordConstants;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UserHashInfo;
 import net.capps.word.db.dao.UsersDAO;

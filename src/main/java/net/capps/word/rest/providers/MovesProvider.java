@@ -4,11 +4,10 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.game.board.GameState;
-import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.move.Move;
-import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 
 import static java.lang.String.format;

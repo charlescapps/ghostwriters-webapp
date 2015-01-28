@@ -29,7 +29,7 @@ public class DictionaryTrie {
     private DictionaryTrie() { }
 
     // ---------------- Private fields ---------------
-    private final TrieNode root = new TrieNode(null, "");
+    private final TrieNode root = new TrieNode("");
 
     // ---------------- Public ----------------
     /**

@@ -1,6 +1,7 @@
 package net.capps.word.game.dict.iterators;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Created by charlescapps on 1/17/15.
@@ -17,7 +18,7 @@ public class EmptyStringIterator implements Iterator<String> {
 
     @Override
     public String next() {
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override

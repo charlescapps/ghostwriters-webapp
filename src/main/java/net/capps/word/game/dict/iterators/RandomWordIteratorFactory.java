@@ -21,7 +21,7 @@ public class RandomWordIteratorFactory {
 
         if (len == 0) {
             if (node.isValidWord()) {
-                return Lists.newArrayList(node.getWord()).iterator();
+                return new SingletonIterator<>(node.getWord());
             } else {
                 return EmptyStringIterator.INSTANCE;
             }
@@ -57,7 +57,7 @@ public class RandomWordIteratorFactory {
     }
 
     private static List<WordConstraint> shiftConstraints(List<WordConstraint> constraints, int len) {
-        List<WordConstraint> shifted = Lists.newArrayList();
+        List<WordConstraint> shifted = Lists.newArrayListWithCapacity(constraints.size());
         for (WordConstraint constraint: constraints) {
             shifted.add(new WordConstraint(constraint.pos - len, constraint.c));
         }
