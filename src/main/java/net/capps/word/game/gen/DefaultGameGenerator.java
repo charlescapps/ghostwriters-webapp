@@ -11,7 +11,6 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.dict.WordConstraint;
-import net.capps.word.util.PermutationUtil;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,9 @@ import static net.capps.word.game.common.Dir.S;
 public class DefaultGameGenerator implements GameGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
-    private static final PermutationUtil PERMUTATION_UTIL = PermutationUtil.getInstance();
 
     private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
-    private static final ImmutableList<Dir> VALID_PLAY_DIRS = ImmutableList.of(E, S);
+    private static final Dir[] VALID_PLAY_DIRS = new Dir[] { S, E };
 
     public DefaultGameGenerator() {
     }
@@ -98,11 +96,11 @@ public class DefaultGameGenerator implements GameGenerator {
         ImmutableList<Pos> positions = POSITION_LISTS.getPositionList(N);
 
         // Search the possible start positions in a random order.
-        List<Pos> randomOrderPositions = RandomUtil.randomizeList(positions);
+        List<Pos> randomOrderPositions = RandomUtil.shuffleList(positions);
 
         for (Pos p: randomOrderPositions) {
             if (!tileSet.isOccupied(p)) {
-                List<Dir> randomOrderDirs = RandomUtil.randomizeList(VALID_PLAY_DIRS);
+                Dir[] randomOrderDirs = RandomUtil.shuffleArray(VALID_PLAY_DIRS);
                 for (Dir dir: randomOrderDirs) {
                     Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize);
                     if (optValidPlacement.isPresent()) {
@@ -159,9 +157,9 @@ public class DefaultGameGenerator implements GameGenerator {
         }
 
         // Try all possible word lengths in a random order.
-        List<Integer> randomOrderDiffs = RandomUtil.randomizeList(diffsToTry);
+        RandomUtil.shuffleInPlace(diffsToTry);
 
-        for (int totalDiff : randomOrderDiffs) {
+        for (int totalDiff : diffsToTry) {
 
             List<WordConstraint> wcs = Lists.newArrayList();
 

@@ -56,7 +56,7 @@ public class DefaultGameGeneratorTest {
         for (int numWords = 2; numWords < 40; numWords++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getMaxInitialWordSize());
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
-            LOG.info("\n{}", game);
+            LOG.trace("\n{}", game);
         }
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));

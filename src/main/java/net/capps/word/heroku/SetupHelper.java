@@ -15,7 +15,6 @@ import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
-import net.capps.word.util.PermutationUtil;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -67,7 +66,6 @@ public class SetupHelper {
         FixedLayouts.getInstance().initLayouts();
         LetterPoints.getInstance().load();
         PositionLists.getInstance().load();
-        PermutationUtil.getInstance().initPermutations();
     }
 
     public void initDictionaryDataStructures() throws IOException {

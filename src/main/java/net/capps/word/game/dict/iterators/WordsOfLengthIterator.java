@@ -5,7 +5,6 @@ import net.capps.word.game.dict.TrieNode;
 import net.capps.word.util.RandomUtil;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -13,7 +12,7 @@ import java.util.NoSuchElementException;
  */
 public class WordsOfLengthIterator implements Iterator<String> {
     private final TrieLevel level;
-    private List<TrieNode> nodes;
+    private TrieNode[] nodes;
 
     private int nodeIndex = 0;
 
@@ -27,7 +26,7 @@ public class WordsOfLengthIterator implements Iterator<String> {
         }
 
         TrieLevel level = node.getLevels().get(len - 1);
-        if (level == null || level.getValidWordNodes().isEmpty()) {
+        if (level == null || level.getValidWordNodes().length <= 0) {
             return EmptyStringIterator.INSTANCE;
         }
         return new WordsOfLengthIterator(level);
@@ -38,7 +37,7 @@ public class WordsOfLengthIterator implements Iterator<String> {
         if (nodes == null) {
             initNodes();
         }
-        return nodeIndex < nodes.size();
+        return nodeIndex < nodes.length;
     }
 
     @Override
@@ -47,14 +46,14 @@ public class WordsOfLengthIterator implements Iterator<String> {
             throw new NoSuchElementException();
         }
 
-        TrieNode node = nodes.get(nodeIndex);
+        TrieNode node = nodes[nodeIndex];
         String word = node.getWord();
         ++nodeIndex;
         return word;
     }
 
     private void initNodes() {
-        nodes = RandomUtil.randomizeList(level.getValidWordNodes());
+        nodes = RandomUtil.shuffleArray(level.getValidWordNodes());
     }
 
     @Override

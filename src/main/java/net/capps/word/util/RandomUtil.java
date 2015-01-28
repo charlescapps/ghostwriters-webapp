@@ -2,6 +2,7 @@ package net.capps.word.util;
 
 import com.google.common.collect.Lists;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -12,23 +13,38 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomUtil {
 
-    public static <T> List<T> randomizeList(List<T> input) {
-        final Random RANDOM = ThreadLocalRandom.current();
+    public static <T> T[] shuffleArray(T[] items) {
+        T[] copy = Arrays.copyOf(items, items.length);
+        shuffleInPlace(copy);
+        return copy;
+    }
 
-        List<Integer> indices = Lists.newArrayListWithCapacity(input.size());
-        for (int i = 0; i < input.size(); i++) {
-            indices.add(i);
+    public static <T> List<T> shuffleList(List<T> items) {
+        List<T> copy = Lists.newArrayList(items);
+        shuffleInPlace(copy);
+        return copy;
+    }
+
+    public static <T> void shuffleInPlace(T[] items) {
+        final Random random = ThreadLocalRandom.current();
+        final int N = items.length;
+        for (int i = N - 1; i > 0; --i) {
+            int j = random.nextInt(i + 1);
+            T tmp = items[i];
+            items[i] = items[j];
+            items[j] = tmp;
         }
+    }
 
-        List<T> output = Lists.newArrayListWithCapacity(input.size());
-        while (!indices.isEmpty()) {
-            int i = RANDOM.nextInt(indices.size());
-            int chosenIndex = indices.get(i);
-            output.add(input.get(chosenIndex));
-            indices.remove(i);
+    public static <T> void shuffleInPlace(List<T> items) {
+        final Random random = ThreadLocalRandom.current();
+        final int N = items.size();
+        for (int i = N - 1; i > 0; --i) {
+            int j = random.nextInt(i + 1);
+            T tmp = items.get(i);
+            items.set(i, items.get(j));
+            items.set(j, tmp);
         }
-
-        return output;
     }
 
     public static int randomInt(int minInclusive, int maxInclusive) {
