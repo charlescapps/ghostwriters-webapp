@@ -114,9 +114,7 @@ public class DefaultGameGenerator implements GameGenerator {
     }
 
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
-        if (tileSet.isOccupied(start)) {
-            throw new IllegalStateException();
-        }
+        // Precondition: the start pos isn't an occupied tile.
 
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 

@@ -357,12 +357,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         // Must be a valid play with words formed perpendicularly
-        errorOpt = getErrorForPerpendicularPlacement(placement);
-        if (errorOpt.isPresent()) {
-            return errorOpt;
-        }
-
-        return Optional.absent();
+        return getErrorForPerpendicularPlacement(placement);
     }
 
     private Optional<String> isValidPlacementInPrimaryDir(Placement placement) {
@@ -411,9 +406,7 @@ public class TileSet implements Iterable<Pos> {
     }
 
     private Optional<String> getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
-        if (isOccupied(pos)) {
-            throw new IllegalArgumentException("Cannot get perpendicular word for occupied space.");
-        }
+        // Precondition: pos isn't an occupied tile.
         switch (dir) {
             case E:
             case W:
