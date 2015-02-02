@@ -65,7 +65,7 @@ public class AuthHelper {
     }
 
     public UserModel authenticate(String username, String password) throws Exception {
-        Optional<UserModel> user = UsersDAO.getInstance().getUserByUsername(username);
+        Optional<UserModel> user = UsersDAO.getInstance().getUserByUsername(username, false);
         if (!user.isPresent()) {
             throw new WordAuthException("Invalid username or password", AuthError.MISSING_USERNAME);
         }

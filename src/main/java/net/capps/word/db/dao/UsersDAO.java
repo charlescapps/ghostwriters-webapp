@@ -1,6 +1,7 @@
 package net.capps.word.db.dao;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
@@ -8,6 +9,7 @@ import net.capps.word.rest.models.UserModel;
 
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.List;
 
 /**
  * Created by charlescapps on 12/26/14.
@@ -26,16 +28,54 @@ public class UsersDAO {
     private static final String GET_USER_BY_EMAIL_QUERY =
             "SELECT * FROM word_users WHERE email = ?;";
 
+    private static final String GET_USER_CASE_INSENSITIVE =
+            "SELECT * FROM word_users WHERE lower(username) = lower(?);";
+
+    private static final String PREFIX_SEARCH_QUERY =
+            "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') ORDER BY username ASC LIMIT ?";
+
+    private static final String SUBSTRING_SEARCH_QUERY =
+            "SELECT * FROM word_users WHERE lower(username) LIKE ('%' || lower(?) || '%') ORDER BY username ASC LIMIT ?";
+
     private static final UsersDAO INSTANCE = new UsersDAO();
 
     public static final UsersDAO getInstance() {
         return INSTANCE;
     }
 
+    public static enum SearchType {
+        PREFIX(PREFIX_SEARCH_QUERY), SUBSTRING(SUBSTRING_SEARCH_QUERY);
+        private final String sql;
+
+        private SearchType(String sql) {
+            this.sql = sql;
+        }
+
+        public String getSql() {
+            return sql;
+        }
+    }
+
+    public List<UserModel> searchUsers(String q, SearchType searchType, int maxResults) throws Exception {
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            String sql = searchType.getSql();
+            PreparedStatement stmt = dbConn.prepareStatement(sql);
+            stmt.setString(1, q);
+            stmt.setInt(2, maxResults);
+
+            ResultSet resultSet = stmt.executeQuery();
+            List<UserModel> users = Lists.newArrayList();
+            while (resultSet.next()) {
+                users.add(getUserFromResultSet(resultSet));
+            }
+            return users;
+        }
+    }
+
     public UserModel insertNewUser(UserModel validatedUserInput, String hashPassBase64, String saltBase64)
             throws SQLException, URISyntaxException, WordDbException {
         // Check if a user with the same username already exists
-        Optional<UserModel> userWithUsername = getUserByUsername(validatedUserInput.getUsername());
+        Optional<UserModel> userWithUsername = getUserByUsername(validatedUserInput.getUsername(), false);
         if (userWithUsername.isPresent()) {
             throw new ConflictException("username", String.format("A user with the username '%s' already exists.", validatedUserInput.getUsername()));
         }
@@ -75,9 +115,10 @@ public class UsersDAO {
         }
     }
 
-    public Optional<UserModel> getUserByUsername(String username) throws SQLException, URISyntaxException {
+    public Optional<UserModel> getUserByUsername(String username, boolean caseSensitive) throws SQLException, URISyntaxException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_USERNAME_QUERY);
+            final String sql = caseSensitive ? GET_USER_BY_USERNAME_QUERY : GET_USER_CASE_INSENSITIVE;
+            PreparedStatement stmt = dbConn.prepareStatement(sql);
             stmt.setString(1, username);
             ResultSet result = stmt.executeQuery();
             if (!result.next()) {

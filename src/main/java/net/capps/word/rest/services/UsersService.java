@@ -1,9 +1,12 @@
 package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.UserListModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 
@@ -14,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
 
@@ -66,6 +70,24 @@ public class UsersService {
         }
         return Response.ok(result.get())
                 .build();
+    }
+
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response searchUsers(@QueryParam("q") String q, @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        if (Strings.isNullOrEmpty(q)) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"q\" to search for users."))
+                    .build();
+        }
+        if (maxResults <= 0) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0"))
+                    .build();
+        }
+        List<UserModel> results = usersProvider.searchUsers(q, maxResults);
+        return Response.ok(new UserListModel(results)).build();
     }
 
 

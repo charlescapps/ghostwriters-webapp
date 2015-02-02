@@ -2,6 +2,7 @@ package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.ErrorModel;
@@ -12,6 +13,7 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,7 +76,7 @@ public class UsersProvider {
     }
 
     public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {
-        Optional<UserModel> existing = usersDao.getUserByUsername(validatedInput.getUsername());
+        Optional<UserModel> existing = usersDao.getUserByUsername(validatedInput.getUsername(), false);
         if (existing.isPresent()) {
             return Optional.absent();
         }
@@ -89,6 +91,35 @@ public class UsersProvider {
 
     public Optional<UserModel> getUserById(int id) throws Exception {
         return usersDao.getUserById(id);
+    }
+
+    public List<UserModel> searchUsers(String q, int maxResults) throws Exception {
+        List<UserModel> results = Lists.newArrayList();
+        // First add the exact match (case insensitive) to the beginning of the list.
+        Optional<UserModel> exactMatch = usersDao.getUserByUsername(q, false);
+        if (exactMatch.isPresent()) {
+            results.add(exactMatch.get());
+        }
+
+        if (results.size() >= maxResults) {
+            return results;
+        }
+
+        // Next add prefix matches
+        List<UserModel> prefixMatches = usersDao.searchUsers(q, UsersDAO.SearchType.PREFIX, maxResults);
+        prefixMatches.removeAll(results); // Eliminate duplicates
+        results.addAll(prefixMatches);
+
+        if (results.size() >= maxResults) {
+            return results.subList(0, maxResults);
+        }
+
+        // Next add substring matches
+        List<UserModel> substringMatches = usersDao.searchUsers(q, UsersDAO.SearchType.SUBSTRING, maxResults);
+        substringMatches.removeAll(results); // Eliminate duplicates
+        results.addAll(substringMatches);
+
+        return results.subList(0, Math.min(maxResults, results.size()));
     }
 
     //------------- Private ------------
