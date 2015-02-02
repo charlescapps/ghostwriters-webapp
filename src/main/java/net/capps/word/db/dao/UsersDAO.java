@@ -35,7 +35,7 @@ public class UsersDAO {
             "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') ORDER BY username ASC LIMIT ?";
 
     private static final String SUBSTRING_SEARCH_QUERY =
-            "SELECT * FROM word_users WHERE lower(username) LIKE ('%' || lower(?) || '%') ORDER BY username ASC LIMIT ?";
+            "SELECT * FROM word_users WHERE strpos(lower(username), lower(?)) > 0 ORDER BY username ASC LIMIT ?";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 

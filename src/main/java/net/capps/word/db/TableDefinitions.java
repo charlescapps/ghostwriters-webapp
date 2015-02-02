@@ -14,6 +14,12 @@ public class TableDefinitions {
             "date_joined TIMESTAMP WITH TIME ZONE NOT NULL" +
             ");";
 
+    public static final String CREATE_LOWERCASE_USER_IDX =
+            "CREATE UNIQUE INDEX idx_username_lower ON word_users (lower(username));";
+
+    public static final String DROP_LOWERCASE_USER_IDX =
+            "DROP INDEX IF EXISTS idx_username_lower;";
+
     public static final String CREATE_GAMES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_games " +
                     "( id SERIAL PRIMARY KEY," +
