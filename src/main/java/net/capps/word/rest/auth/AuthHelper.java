@@ -2,16 +2,24 @@ package net.capps.word.rest.auth;
 
 import com.google.common.base.Optional;
 import com.google.common.net.HttpHeaders;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.crypto.CryptoUtils;
+import net.capps.word.db.dao.SessionsDAO;
 import net.capps.word.db.dao.UserHashInfo;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.AuthError;
 import net.capps.word.exceptions.WordAuthException;
+import net.capps.word.rest.models.SessionModel;
 import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.providers.SessionProvider;
 import net.capps.word.rest.providers.UsersProvider;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,10 +28,16 @@ import java.util.regex.Pattern;
  * Created by charlescapps on 12/28/14.
  */
 public class AuthHelper {
-    private static final AuthHelper INSTANCE = new AuthHelper();
+    public static final String COOKIE_NAME = "WORDS_SESSIONID";
 
+    private static final AuthHelper INSTANCE = new AuthHelper();
     private static final Pattern BASIC_AUTH = Pattern.compile("Basic ([a-zA-Z0-9=]+)");
-    private static final String SESSION_USER_ID = "word_attack_user";
+    private static final SessionProvider sessionProvider = SessionProvider.getInstance();
+    private static final SessionsDAO sessionsDao = SessionsDAO.getInstance();
+
+    private static final String MISSING_AUTHZ_HEADER_MSG = "Missing Authorization header";
+    private static final String INVALID_AUTHZ_HEADER_MSG = "Invalid Basic Auth header";
+    private static final String INVALID_USERNAME_OR_PASS_MSG = "Invalid username or password";
 
     private AuthHelper() {}
 
@@ -31,17 +45,38 @@ public class AuthHelper {
         return INSTANCE;
     }
 
-    public UserModel loginUsingBasicAuth(HttpServletRequest request) throws Exception {
+    public Pair<UserModel, SessionModel> loginUsingBasicAuth(HttpServletRequest request) throws Exception {
+
+        UserModel authenticatedUser = getUserForBasicAuth(request);
+
+        if (WordConstants.INITIAL_USER_USERNAME.equals(authenticatedUser.getUsername())) {
+            throw new WordAuthException(INVALID_USERNAME_OR_PASS_MSG, AuthError.MISSING_USERNAME);
+        }
+
+        // Create a new session
+        SessionModel session = sessionProvider.createNewSession(authenticatedUser);
+
+        return ImmutablePair.of(authenticatedUser, session);
+    }
+
+    /**
+     * Get the user for the given credentials.
+     *
+     * @param request the request
+     * @return the authenticated user.
+     * @throws net.capps.word.exceptions.WordAuthException - if the credentials are invalid.
+     */
+    public UserModel getUserForBasicAuth(HttpServletRequest request) throws Exception {
 
         String basicAuthHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (basicAuthHeader == null) {
-            throw new WordAuthException("Authorization header must be provided.", AuthError.INVALID_BASIC_AUTH);
+            throw new WordAuthException(MISSING_AUTHZ_HEADER_MSG, AuthError.INVALID_BASIC_AUTH);
         }
 
         Matcher m = BASIC_AUTH.matcher(basicAuthHeader);
         if (!m.matches()) {
-            throw new WordAuthException("Invalid Authorization header.", AuthError.INVALID_BASIC_AUTH);
+            throw new WordAuthException(INVALID_AUTHZ_HEADER_MSG, AuthError.INVALID_BASIC_AUTH);
         }
 
         String base64Part = m.group(1);
@@ -50,24 +85,26 @@ public class AuthHelper {
 
         String[] tokens = decoded.split(":");
         if (tokens.length != 2) {
-            throw new WordAuthException("Invalid Authorization header", AuthError.INVALID_BASIC_AUTH);
+            throw new WordAuthException(INVALID_AUTHZ_HEADER_MSG, AuthError.INVALID_BASIC_AUTH);
         }
         String username = tokens[0];
         String password = tokens[1];
 
-        UserModel authenticatedUser = authenticate(username, password);
-
-        // Create a new servlet session
-        HttpSession session = request.getSession(true);
-        session.setAttribute(SESSION_USER_ID, authenticatedUser.getId());
-
-        return authenticatedUser;
+        return authenticate(username, password);
     }
 
+    /**
+     * Get the user for the given credentials.
+     *
+     * @param username
+     * @param password
+     * @return the authenticated user.
+     * @throws net.capps.word.exceptions.WordAuthException - if the credentials are invalid.
+     */
     public UserModel authenticate(String username, String password) throws Exception {
         Optional<UserModel> user = UsersDAO.getInstance().getUserByUsername(username, false);
         if (!user.isPresent()) {
-            throw new WordAuthException("Invalid username or password", AuthError.MISSING_USERNAME);
+            throw new WordAuthException(INVALID_USERNAME_OR_PASS_MSG, AuthError.MISSING_USERNAME);
         }
 
         UserHashInfo hashInfo = user.get().getUserHashInfo();
@@ -76,7 +113,7 @@ public class AuthHelper {
         byte[] storedHashPass = CryptoUtils.base64ToByte(hashInfo.getHashPass());
 
         if (!Arrays.equals(hashInputPass, storedHashPass)) {
-            throw new WordAuthException("Invalid username or password", AuthError.INVALID_PASSWORD);
+            throw new WordAuthException(INVALID_USERNAME_OR_PASS_MSG, AuthError.INVALID_PASSWORD);
         }
 
         return user.get();
@@ -84,20 +121,22 @@ public class AuthHelper {
     }
 
     public Optional<UserModel> validateSession(HttpServletRequest request) throws Exception {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute(SESSION_USER_ID) == null) {
+        Cookie wordsCookie = null;
+        for (Cookie cookie: request.getCookies()) {
+            if (COOKIE_NAME.equals(cookie.getName())) {
+                wordsCookie = cookie;
+            }
+        }
+        if (wordsCookie == null) {
             return Optional.absent();
         }
-        int userId = (Integer) session.getAttribute(SESSION_USER_ID);
-        return UsersDAO.getInstance().getUserById(userId);
-    }
 
-    public Optional<UserModel> validateSessionUser(HttpServletRequest request, String username) throws Exception {
-        Optional<UserModel> user = validateSession(request);
-        if (!user.isPresent() ||
-            !username.equals(user.get().getUsername())) {
+        String sessionId = wordsCookie.getValue();
+        Optional<SessionModel> session = sessionsDao.getSessionForSessionId(sessionId);
+        if (!session.isPresent()) {
             return Optional.absent();
         }
-        return user;
+        int userId = session.get().getUserId();
+        return UsersProvider.getInstance().getUserById(userId);
     }
 }

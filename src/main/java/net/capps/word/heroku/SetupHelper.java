@@ -56,6 +56,9 @@ public class SetupHelper {
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
         }
     }
 

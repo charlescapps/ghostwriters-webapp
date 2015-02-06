@@ -103,7 +103,7 @@ public class UsersDAO {
         }
     }
 
-    public Optional<UserModel> getUserById(int id) throws SQLException, URISyntaxException {
+    public Optional<UserModel> getUserById(int id) throws SQLException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_ID_QUERY);
             stmt.setInt(1, id);
@@ -115,7 +115,7 @@ public class UsersDAO {
         }
     }
 
-    public Optional<UserModel> getUserByUsername(String username, boolean caseSensitive) throws SQLException, URISyntaxException {
+    public Optional<UserModel> getUserByUsername(String username, boolean caseSensitive) throws SQLException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             final String sql = caseSensitive ? GET_USER_BY_USERNAME_QUERY : GET_USER_CASE_INSENSITIVE;
             PreparedStatement stmt = dbConn.prepareStatement(sql);
@@ -128,7 +128,7 @@ public class UsersDAO {
         }
     }
 
-    public Optional<UserModel> getUserByEmail(String email) throws SQLException, URISyntaxException {
+    public Optional<UserModel> getUserByEmail(String email) throws SQLException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_EMAIL_QUERY);
             stmt.setString(1, email);

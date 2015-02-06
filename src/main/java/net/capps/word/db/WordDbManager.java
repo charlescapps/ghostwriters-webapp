@@ -43,7 +43,7 @@ public class WordDbManager {
         return !Strings.isNullOrEmpty(DATABASE_URL) ? DATABASE_URL : System.getProperty("net.capps.databaseUrl");
     }
 
-    public Connection getConnection() throws URISyntaxException, SQLException {
+    public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(dbUrl, username, password);
     }
 }

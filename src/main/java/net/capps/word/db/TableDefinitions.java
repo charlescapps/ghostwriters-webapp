@@ -51,4 +51,12 @@ public class TableDefinitions {
                       "points INTEGER NOT NULL," +
                       "date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
                     ");";
+
+    public static final String CREATE_SESSION_TABLE =
+            "CREATE TABLE IF NOT EXISTS word_sessions " +
+                    "( id BIGSERIAL PRIMARY KEY," +
+                      "user_id INTEGER UNIQUE," +
+                      "session_id VARCHAR(32) UNIQUE," +
+                      "date_created TIMESTAMP NOT NULL" +
+                     ");";
 }
