@@ -56,7 +56,7 @@ public class TableDefinitions {
             "CREATE TABLE IF NOT EXISTS word_sessions " +
                     "( id BIGSERIAL PRIMARY KEY," +
                       "user_id INTEGER UNIQUE," +
-                      "session_id VARCHAR(32) UNIQUE," +
+                      "session_id VARCHAR(64) UNIQUE," +
                       "date_created TIMESTAMP NOT NULL" +
                      ");";
 }

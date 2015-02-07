@@ -6,8 +6,10 @@ import com.google.common.collect.Lists;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.SessionModel;
 import net.capps.word.rest.models.UserListModel;
 import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.providers.SessionProvider;
 import net.capps.word.rest.providers.UsersProvider;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,7 @@ import static javax.ws.rs.core.Response.Status.*;
 public class UsersService {
     public static final String USERS_PATH = "users";
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
+    private static final SessionProvider sessionProvider = SessionProvider.getInstance();
 
     @Context
     private UriInfo uriInfo;
@@ -47,10 +50,12 @@ public class UsersService {
 
         try {
             UserModel createdUser = usersProvider.createNewUser(inputUser);
+            SessionModel session = sessionProvider.createNewSession(createdUser);
 
             URI uri = getWordUserURI(createdUser.getId());
             return Response.created(uri)
                     .entity(createdUser)
+                    .cookie(session.getNewCookie())
                     .build();
         } catch (ConflictException e) {
             return Response.status(CONFLICT)

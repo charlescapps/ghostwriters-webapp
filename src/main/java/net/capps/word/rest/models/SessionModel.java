@@ -2,6 +2,10 @@ package net.capps.word.rest.models;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import net.capps.word.rest.auth.AuthHelper;
+
+import javax.ws.rs.core.NewCookie;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Created by charlescapps on 2/5/15.
@@ -33,6 +37,11 @@ public class SessionModel {
 
     public long getDateCreated() {
         return dateCreated;
+    }
+
+    @XmlTransient
+    public NewCookie getNewCookie() {
+        return new NewCookie(AuthHelper.COOKIE_NAME, sessionId);
     }
 
     @Override

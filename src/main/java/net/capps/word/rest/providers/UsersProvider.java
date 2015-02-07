@@ -140,6 +140,7 @@ public class UsersProvider {
 
     //------- Validation helpers -------
     private Optional<ErrorModel> isValidUsername(String username) {
+        username = username.trim();
         if (username.length() < MIN_USERNAME_LEN || username.length() > MAX_USERNAME_LEN) {
             return Optional.of(new ErrorModel(
                     String.format("Username must be between %d and %d characters in length.", MIN_USERNAME_LEN, MAX_USERNAME_LEN)));
@@ -147,6 +148,9 @@ public class UsersProvider {
         Matcher m = USERNAME_PATTERN.matcher(username);
         if (!m.matches()) {
             return Optional.of(new ErrorModel("Username must start with an alphanumeric character and can have letters, numbers, spaces, '_', and '-'"));
+        }
+        if (username.contains("  ")) {
+            return Optional.of(new ErrorModel("Username cannot contain 2 consecutive spaces"));
         }
         return Optional.absent();
     }
