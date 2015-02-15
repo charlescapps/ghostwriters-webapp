@@ -16,6 +16,7 @@ public class GameModel {
     private Integer id;
     private Integer player1;
     private Integer player2;
+    private UserModel player2Model;
     private String player1Rack;
     private String player2Rack;
     private Integer player1Points;
@@ -55,6 +56,14 @@ public class GameModel {
 
     public void setPlayer2(Integer player2) {
         this.player2 = player2;
+    }
+
+    public UserModel getPlayer2Model() {
+        return player2Model;
+    }
+
+    public void setPlayer2Model(UserModel player2Model) {
+        this.player2Model = player2Model;
     }
 
     public String getPlayer1Rack() {

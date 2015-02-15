@@ -91,8 +91,15 @@ public class GamesProvider {
                 FixedLayouts.getInstance().getFixedLayout(bs) :
                 layoutGenerator.generateRandomBonusLayout(bs);
 
-        return GamesDAO.getInstance().createNewGame(validatedInputGame, tileSet, squareSet);
+        GameModel createdGame = GamesDAO.getInstance().createNewGame(validatedInputGame, tileSet, squareSet);
+        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(createdGame.getPlayer2());
+        if (!player2Model.isPresent()) {
+            throw new Exception("Error - player2 was not found in the database. User ID is: " + createdGame.getPlayer2());
+        }
 
+        createdGame.setPlayer2Model(player2Model.get());
+
+        return createdGame;
     }
 
 
