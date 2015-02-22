@@ -14,7 +14,7 @@ import static java.lang.String.format;
 public class Rack {
     private List<RackTile> tiles;
 
-    public static final int MAX_TILES_IN_RACK = 16;
+    public static final int MAX_TILES_IN_RACK = 20;
 
     public Rack(String letters) {
         tiles = lettersToTiles(letters);

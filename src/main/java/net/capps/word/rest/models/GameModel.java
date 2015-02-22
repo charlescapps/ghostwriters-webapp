@@ -29,6 +29,7 @@ public class GameModel {
     private GameResult gameResult;
     private Boolean player1Turn;
     private Long dateCreated;
+    private MoveModel lastMove;
 
     public GameModel() {
 
@@ -160,6 +161,14 @@ public class GameModel {
 
     public void setDateCreated(Long dateCreated) {
         this.dateCreated = dateCreated;
+    }
+
+    public MoveModel getLastMove() {
+        return lastMove;
+    }
+
+    public void setLastMove(MoveModel lastMove) {
+        this.lastMove = lastMove;
     }
 
     @Override

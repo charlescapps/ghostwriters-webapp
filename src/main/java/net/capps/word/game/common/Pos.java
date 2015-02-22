@@ -11,11 +11,15 @@ import static java.lang.String.format;
  * Created by charlescapps on 1/16/15.
  */
 public class Pos {
-    public final int r;
-    public final int c;
+    public int r;
+    public int c;
 
     // (r,c,N) - how a Pos is stored when stored in the Database or in JSON
     private static final Pattern SERIAL_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\)");
+
+    public Pos() {
+
+    }
 
     private Pos(int r, int c) {
         this.r = r;

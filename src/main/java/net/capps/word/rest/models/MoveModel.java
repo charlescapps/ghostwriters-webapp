@@ -11,14 +11,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class MoveModel {
-    private final Integer gameId;
-    private final String letters;
-    private final Pos start;
-    private final Dir dir;
-    private final String tiles;
-    private final MoveType moveType;
-    private final Integer points;
-    private final Long datePlayed;
+    private Integer gameId;
+    private String letters;
+    private Pos start;
+    private Dir dir;
+    private String tiles;
+    private MoveType moveType;
+    private Integer points;
+    private Long datePlayed;
+
+    public MoveModel() {
+
+    }
 
     public MoveModel(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, String tiles, Integer points, Long datePlayed) {
         this.gameId = gameId;
@@ -35,32 +39,63 @@ public class MoveModel {
         return gameId;
     }
 
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
+    }
+
     public String getLetters() {
         return letters;
+    }
+
+    public void setLetters(String letters) {
+        this.letters = letters;
     }
 
     public Pos getStart() {
         return start;
     }
 
+    public void setStart(Pos start) {
+        this.start = start;
+    }
+
     public Dir getDir() {
         return dir;
+    }
+
+    public void setDir(Dir dir) {
+        this.dir = dir;
     }
 
     public String getTiles() {
         return tiles;
     }
 
-    public Integer getPoints() {
-        return points;
+    public void setTiles(String tiles) {
+        this.tiles = tiles;
     }
 
     public MoveType getMoveType() {
         return moveType;
     }
 
+    public void setMoveType(MoveType moveType) {
+        this.moveType = moveType;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+
     public Long getDatePlayed() {
         return datePlayed;
     }
 
+    public void setDatePlayed(Long datePlayed) {
+        this.datePlayed = datePlayed;
+    }
 }

@@ -319,13 +319,9 @@ public class TileSet implements Iterable<Pos> {
             }
             // Letters must match
             if (!tile.isWild() && tile.getLetter() != rackTile.getLetter()) {
-                return Optional.of(format("The next tile, \"%s\" doesn't match the rack tile, \"%s\"", tile.toString(), rackTile.toString()));
+                return Optional.of(format("The next tile, \"%s\", doesn't match the rack tile, \"%s\"", tile.toString(), rackTile.toString()));
             }
 
-        }
-        Pos afterEnd = start.go(dir, letters.length());
-        if (isOccupied(afterEnd)) {
-            return Optional.of("Must grab all contiguous tiles in one direction.");
         }
 
         return Optional.absent();

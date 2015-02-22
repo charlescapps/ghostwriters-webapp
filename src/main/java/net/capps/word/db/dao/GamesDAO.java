@@ -28,7 +28,8 @@ public class GamesDAO {
         " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_GAME_QUERY =
-            "UPDATE word_games SET (player1_rack = ?,player2_rack = ?,player1_points=?,player2_points=?,squares = ?,tiles = ?,game_result = ?,player1_turn = ?) " +
+            "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn) " +
+                               " = (?, ?, ?, ?, ?, ?, ?, ?) " +
             "WHERE id = ?;";
 
     private static final String QUERY_GAME_BY_ID =
@@ -114,6 +115,8 @@ public class GamesDAO {
 
                 // Now insert the Move.
                 MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
+
+                dbConn.commit();
 
                 return updatedGameModel;
 

@@ -9,7 +9,7 @@
 
     <logger name="net.capps.word" level="DEBUG"/>
 
-    <root level="warn">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

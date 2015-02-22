@@ -44,13 +44,11 @@ public class MovesProvider {
         boolean isPlayer1Turn = game.getPlayer1Turn();
         if (isPlayer1Turn) {
             if (!authUser.getId().equals(game.getPlayer1())) {
-                return Optional.of(new ErrorModel(
-                        format("Authenticated user (%d) is not the current player (%d) for this game.", authUser.getId(), game.getPlayer1())));
+                return Optional.of(new ErrorModel("It's not your turn!"));
             }
         } else {
             if (!authUser.getId().equals(game.getPlayer2())) {
-                return Optional.of(new ErrorModel(
-                        format("Authenticated user (%d) is not the current player (%d) for this game.", authUser.getId(), game.getPlayer2())));
+                return Optional.of(new ErrorModel("It's not your turn!"));
             }
         }
 
@@ -81,7 +79,9 @@ public class MovesProvider {
 
         int numPoints = gameState.playMove(move); // Play the move, updating the game state.
 
-        return GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints);
+        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints);
+        updatedGame.setLastMove(validatedMove);
+        return updatedGame;
     }
 
     private Optional<ErrorModel> validateFieldsArePresent(MoveModel inputMoveModel) {

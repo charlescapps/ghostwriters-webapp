@@ -66,5 +66,19 @@ public class RackTile {
         return Character.toString(letter);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof RackTile)) {
+            return false;
+        }
+        RackTile rackTile = (RackTile)o;
+        return rackTile.letter == this.letter;
+    }
+
+    @Override
+    public int hashCode() {
+        return Character.valueOf(letter).hashCode();
+    }
+
 
 }

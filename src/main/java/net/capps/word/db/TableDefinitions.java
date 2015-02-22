@@ -25,8 +25,8 @@ public class TableDefinitions {
                     "( id SERIAL PRIMARY KEY," +
                     "player1 INTEGER NOT NULL," +
                     "player2 INTEGER NOT NULL," +
-                    "player1_rack VARCHAR(16) NOT NULL," +
-                    "player2_rack VARCHAR(16) NOT NULL," +
+                    "player1_rack VARCHAR(20) NOT NULL," +
+                    "player2_rack VARCHAR(20) NOT NULL," +
                     "player1_points INTEGER NOT NULL," +
                     "player2_points INTEGER NOT NULL," +
                     "board_size SMALLINT NOT NULL," +
