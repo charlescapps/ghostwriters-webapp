@@ -1,10 +1,7 @@
 package net.capps.word.rest.models;
 
 import com.google.common.base.MoreObjects;
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.BonusesType;
-import net.capps.word.game.common.GameDensity;
-import net.capps.word.game.common.GameResult;
+import net.capps.word.game.common.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,6 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class GameModel {
     private Integer id;
+    private GameType gameType;
+    private AiType aiType;
     private Integer player1;
     private Integer player2;
     private UserModel player2Model;
@@ -37,6 +36,22 @@ public class GameModel {
 
     public Integer getId() {
         return id;
+    }
+
+    public GameType getGameType() {
+        return gameType;
+    }
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
+
+    public AiType getAiType() {
+        return aiType;
+    }
+
+    public void setAiType(AiType aiType) {
+        this.aiType = aiType;
     }
 
     public void setId(Integer id) {
@@ -175,6 +190,8 @@ public class GameModel {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
+                .add("gameType", gameType)
+                .add("aiType", aiType)
                 .add("player1", player1)
                 .add("player2", player2)
                 .add("player1Rack", player1Rack)

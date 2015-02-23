@@ -30,7 +30,6 @@ public class DefaultGameGenerator implements GameGenerator {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
 
     private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
-    private static final Dir[] VALID_PLAY_DIRS = new Dir[] { S, E };
 
     public DefaultGameGenerator() {
     }
@@ -100,7 +99,7 @@ public class DefaultGameGenerator implements GameGenerator {
 
         for (Pos p: randomOrderPositions) {
             if (!tileSet.isOccupied(p)) {
-                Dir[] randomOrderDirs = RandomUtil.shuffleArray(VALID_PLAY_DIRS);
+                Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
                 for (Dir dir: randomOrderDirs) {
                     Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize);
                     if (optValidPlacement.isPresent()) {

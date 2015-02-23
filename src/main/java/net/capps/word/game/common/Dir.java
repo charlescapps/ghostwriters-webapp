@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum Dir {
     S, E, N, W;
 
+    public static final Dir[] VALID_PLAY_DIRS = new Dir[] { S, E };
 
     public static Dir randomPlayDir() {
         boolean b = ThreadLocalRandom.current().nextBoolean();

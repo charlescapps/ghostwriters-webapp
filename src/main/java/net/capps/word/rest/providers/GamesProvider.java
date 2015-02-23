@@ -9,6 +9,7 @@ import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
+import net.capps.word.game.common.GameType;
 import net.capps.word.game.gen.DefaultGameGenerator;
 import net.capps.word.game.gen.DefaultLayoutGenerator;
 import net.capps.word.game.gen.GameGenerator;
@@ -46,6 +47,12 @@ public class GamesProvider {
         if (input.getId() != null) {
             return Optional.of(new ErrorModel("The game id should not be specified prior to creation."));
         }
+        if (input.getGameType() == null) {
+            return Optional.of(new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\""));
+        }
+        if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
+            return Optional.of(new ErrorModel("Missing aiType field for single player type game."));
+        }
         if (input.getPlayer1() == null || input.getPlayer2() == null) {
             return Optional.of(new ErrorModel("Missing id1 or id2 field!"));
         }
@@ -56,7 +63,7 @@ public class GamesProvider {
             return Optional.of(new ErrorModel("Missing boardSize field!"));
         }
         if (input.getBonusesType() == null) {
-            return Optional.of(new ErrorModel("Missing bounesType field!"));
+            return Optional.of(new ErrorModel("Missing bonusesType field!"));
         }
         if (input.getGameDensity() == null) {
             return Optional.of(new ErrorModel("Missing gameDensity field!"));

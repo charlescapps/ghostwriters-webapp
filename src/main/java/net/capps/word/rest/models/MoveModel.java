@@ -1,7 +1,6 @@
 package net.capps.word.rest.models;
 
 import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.Pos;
 import net.capps.word.game.move.MoveType;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -13,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MoveModel {
     private Integer gameId;
     private String letters;
-    private Pos start;
+    private PosModel start;
     private Dir dir;
     private String tiles;
     private MoveType moveType;
@@ -24,7 +23,7 @@ public class MoveModel {
 
     }
 
-    public MoveModel(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, String tiles, Integer points, Long datePlayed) {
+    public MoveModel(Integer gameId, MoveType moveType, String letters, PosModel start, Dir dir, String tiles, Integer points, Long datePlayed) {
         this.gameId = gameId;
         this.moveType = moveType;
         this.letters = letters;
@@ -51,11 +50,11 @@ public class MoveModel {
         this.letters = letters;
     }
 
-    public Pos getStart() {
+    public PosModel getStart() {
         return start;
     }
 
-    public void setStart(Pos start) {
+    public void setStart(PosModel start) {
         this.start = start;
     }
 

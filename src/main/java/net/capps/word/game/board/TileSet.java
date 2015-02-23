@@ -2,6 +2,7 @@ package net.capps.word.game.board;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
@@ -54,6 +55,17 @@ public class TileSet implements Iterable<Pos> {
 
     public boolean isValid(Pos p) {
         return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
+    }
+
+    public List<Pos> getAllStartTilePositions() {
+        List<Pos> posList = Lists.newArrayList();
+        for (Pos p: this) {
+            Tile tile = get(p);
+            if (!tile.isAbsent() && tile.isStartTile()) {
+                posList.add(p);
+            }
+        }
+        return posList;
     }
 
     public boolean areAllTilesPlayed() {
@@ -313,7 +325,7 @@ public class TileSet implements Iterable<Pos> {
             if (tile.isWild() != rackTile.isWild()) {
                 return Optional.of(format("Grabbed tile \"%s\" on board, but rack tile is \"%s\"", tile.toString(), rackTile.toString()));
             }
-            // The tile on the board must match the next character of the word being played
+            // The tile on the board must match the next character of the word being grabbed
             if (c != tile.getLetter()) {
                 return Optional.of("The tile on the board must match the next character of the word grabbed.");
             }
@@ -439,6 +451,10 @@ public class TileSet implements Iterable<Pos> {
         return !tiles[pos.r][pos.c].isAbsent();
     }
 
+    /**
+     * Starting at position "start", going in direction "dir" at most "maxLen" distance,
+     * find the first tile that is occupied or an adjacent tile in any direction is occupied.
+     */
     public Optional<Pos> getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
 
         for (int i = 0; i < maxLen; i++) {
@@ -464,6 +480,7 @@ public class TileSet implements Iterable<Pos> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < N; c++) {
                 sb.append(tiles[r][c]).append(" ");

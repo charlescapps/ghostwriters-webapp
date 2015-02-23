@@ -6,10 +6,7 @@ import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.BonusesType;
-import net.capps.word.game.common.GameDensity;
-import net.capps.word.game.common.GameResult;
+import net.capps.word.game.common.*;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 
@@ -23,9 +20,9 @@ public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
 
     private static final String INSERT_GAME_QUERY =
-        "INSERT INTO word_games (player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
+        "INSERT INTO word_games (game_type, ai_type, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
                     "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_GAME_QUERY =
             "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn) " +
@@ -44,22 +41,29 @@ public class GamesDAO {
         final String tiles = tileSet.toCompactString();
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, validatedInputGame.getPlayer1());
-            stmt.setInt(2, validatedInputGame.getPlayer2());
-            stmt.setString(3, "");
-            stmt.setString(4, "");
-            stmt.setInt(5, 0); // Player 1 starts with 0 points
-            stmt.setInt(6, 0); // Player 2 starts with 0 points
-            stmt.setShort(7, (short) validatedInputGame.getBoardSize().ordinal());
-            stmt.setShort(8, (short) validatedInputGame.getBonusesType().ordinal());
-            stmt.setShort(9, (short) validatedInputGame.getGameDensity().ordinal());
-            stmt.setString(10, squares);
-            stmt.setString(11, tiles);
-            stmt.setShort(12, (short) GameResult.IN_PROGRESS.ordinal());
-            stmt.setBoolean(13, true); // Always starts as player 1's turn.
+            stmt.setInt(1, validatedInputGame.getGameType().ordinal());
+            final AiType aiType = validatedInputGame.getAiType();
+            if (aiType != null) {
+                stmt.setInt(2, aiType.ordinal());
+            } else {
+                stmt.setNull(2, Types.INTEGER);
+            }
+            stmt.setInt(3, validatedInputGame.getPlayer1());
+            stmt.setInt(4, validatedInputGame.getPlayer2());
+            stmt.setString(5, "");
+            stmt.setString(6, "");
+            stmt.setInt(7, 0); // Player 1 starts with 0 points
+            stmt.setInt(8, 0); // Player 2 starts with 0 points
+            stmt.setShort(9, (short) validatedInputGame.getBoardSize().ordinal());
+            stmt.setShort(10, (short) validatedInputGame.getBonusesType().ordinal());
+            stmt.setShort(11, (short) validatedInputGame.getGameDensity().ordinal());
+            stmt.setString(12, squares);
+            stmt.setString(13, tiles);
+            stmt.setShort(14, (short) GameResult.IN_PROGRESS.ordinal());
+            stmt.setBoolean(15, true); // Always starts as player 1's turn.
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
-            stmt.setTimestamp(14, timestamp);
+            stmt.setTimestamp(16, timestamp);
 
             stmt.executeUpdate();
 
@@ -132,6 +136,10 @@ public class GamesDAO {
                 "Error - attempting to create a Game from an invalid ResultSet.");
         GameModel game = new GameModel();
         game.setId(result.getInt("id"));
+        final GameType gameType = GameType.values()[result.getInt("game_type")];
+        game.setGameType(gameType);
+        final AiType aiType = gameType == GameType.TWO_PLAYER ? null : AiType.values()[result.getInt("ai_type")];
+        game.setAiType(aiType);
         game.setPlayer1(result.getInt("player1"));
         game.setPlayer2(result.getInt("player2"));
         game.setPlayer1Rack(result.getString("player1_rack"));

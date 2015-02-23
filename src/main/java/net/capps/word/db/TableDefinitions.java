@@ -23,6 +23,8 @@ public class TableDefinitions {
     public static final String CREATE_GAMES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_games " +
                     "( id SERIAL PRIMARY KEY," +
+                    "game_type INTEGER NOT NULL, " +
+                    "ai_type INTEGER, " +
                     "player1 INTEGER NOT NULL," +
                     "player2 INTEGER NOT NULL," +
                     "player1_rack VARCHAR(20) NOT NULL," +

@@ -1,13 +1,15 @@
 package net.capps.word.db.dao;
 
+import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.Pos;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.models.MoveModel;
+import net.capps.word.rest.models.PosModel;
 
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by charlescapps on 1/22/15.
@@ -23,18 +25,33 @@ public class MovesDAO {
             "INSERT INTO word_moves (game_id, move_type, start_row, start_col, direction, word, tiles_played, points, date_played) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-    public MoveModel insertMove(MoveModel inputMove, int numPoints) throws Exception {
+    private static final String GET_RECENT_MOVES =
+            "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
+
+    public List<MoveModel> getMostRecentMoves(int gameId, int limit) throws SQLException {
+        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
+            ResultSet resultSet = stmt.executeQuery();
+            List<MoveModel> moves = Lists.newArrayList();
+            while (resultSet.next()) {
+                moves.add(getMoveFromResult(resultSet));
+            }
+            return moves;
+        }
+    }
+
+    public MoveModel insertMove(MoveModel inputMove, int numPoints) throws SQLException {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             return insertMove(inputMove, numPoints, dbConn);
         }
     }
 
-    public MoveModel insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws Exception {
+    public MoveModel insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(INSERT_MOVE, Statement.RETURN_GENERATED_KEYS);
         stmt.setInt(1, inputMove.getGameId());
         stmt.setShort(2, (short) inputMove.getMoveType().ordinal());
-        stmt.setShort(3, (short) inputMove.getStart().r);
-        stmt.setShort(4, (short) inputMove.getStart().c);
+        stmt.setShort(3, (short) inputMove.getStart().getR());
+        stmt.setShort(4, (short) inputMove.getStart().getC());
         stmt.setString(5, inputMove.getDir().toString());
         stmt.setString(6, inputMove.getLetters());
         stmt.setString(7, inputMove.getTiles());
@@ -58,7 +75,7 @@ public class MovesDAO {
         return new MoveModel(result.getInt("game_id"),
                 MoveType.values()[result.getShort("move_type")],
                 result.getString("word"),
-                Pos.of(result.getShort("start_row"), result.getShort("start_col")),
+                new PosModel(result.getShort("start_row"), result.getShort("start_col")),
                 Dir.valueOf(result.getString("direction")),
                 result.getString("tiles_played"),
                 result.getInt("points"),

@@ -5,6 +5,7 @@ package net.capps.word.rest.services;
  */
 
 import com.google.common.base.Optional;
+import net.capps.word.game.common.GameType;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
@@ -47,6 +48,12 @@ public class MovesService {
                     .build();
         }
         GameModel updatedGame = MovesProvider.getInstance().playMove(input);
+
+        // For single player games, immediately play the AI's move and return the updated game.
+        if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
+            updatedGame = MovesProvider.getInstance().playAIMove(updatedGame.getAiType(), updatedGame, input);
+        }
+
         return Response.ok(updatedGame).build();
     }
 }

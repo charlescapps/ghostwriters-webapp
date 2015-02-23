@@ -1,7 +1,10 @@
 package net.capps.word.game.common;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
+import net.capps.word.rest.models.PosModel;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,15 +14,11 @@ import static java.lang.String.format;
  * Created by charlescapps on 1/16/15.
  */
 public class Pos {
-    public int r;
-    public int c;
+    public final int r;
+    public final int c;
 
     // (r,c,N) - how a Pos is stored when stored in the Database or in JSON
     private static final Pattern SERIAL_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\)");
-
-    public Pos() {
-
-    }
 
     private Pos(int r, int c) {
         this.r = r;
@@ -72,6 +71,10 @@ public class Pos {
         throw new IllegalStateException();
     }
 
+    public List<Pos> adjacents() {
+        return Lists.newArrayList(n(), s(), e(), w());
+    }
+
     public int minus(Pos other) {
         if (r == other.r) {
             return c - other.c;
@@ -109,24 +112,8 @@ public class Pos {
                 .toString();
     }
 
-    public String toSerializedForm() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append("(")
-                .append(r).append(",")
-                .append(c)
-                .append(")")
-                .toString();
-    }
-
-    public static Pos fromSerializedForm(String str) {
-        Matcher m = SERIAL_PATTERN.matcher(str);
-        if (!m.matches()) {
-            throw new IllegalArgumentException(format("Input String \"%s\" doesn't match pattern (r,c,N)", str));
-        }
-        String r = m.group(1);
-        String c = m.group(2);
-        String N = m.group(3);
-        return new Pos(Integer.parseInt(r), Integer.parseInt(c));
+    public PosModel toPosModel() {
+        return new PosModel(r, c);
     }
 
     @Override

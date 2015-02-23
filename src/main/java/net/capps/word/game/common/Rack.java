@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import net.capps.word.game.tile.RackTile;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -11,7 +12,7 @@ import static java.lang.String.format;
 /**
  * Created by charlescapps on 1/24/15.
  */
-public class Rack {
+public class Rack implements Iterable<RackTile> {
     private List<RackTile> tiles;
 
     public static final int MAX_TILES_IN_RACK = 20;
@@ -47,6 +48,10 @@ public class Rack {
         return points;
     }
 
+    public List<RackTile> getRackCopy() {
+        return Lists.newArrayList(tiles);
+    }
+
     public boolean hasTiles(List<RackTile> tilesToPlay) {
         List<RackTile> copyTilesToPlay = Lists.newArrayList(tilesToPlay);
         List<RackTile> copyTiles = Lists.newArrayList(tiles);
@@ -78,8 +83,17 @@ public class Rack {
         }
     }
 
+    public int size() {
+        return tiles.size();
+    }
+
     public boolean canAddTiles(List<RackTile> tilesToAdd) {
         return tiles.size() + tilesToAdd.size() <= MAX_TILES_IN_RACK;
+    }
+
+    @Override
+    public Iterator<RackTile> iterator() {
+        return tiles.iterator();
     }
 
     @Override

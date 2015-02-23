@@ -3,12 +3,18 @@ package net.capps.word.rest.providers;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.db.dao.GamesDAO;
+import net.capps.word.db.dao.MovesDAO;
+import net.capps.word.game.ai.GameAi;
 import net.capps.word.game.board.GameState;
+import net.capps.word.game.common.AiType;
+import net.capps.word.game.common.GameResult;
 import net.capps.word.game.move.Move;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
+
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -53,7 +59,7 @@ public class MovesProvider {
         }
 
         // Create a Board object
-        GameState gameState = new GameState(game);
+        GameState gameState = new GameState(game, Optional.<Move>absent());
         Move move = new Move(inputMoveModel);
 
         // Check if it's a valid move.
@@ -73,14 +79,39 @@ public class MovesProvider {
         if (!gameOpt.isPresent()) {
             throw new IllegalStateException(format("gameId %d is not a valid game.", gameId));
         }
+
+        List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(gameId, 1);
+        Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
+                Optional.of(new Move(prevMove.get(0))) :
+                Optional.<Move>absent();
+
         GameModel gameModel = gameOpt.get();
-        GameState gameState = new GameState(gameModel);
+        GameState gameState = new GameState(gameModel, previousMoveOpt);
         Move move = new Move(validatedMove);
 
         int numPoints = gameState.playMove(move); // Play the move, updating the game state.
 
         GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints);
         updatedGame.setLastMove(validatedMove);
+        return updatedGame;
+    }
+
+    public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove) throws Exception {
+        if (gameModel.getGameResult() != GameResult.IN_PROGRESS) {
+            return gameModel;
+        }
+
+        GameAi gameAi = aiType.getGameAiInstance();
+        GameState gameState = new GameState(gameModel, Optional.of(new Move(previousMove)));
+        Move aiMove = gameAi.getNextMove(gameState);
+
+        int numPoints = gameState.playMove(aiMove);
+
+        MoveModel aiMoveModel = aiMove.toMoveModel(numPoints);
+
+        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, aiMoveModel, numPoints);
+
+        updatedGame.setLastMove(aiMoveModel);
         return updatedGame;
     }
 
