@@ -6,10 +6,7 @@ import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.BonusesType;
-import net.capps.word.game.common.GameDensity;
-import net.capps.word.game.common.GameType;
+import net.capps.word.game.common.*;
 import net.capps.word.game.gen.DefaultGameGenerator;
 import net.capps.word.game.gen.DefaultLayoutGenerator;
 import net.capps.word.game.gen.GameGenerator;
@@ -53,8 +50,11 @@ public class GamesProvider {
         if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
             return Optional.of(new ErrorModel("Missing aiType field for single player type game."));
         }
-        if (input.getPlayer1() == null || input.getPlayer2() == null) {
-            return Optional.of(new ErrorModel("Missing id1 or id2 field!"));
+        if (input.getPlayer1() == null) {
+            return Optional.of(new ErrorModel("Missing player1 field!"));
+        }
+        if (input.getGameType() != GameType.SINGLE_PLAYER && input.getPlayer2() == null) {
+            return Optional.of(new ErrorModel("Missing player2 field for multi-player game!"));
         }
         if (input.getPlayer1().equals(input.getPlayer2())) {
             return Optional.of(new ErrorModel("Cannot start a game with yourself!"));
@@ -97,6 +97,16 @@ public class GamesProvider {
         SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
                 FixedLayouts.getInstance().getFixedLayout(bs) :
                 layoutGenerator.generateRandomBonusLayout(bs);
+
+        // Add the system AI user for single player games
+        if (validatedInputGame.getGameType() == GameType.SINGLE_PLAYER) {
+            String systemUsername = validatedInputGame.getAiType().getSystemUsername();
+            Optional<UserModel> systemUser = UsersDAO.getInstance().getUserByUsername(systemUsername, true);
+            if (!systemUser.isPresent()) {
+                throw new IllegalStateException("AI users not in the database!");
+            }
+            validatedInputGame.setPlayer2(systemUser.get().getId());
+        }
 
         GameModel createdGame = GamesDAO.getInstance().createNewGame(validatedInputGame, tileSet, squareSet);
         Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(createdGame.getPlayer2());

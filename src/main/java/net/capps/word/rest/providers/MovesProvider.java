@@ -63,7 +63,7 @@ public class MovesProvider {
         Move move = new Move(inputMoveModel);
 
         // Check if it's a valid move.
-        Optional<String> moveErrorOpt = gameState.isValidMove(move);
+        Optional<String> moveErrorOpt = gameState.getMoveError(move);
         if (moveErrorOpt.isPresent()) {
             return Optional.of(new ErrorModel(moveErrorOpt.get()));
         }

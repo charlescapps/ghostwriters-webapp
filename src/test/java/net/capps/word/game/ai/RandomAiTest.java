@@ -61,7 +61,7 @@ public class RandomAiTest {
 
             LOG.info("Generated move: {}", move);
 
-            Optional<String> moveError = gameState.isValidMove(move);
+            Optional<String> moveError = gameState.getMoveError(move);
             if (moveError.isPresent()) {
                 LOG.error("Invalid move generated: {}", moveError.get());
             }

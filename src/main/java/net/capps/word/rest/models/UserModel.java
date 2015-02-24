@@ -17,18 +17,20 @@ public class UserModel {
     private Long dateJoined;
     private String password; // Only present when creating a new user
     private UserHashInfo userHashInfo; // Not serialized
+    private Boolean systemUser; // Not serialized
 
 
     public UserModel() {
 
     }
 
-    public UserModel(Integer id, String username, String email, String password, UserHashInfo userHashInfo) {
+    public UserModel(Integer id, String username, String email, String password, UserHashInfo userHashInfo, boolean systemUser) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.userHashInfo = userHashInfo;
+        this.systemUser = systemUser;
     }
 
     public Integer getId() {
@@ -69,6 +71,19 @@ public class UserModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setUserHashInfo(UserHashInfo userHashInfo) {
+        this.userHashInfo = userHashInfo;
+    }
+
+    @XmlTransient
+    public Boolean getSystemUser() {
+        return systemUser;
+    }
+
+    public void setSystemUser(Boolean systemUser) {
+        this.systemUser = systemUser;
     }
 
     @XmlTransient

@@ -119,7 +119,7 @@ public class GameState {
         return gameResult;
     }
 
-    public Optional<String> isValidMove(Move move) {
+    public Optional<String> getMoveError(Move move) {
         if (gameResult != GameResult.IN_PROGRESS) {
             return Optional.of("Cannot play more moves, game is complete!");
         }

@@ -15,6 +15,7 @@ import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -63,12 +64,34 @@ public class SetupHelper {
     }
 
     public void createInitialUser() throws Exception {
-        UserModel initialUser = new UserModel(null, WordConstants.INITIAL_USER_USERNAME, null, WordConstants.INITIAL_USER_PASSWORD, null);
+        UserModel initialUser = new UserModel(null, WordConstants.INITIAL_USER_USERNAME, null, WordConstants.INITIAL_USER_PASSWORD, null, true);
         Optional<ErrorModel> initialUserError = UsersProvider.getInstance().validateInputUser(initialUser);
         if (initialUserError.isPresent()) {
             throw new Exception("Invalid initial user in setup: " + initialUserError.get());
         }
         UsersProvider.getInstance().createNewUserIfNotExists(initialUser);
+    }
+
+    public void createAiUsers() throws Exception {
+        UserModel randomUser = new UserModel(null, WordConstants.RANDOM_AI_USERNAME, null, RandomStringUtils.randomAlphanumeric(12), null, true);
+        UserModel bookwormUser = new UserModel(null, WordConstants.BOOKWORM_AI_USERNAME, null, RandomStringUtils.randomAlphanumeric(12), null, true);
+        UserModel professorUser = new UserModel(null, WordConstants.PROFESSOR_AI_USERNAME, null, RandomStringUtils.randomAlphanumeric(12), null, true);
+        Optional<ErrorModel> initialUserError = UsersProvider.getInstance().validateInputUser(randomUser);
+        if (initialUserError.isPresent()) {
+            throw new Exception("Invalid initial user in setup: " + initialUserError.get());
+        }
+        initialUserError = UsersProvider.getInstance().validateInputUser(bookwormUser);
+        if (initialUserError.isPresent()) {
+            throw new Exception("Invalid initial user in setup: " + initialUserError.get());
+        }
+        initialUserError = UsersProvider.getInstance().validateInputUser(professorUser);
+        if (initialUserError.isPresent()) {
+            throw new Exception("Invalid initial user in setup: " + initialUserError.get());
+        }
+
+        UsersProvider.getInstance().createNewUserIfNotExists(randomUser);
+        UsersProvider.getInstance().createNewUserIfNotExists(bookwormUser);
+        UsersProvider.getInstance().createNewUserIfNotExists(professorUser);
     }
 
     public void initGameDataStructures() throws Exception {

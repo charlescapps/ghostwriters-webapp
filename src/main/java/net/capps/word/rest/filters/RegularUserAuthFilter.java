@@ -30,8 +30,8 @@ public class RegularUserAuthFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
         try {
-            Optional<UserModel> authUser = authHelper.validateSession(webRequest);
-            if (!authUser.isPresent()) {
+            Optional<UserModel> authUserOpt = authHelper.validateSession(webRequest);
+            if (!authUserOpt.isPresent()) {
                 LOG.warn("Unauthorized {} to {} from IP {}",
                         webRequest.getMethod(),
                         webRequest.getPathInfo(),
@@ -39,13 +39,14 @@ public class RegularUserAuthFilter implements ContainerRequestFilter {
                 requestContext.abortWith(Response.status(UNAUTHORIZED).build());
                 return;
             }
-            if (WordConstants.INITIAL_USER_USERNAME.equals(authUser.get().getUsername())) {
-                LOG.warn("Forbidden {} to {} as Initial User from IP {}",
+            UserModel authUser = authUserOpt.get();
+            if (authUser.getSystemUser()) {
+                LOG.warn("Forbidden {} to {} as System user '{}' from IP {}",
                         webRequest.getMethod(),
                         webRequest.getPathInfo(),
+                        authUser.getUsername(),
                         webRequest.getRemoteAddr());
-
-                requestContext.abortWith(Response.status(FORBIDDEN).build());
+                requestContext.abortWith(Response.status(UNAUTHORIZED).build());
                 return;
             }
         } catch (Exception e) {

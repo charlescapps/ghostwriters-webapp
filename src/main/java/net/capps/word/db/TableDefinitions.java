@@ -11,7 +11,8 @@ public class TableDefinitions {
             "email VARCHAR(128) UNIQUE," +
             "hashpass VARCHAR(64) NOT NULL," +
             "salt VARCHAR(16) NOT NULL," +
-            "date_joined TIMESTAMP WITH TIME ZONE NOT NULL" +
+            "date_joined TIMESTAMP WITH TIME ZONE NOT NULL, " +
+            "is_system_user BOOLEAN NOT NULL" +
             ");";
 
     public static final String CREATE_LOWERCASE_USER_IDX =

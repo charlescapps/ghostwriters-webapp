@@ -1,6 +1,5 @@
 package net.capps.word.rest.services;
 
-import com.google.common.collect.Lists;
 import net.capps.word.rest.filters.InitialUserAuthFilter;
 import net.capps.word.rest.filters.RegularUserAuthFilter;
 import net.capps.word.rest.models.UserListModel;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -38,8 +36,8 @@ public class UsersServiceTest extends BaseWordServiceTest {
     public static void createUsers() throws Exception {
         final String username1 = RandomStringUtils.randomAlphanumeric(8);
         final String username2 = username1 + RandomStringUtils.randomAlphanumeric(8);
-        UserModel user1Input = new UserModel(null, username1, username1 + "@example.com", "foo", null);
-        UserModel user2Input = new UserModel(null, username2, username2 + "@example.com", "bar", null);
+        UserModel user1Input = new UserModel(null, username1, username1 + "@example.com", "foo", null, false);
+        UserModel user2Input = new UserModel(null, username2, username2 + "@example.com", "bar", null, false);
         user1 = UsersProvider.getInstance().createNewUser(user1Input);
         user2 = UsersProvider.getInstance().createNewUser(user2Input);
     }

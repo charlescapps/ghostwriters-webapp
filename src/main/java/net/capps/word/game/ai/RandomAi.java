@@ -47,7 +47,7 @@ public class RandomAi implements GameAi {
             return playMove.get();
         }
 
-        Optional<Move> grabMove = getRandomGrabMove(gameState.getGameId(), gameState.getTileSet());
+        Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
         if (grabMove.isPresent()) {
             return grabMove.get();
         }
@@ -81,8 +81,18 @@ public class RandomAi implements GameAi {
         return Optional.absent();
     }
 
-    private Optional<Move> getRandomGrabMove(int gameId, TileSet tileSet) {
-        List<Pos> startPosList = tileSet.getAllStartTilePositions();
+    private Optional<Move> getRandomGrabMove(GameState gameState, TileSet tileSet) {
+        final int gameId = gameState.getGameId();
+        final int maxToGrab = gameState.isPlayer1Turn() ?
+                Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
+                Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
+
+        if (maxToGrab <= 0) {
+            return Optional.absent();
+        }
+
+        final List<Pos> startPosList = tileSet.getAllStartTilePositions();
+
         if (startPosList.isEmpty()) {
             return Optional.absent();
         }
@@ -111,15 +121,20 @@ public class RandomAi implements GameAi {
         int dirIndex = random.nextInt(occupiedDirs.size());
         final Dir dir = occupiedDirs.get(dirIndex);
 
-        StringBuilder letters = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         List<RackTile> grabbedTiles = Lists.newArrayList();
+
         for (Pos p = start; tileSet.isOccupied(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
             Tile tile = tileSet.get(p);
-            letters.append(tile.getLetter());
+            sb.append(tile.getLetter());
             grabbedTiles.add(tile.toRackTile());
+            if (sb.length() >= maxToGrab) {
+                break;
+            }
         }
 
-        Move move = new Move(gameId, MoveType.GRAB_TILES, letters.toString(), start, dir, grabbedTiles);
+        String letters = sb.toString();
+        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, start, dir, grabbedTiles);
         return Optional.of(move);
     }
 

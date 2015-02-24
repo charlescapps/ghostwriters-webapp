@@ -46,8 +46,8 @@ public class BaseWordServiceTest extends JerseyTest {
         final String fooUsername = "Foo_" + System.currentTimeMillis() / 1000;
         final String barUsername = "Bar_" + System.currentTimeMillis() / 1000;
 
-        UserModel fooInput = new UserModel(null, fooUsername, fooUsername + "@example.com", "foo", null);
-        UserModel barInput = new UserModel(null, barUsername, barUsername + "@example.com", "bar", null);
+        UserModel fooInput = new UserModel(null, fooUsername, fooUsername + "@example.com", "foo", null, false);
+        UserModel barInput = new UserModel(null, barUsername, barUsername + "@example.com", "bar", null, false);
         fooUser = UsersProvider.getInstance().createNewUser(fooInput);
         barUser = UsersProvider.getInstance().createNewUser(barInput);
     }

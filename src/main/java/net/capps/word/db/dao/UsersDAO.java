@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class UsersDAO {
     private static final String INSERT_USER_QUERY =
-            "INSERT INTO word_users (username, email, hashpass, salt, date_joined) " +
-            "VALUES (?, ?, ?, ?, ?);";
+            "INSERT INTO word_users (username, email, hashpass, salt, date_joined, is_system_user) " +
+            "VALUES (?, ?, ?, ?, ?, ?);";
 
     private static final String GET_USER_BY_ID_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
@@ -32,10 +32,10 @@ public class UsersDAO {
             "SELECT * FROM word_users WHERE lower(username) = lower(?);";
 
     private static final String PREFIX_SEARCH_QUERY =
-            "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') ORDER BY username ASC LIMIT ?";
+            "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') AND is_system_user = FALSE ORDER BY username ASC LIMIT ?";
 
     private static final String SUBSTRING_SEARCH_QUERY =
-            "SELECT * FROM word_users WHERE strpos(lower(username), lower(?)) > 0 ORDER BY username ASC LIMIT ?";
+            "SELECT * FROM word_users WHERE strpos(lower(username), lower(?)) > 0 AND is_system_user = FALSE ORDER BY username ASC LIMIT ?";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -93,6 +93,7 @@ public class UsersDAO {
             stmt.setString(3, hashPassBase64);
             stmt.setString(4, saltBase64);
             stmt.setTimestamp(5, new Timestamp(new java.util.Date().getTime()));
+            stmt.setBoolean(6, validatedUserInput.getSystemUser());
             stmt.executeUpdate();
 
             // Populate the returned user from the result
@@ -147,7 +148,8 @@ public class UsersDAO {
         String hashpass = result.getString("hashpass");
         String salt = result.getString("salt");
         Timestamp dateJoined = result.getTimestamp("date_joined");
-        UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt));
+        boolean systemUser = result.getBoolean("is_system_user");
+        UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
         return user;
     }
