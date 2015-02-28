@@ -93,7 +93,8 @@ public class UsersDAO {
             stmt.setString(3, hashPassBase64);
             stmt.setString(4, saltBase64);
             stmt.setTimestamp(5, new Timestamp(new java.util.Date().getTime()));
-            stmt.setBoolean(6, validatedUserInput.getSystemUser());
+            boolean isSystemUser = validatedUserInput.getSystemUser() != null && validatedUserInput.getSystemUser();
+            stmt.setBoolean(6, isSystemUser);
             stmt.executeUpdate();
 
             // Populate the returned user from the result

@@ -31,6 +31,8 @@ public class MovesDAO {
     public List<MoveModel> getMostRecentMoves(int gameId, int limit) throws SQLException {
         try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
+            stmt.setInt(1, gameId);
+            stmt.setInt(2, limit);
             ResultSet resultSet = stmt.executeQuery();
             List<MoveModel> moves = Lists.newArrayList();
             while (resultSet.next()) {

@@ -15,6 +15,7 @@ public class GameModel {
     private AiType aiType;
     private Integer player1;
     private Integer player2;
+    private UserModel player1Model;
     private UserModel player2Model;
     private String player1Rack;
     private String player2Rack;
@@ -72,6 +73,14 @@ public class GameModel {
 
     public void setPlayer2(Integer player2) {
         this.player2 = player2;
+    }
+
+    public UserModel getPlayer1Model() {
+        return player1Model;
+    }
+
+    public void setPlayer1Model(UserModel player1Model) {
+        this.player1Model = player1Model;
     }
 
     public UserModel getPlayer2Model() {

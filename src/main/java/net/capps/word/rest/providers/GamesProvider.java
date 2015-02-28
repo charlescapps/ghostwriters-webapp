@@ -47,15 +47,25 @@ public class GamesProvider {
         if (input.getGameType() == null) {
             return Optional.of(new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\""));
         }
-        if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
+        // Verify two player fields
+        if (input.getGameType() == GameType.TWO_PLAYER) {
+            if (input.getPlayer2() == null) {
+                return Optional.of(new ErrorModel("Missing player2 field for multi-player game!"));
+            }
+            Optional<UserModel> player2 = UsersDAO.getInstance().getUserById(input.getPlayer2());
+            if (!player2.isPresent()) {
+                return Optional.of(new ErrorModel(format("Player 2 id %d isn't a valid User id.", input.getPlayer2())));
+            }
+        }
+        // Verify single player fields
+        else if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
             return Optional.of(new ErrorModel("Missing aiType field for single player type game."));
         }
+
         if (input.getPlayer1() == null) {
             return Optional.of(new ErrorModel("Missing player1 field!"));
         }
-        if (input.getGameType() != GameType.SINGLE_PLAYER && input.getPlayer2() == null) {
-            return Optional.of(new ErrorModel("Missing player2 field for multi-player game!"));
-        }
+
         if (input.getPlayer1().equals(input.getPlayer2())) {
             return Optional.of(new ErrorModel("Cannot start a game with yourself!"));
         }
@@ -71,10 +81,7 @@ public class GamesProvider {
         if (!input.getPlayer1().equals(authUser.getId())) {
             return Optional.of(new ErrorModel("Player 1 must be the currently authenticated user."));
         }
-        Optional<UserModel> player2 = UsersDAO.getInstance().getUserById(input.getPlayer2());
-        if (!player2.isPresent()) {
-            return Optional.of(new ErrorModel(format("Player 2 id %d isn't a valid User id.", input.getPlayer2())));
-        }
+
         return Optional.absent();
     }
 
@@ -85,7 +92,7 @@ public class GamesProvider {
                 .build();
     }
 
-    public GameModel createNewGame(GameModel validatedInputGame) throws Exception {
+    public GameModel createNewGame(GameModel validatedInputGame, UserModel gameCreator) throws Exception {
         BoardSize bs = validatedInputGame.getBoardSize();
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
@@ -114,6 +121,7 @@ public class GamesProvider {
             throw new Exception("Error - player2 was not found in the database. User ID is: " + createdGame.getPlayer2());
         }
 
+        createdGame.setPlayer1Model(gameCreator);
         createdGame.setPlayer2Model(player2Model.get());
 
         return createdGame;

@@ -14,9 +14,13 @@ public class RackTile {
     private final char letter;
 
     private RackTile(char letter) {
-        Preconditions.checkArgument(letter == WILD_RACK_TILE || LetterUtils.isUppercase(letter),
+        Preconditions.checkArgument(isValidRackTile(letter),
                 "Rack Tile character must be uppercase alphabetic or '*' for a wild tile.");
         this.letter = letter;
+    }
+
+    public static boolean isValidRackTile(char letter) {
+        return letter == WILD_RACK_TILE || LetterUtils.isUppercase(letter);
     }
 
     public static RackTile of(char letter) {

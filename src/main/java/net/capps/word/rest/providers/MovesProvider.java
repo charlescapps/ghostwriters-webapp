@@ -4,11 +4,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
+import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.ai.GameAi;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.move.Move;
+import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
@@ -33,6 +35,11 @@ public class MovesProvider {
     public Optional<ErrorModel> validateMove(MoveModel inputMoveModel, UserModel authUser) throws Exception {
 
         Optional<ErrorModel> errorOpt = validateFieldsArePresent(inputMoveModel);
+        if (errorOpt.isPresent()) {
+            return errorOpt;
+        }
+
+        errorOpt = isValidLettersField(inputMoveModel.getLetters());
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
@@ -112,6 +119,20 @@ public class MovesProvider {
         GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, aiMoveModel, numPoints);
 
         updatedGame.setLastMove(aiMoveModel);
+        Optional<UserModel> player1Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer1());
+        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer2());
+
+        if (!player1Model.isPresent()) {
+            throw new IllegalStateException(String.format("Player 1 with ID %d wasn't present in the database", updatedGame.getPlayer1()));
+        }
+
+        if (!player2Model.isPresent()) {
+            throw new IllegalStateException(String.format("Player 2 with ID %d wasn't present in the database", updatedGame.getPlayer2()));
+        }
+
+        updatedGame.setPlayer1Model(player1Model.get());
+        updatedGame.setPlayer2Model(player2Model.get());
+
         return updatedGame;
     }
 
@@ -132,10 +153,20 @@ public class MovesProvider {
             return Optional.of(new ErrorModel("Must provide non-empty \"letters\" field"));
         }
         if (inputMoveModel.getMoveType() == null) {
-            return Optional.of(new ErrorModel("Must provide \"moveType\" field"));
+            return Optional.of(new ErrorModel("Must provide valid \"moveType\" field."));
         }
         if (inputMoveModel.getTiles() == null || inputMoveModel.getTiles().isEmpty()) {
             return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
+        }
+        return Optional.absent();
+    }
+
+    private Optional<ErrorModel> isValidLettersField(String letters) {
+        for (int i = 0; i < letters.length(); i++) {
+            char c = letters.charAt(i);
+            if (!RackTile.isValidRackTile(c)) {
+                return Optional.of(new ErrorModel("Each letter for a move must be an uppercase letter or wild card (*)"));
+            }
         }
         return Optional.absent();
     }
