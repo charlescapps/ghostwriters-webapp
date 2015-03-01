@@ -45,7 +45,7 @@ public class Move {
             this.letters = Preconditions.checkNotNull(moveModel.getLetters());
             this.start = Preconditions.checkNotNull(start.toPos());
             this.dir = Preconditions.checkNotNull(moveModel.getDir());
-            this.tiles = Rack.lettersToTiles(moveModel.getLetters());
+            this.tiles = Rack.lettersToTiles(moveModel.getTiles());
         } else {
             this.letters = null;
             this.start = null;
