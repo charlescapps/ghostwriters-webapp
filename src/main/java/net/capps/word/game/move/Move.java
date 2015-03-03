@@ -25,7 +25,7 @@ public class Move {
     private final MoveType moveType;
 
     public static Move passMove(int gameId) {
-        return new Move(gameId, MoveType.PASS, "", null, null, Lists.<RackTile>newArrayList());
+        return new Move(gameId, MoveType.PASS, "", Pos.of(0, 0), Dir.E, Lists.<RackTile>newArrayList());
     }
 
     public Move(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, List<RackTile> tiles) {
@@ -92,7 +92,14 @@ public class Move {
     }
 
     public MoveModel toMoveModel(int points) {
-        return new MoveModel(gameId, moveType, letters, start.toPosModel(), dir, getTilesAsString(), points, null);
+        return new MoveModel(gameId,
+                             moveType,
+                             letters,
+                             start.toPosModel(), // PASS type moves have no start.
+                             dir,
+                             getTilesAsString(),
+                             points,
+                             null);
     }
 
     @Override
