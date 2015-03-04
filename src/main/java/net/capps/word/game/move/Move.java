@@ -95,7 +95,7 @@ public class Move {
         return new MoveModel(gameId,
                              moveType,
                              letters,
-                             start.toPosModel(), // PASS type moves have no start.
+                             start.toPosModel(),
                              dir,
                              getTilesAsString(),
                              points,

@@ -10,6 +10,7 @@ import net.capps.word.game.board.GameState;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.move.Move;
+import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
@@ -143,20 +144,22 @@ public class MovesProvider {
         if (inputMoveModel.getGameId() == null) {
             return Optional.of(new ErrorModel("Must provide \"gameId\" field"));
         }
-        if (inputMoveModel.getDir() == null) {
-            return Optional.of(new ErrorModel("Must provide \"dir\" field"));
-        }
-        if (inputMoveModel.getStart() == null) {
-            return Optional.of(new ErrorModel("Must provide \"start\" field"));
-        }
-        if (Strings.isNullOrEmpty(inputMoveModel.getLetters())) {
-            return Optional.of(new ErrorModel("Must provide non-empty \"letters\" field"));
-        }
         if (inputMoveModel.getMoveType() == null) {
             return Optional.of(new ErrorModel("Must provide valid \"moveType\" field."));
         }
-        if (inputMoveModel.getTiles() == null || inputMoveModel.getTiles().isEmpty()) {
-            return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
+        if (inputMoveModel.getMoveType() != MoveType.PASS) {
+            if (inputMoveModel.getDir() == null) {
+                return Optional.of(new ErrorModel("Must provide \"dir\" field"));
+            }
+            if (inputMoveModel.getStart() == null) {
+                return Optional.of(new ErrorModel("Must provide \"start\" field"));
+            }
+            if (Strings.isNullOrEmpty(inputMoveModel.getLetters())) {
+                return Optional.of(new ErrorModel("Must provide non-empty \"letters\" field"));
+            }
+            if (inputMoveModel.getTiles() == null || inputMoveModel.getTiles().isEmpty()) {
+                return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
+            }
         }
         return Optional.absent();
     }
