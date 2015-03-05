@@ -20,14 +20,14 @@ public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
 
     private static final String INSERT_GAME_QUERY =
-        "INSERT INTO word_games (game_type, ai_type, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
+            "INSERT INTO word_games (game_type, ai_type, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
                     "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
-        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_GAME_QUERY =
             "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn) " +
-                               " = (?, ?, ?, ?, ?, ?, ?, ?) " +
-            "WHERE id = ?;";
+                    " = (?, ?, ?, ?, ?, ?, ?, ?) " +
+                    "WHERE id = ?;";
 
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
@@ -79,55 +79,62 @@ public class GamesDAO {
 
     public Optional<GameModel> getGameById(int gameId) throws Exception {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID);
-            stmt.setInt(1, gameId);
-
-            ResultSet result = stmt.executeQuery();
-            if (!result.next()) {
-                return Optional.absent();
-            }
-            return Optional.of(getGameByResultSetRow(result));
+            return getGameById(gameId, dbConn);
         }
+    }
+
+    public Optional<GameModel> getGameById(int gameId, Connection dbConn) throws Exception {
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID);
+        stmt.setInt(1, gameId);
+
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.absent();
+        }
+        return Optional.of(getGameByResultSetRow(result));
     }
 
     public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints) throws Exception {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            try {
-                // Set auto-commit to false, to update Games table and Moves table and rollback if anything fails.
-                dbConn.setAutoCommit(false);
+            // Set auto-commit to false, to update Games table and Moves table and rollback if anything fails.
+            dbConn.setAutoCommit(false);
+            GameModel gameModel = updateGame(updatedGame, validatedMove, numPoints, dbConn);
+            dbConn.commit();
+            return gameModel;
+        }
+    }
 
-                PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
-                updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());
-                updateGameStmt.setString(2, updatedGame.getPlayer2Rack().toString());
-                updateGameStmt.setInt(3, updatedGame.getPlayer1Points());
-                updateGameStmt.setInt(4, updatedGame.getPlayer2Points());
-                updateGameStmt.setString(5, updatedGame.getSquareSet().toCompactString());
-                updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
-                updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
-                updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
-                updateGameStmt.setInt(9, updatedGame.getGameId());
+    public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints, Connection dbConn) throws Exception {
+        try {
+            PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
+            updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());
+            updateGameStmt.setString(2, updatedGame.getPlayer2Rack().toString());
+            updateGameStmt.setInt(3, updatedGame.getPlayer1Points());
+            updateGameStmt.setInt(4, updatedGame.getPlayer2Points());
+            updateGameStmt.setString(5, updatedGame.getSquareSet().toCompactString());
+            updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
+            updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
+            updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
+            updateGameStmt.setInt(9, updatedGame.getGameId());
 
-                int rowCount = updateGameStmt.executeUpdate();
+            int rowCount = updateGameStmt.executeUpdate();
 
-                if (rowCount != 1) {
-                    throw new SQLException("Row count isn't 1 after updating game, row count is: " + rowCount);
-                }
-                ResultSet result = updateGameStmt.getGeneratedKeys();
-                result.next();
-
-                GameModel updatedGameModel = getGameByResultSetRow(result);
-
-                // Now insert the Move.
-                MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
-
-                dbConn.commit();
-
-                return updatedGameModel;
-
-            } catch (Exception e) {
-                dbConn.rollback();
-                throw e;
+            if (rowCount != 1) {
+                throw new SQLException("Row count isn't 1 after updating game, row count is: " + rowCount);
             }
+            ResultSet result = updateGameStmt.getGeneratedKeys();
+            result.next();
+
+            GameModel updatedGameModel = getGameByResultSetRow(result);
+
+            // Now insert the Move.
+            MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
+
+            return updatedGameModel;
+
+        } catch (Exception e) {
+            dbConn.rollback();
+            throw e;
         }
     }
 

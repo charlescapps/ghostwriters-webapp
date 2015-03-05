@@ -28,18 +28,16 @@ public class MovesDAO {
     private static final String GET_RECENT_MOVES =
             "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
 
-    public List<MoveModel> getMostRecentMoves(int gameId, int limit) throws SQLException {
-        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
-            stmt.setInt(1, gameId);
-            stmt.setInt(2, limit);
-            ResultSet resultSet = stmt.executeQuery();
-            List<MoveModel> moves = Lists.newArrayList();
-            while (resultSet.next()) {
-                moves.add(getMoveFromResult(resultSet));
-            }
-            return moves;
+    public List<MoveModel> getMostRecentMoves(int gameId, int limit, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
+        stmt.setInt(1, gameId);
+        stmt.setInt(2, limit);
+        ResultSet resultSet = stmt.executeQuery();
+        List<MoveModel> moves = Lists.newArrayList();
+        while (resultSet.next()) {
+            moves.add(getMoveFromResult(resultSet));
         }
+        return moves;
     }
 
     public MoveModel insertMove(MoveModel inputMove, int numPoints) throws SQLException {

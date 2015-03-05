@@ -35,7 +35,7 @@ public class TileSet implements Iterable<Pos> {
     public final int N;
 
     public TileSet(int N) {
-        Preconditions.checkArgument(N > 6, "The board size, N, must be at least 7.");
+        Preconditions.checkArgument(N >= 5, "The board size, N, must be at least 5.");
         this.N = N;
         this.tiles = new Tile[N][N];
         for (int r = 0; r < N; r++) {

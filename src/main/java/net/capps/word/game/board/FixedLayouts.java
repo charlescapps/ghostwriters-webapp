@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 public class FixedLayouts {
     private static final FixedLayouts INSTANCE = new FixedLayouts();
 
+    private SquareSet tinyLayout;
     private SquareSet tallLayout;
     private SquareSet grandeLayout;
     private SquareSet ventiLayout;
@@ -27,6 +28,7 @@ public class FixedLayouts {
 
     // -------- Public -----------
     public void initLayouts() throws IOException, InvalidBoardException {
+        tinyLayout = createFixedLayout(BoardSize.TINY);
         tallLayout = createFixedLayout(BoardSize.TALL);
         grandeLayout = createFixedLayout(BoardSize.GRANDE);
         ventiLayout = createFixedLayout(BoardSize.VENTI);
@@ -34,6 +36,7 @@ public class FixedLayouts {
 
     public SquareSet getFixedLayout(BoardSize boardSize) {
         switch (boardSize) {
+            case TINY: return tinyLayout;
             case TALL: return tallLayout;
             case GRANDE: return grandeLayout;
             case VENTI: return ventiLayout;

@@ -5,6 +5,7 @@ package net.capps.word.rest.services;
  */
 
 import com.google.common.base.Optional;
+import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
@@ -22,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.sql.Connection;
 
 import static javax.ws.rs.core.Response.Status;
 
@@ -47,13 +50,19 @@ public class MovesService {
                     .entity(errorOpt.get())
                     .build();
         }
-        GameModel updatedGame = MovesProvider.getInstance().playMove(input);
 
-        // For single player games, immediately play the AI's move and return the updated game.
-        if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
-            updatedGame = MovesProvider.getInstance().playAIMove(updatedGame.getAiType(), updatedGame, input);
+        // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            dbConn.setAutoCommit(false);
+            GameModel updatedGame = MovesProvider.getInstance().playMove(input, dbConn);
+
+            // For single player games, immediately play the AI's move and return the updated game.
+            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
+                updatedGame = MovesProvider.getInstance().playAIMove(updatedGame.getAiType(), updatedGame, input, dbConn);
+            }
+
+            dbConn.commit();
+            return Response.ok(updatedGame).build();
         }
-
-        return Response.ok(updatedGame).build();
     }
 }

@@ -17,6 +17,7 @@ import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 
+import java.sql.Connection;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -79,16 +80,16 @@ public class MovesProvider {
         return Optional.absent();
     }
 
-    public GameModel playMove(MoveModel validatedMove) throws Exception {
+    public GameModel playMove(MoveModel validatedMove, Connection dbConn) throws Exception {
         // Get the full Game using the gameId
         int gameId = validatedMove.getGameId();
 
-        Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId);
+        Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId, dbConn);
         if (!gameOpt.isPresent()) {
             throw new IllegalStateException(format("gameId %d is not a valid game.", gameId));
         }
 
-        List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(gameId, 1);
+        List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(gameId, 1, dbConn);
         Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
                 Optional.of(new Move(prevMove.get(0))) :
                 Optional.<Move>absent();
@@ -99,12 +100,26 @@ public class MovesProvider {
 
         int numPoints = gameState.playMove(move); // Play the move, updating the game state.
 
-        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints);
+        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints, dbConn);
         updatedGame.setLastMove(validatedMove);
+        Optional<UserModel> player1Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer1());
+        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer2());
+
+        if (!player1Model.isPresent()) {
+            throw new IllegalStateException(String.format("Player 1 with ID %d wasn't present in the database", updatedGame.getPlayer1()));
+        }
+
+        if (!player2Model.isPresent()) {
+            throw new IllegalStateException(String.format("Player 2 with ID %d wasn't present in the database", updatedGame.getPlayer2()));
+        }
+
+        updatedGame.setPlayer1Model(player1Model.get());
+        updatedGame.setPlayer2Model(player2Model.get());
+
         return updatedGame;
     }
 
-    public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove) throws Exception {
+    public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
         if (gameModel.getGameResult() != GameResult.IN_PROGRESS) {
             return gameModel;
         }
@@ -117,7 +132,7 @@ public class MovesProvider {
 
         MoveModel aiMoveModel = aiMove.toMoveModel(numPoints);
 
-        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, aiMoveModel, numPoints);
+        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, aiMoveModel, numPoints, dbConn);
 
         updatedGame.setLastMove(aiMoveModel);
         Optional<UserModel> player1Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer1());
