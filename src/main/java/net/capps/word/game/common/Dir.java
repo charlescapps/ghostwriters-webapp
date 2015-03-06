@@ -28,4 +28,14 @@ public enum Dir {
         }
         throw new IllegalStateException();
     }
+
+    public Dir perp() {
+        switch (this) {
+            case S: return E;
+            case E: return N;
+            case N: return W;
+            case W: return S;
+        }
+        throw new IllegalStateException();
+    }
 }

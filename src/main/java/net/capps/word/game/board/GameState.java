@@ -21,6 +21,8 @@ import static java.lang.String.format;
  * Created by charlescapps on 1/12/15.
  */
 public class GameState {
+    private static final LetterPoints letterPoints = LetterPoints.getInstance();
+
     private final int gameId;
     private final int N;
     private final SquareSet squareSet;
@@ -151,13 +153,14 @@ public class GameState {
         if (move.getMoveType() != MoveType.PLAY_WORD) {
             return 0;
         }
+        int perpWordPoints = 0;
         int wordPoints = 0;
         int wordScale = 1;
         String word = move.getLetters();
         Pos start = move.getStart();
         Dir dir = move.getDir();
-        LetterPoints letterPoints = LetterPoints.getInstance();
 
+        // Compute the points
         for (int i = 0; i < word.length(); i++) {
             char c = word.charAt(i);
             Pos p = start.go(dir, i);
@@ -167,6 +170,7 @@ public class GameState {
                 Square square = squareSet.get(p);
                 wordPoints += letterPoints.getPointValue(c) * square.getLetterMultiplier();
                 wordScale *= square.getWordMultiplier();
+                perpWordPoints += computePerpWordPoints(p, dir, c, square.getLetterMultiplier(), square.getWordMultiplier());
             }
             // If the tile was already on the board, just include the base point value.
             else {
@@ -174,11 +178,31 @@ public class GameState {
             }
         }
 
-        int totalPoints = wordPoints * wordScale;
+        int totalPoints = wordPoints * wordScale + perpWordPoints;
         if (totalPoints <= 0) {
             throw new IllegalStateException("Something went wrong computing the points - any move must earn > 0 points!");
         }
         return totalPoints;
+    }
+
+    private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale, int wordScale) {
+        final Dir perp = d.perp();
+        final Pos end = tileSet.getEndOfOccupied(baseWordPos.go(perp), perp);
+        final Pos start = tileSet.getEndOfOccupied(baseWordPos.go(perp.negate()), perp.negate());
+        if (start.equals(end)) {
+            return 0; // There's no perpendicular word
+        }
+        final Pos afterEnd = end.go(perp);
+        int wordPoints = 0;
+        for (Pos p = start; !p.equals(afterEnd); p = p.go(perp)) {
+            if (p.equals(baseWordPos)) {
+                wordPoints += letterPoints.getPointValue(playChar) * letterScale;
+            } else {
+                final char c = tileSet.getLetterAt(p);
+                wordPoints += letterPoints.getPointValue(c);
+            }
+        }
+        return wordPoints * wordScale;
     }
 
     private int playWordMove(Move validatedMove) {
