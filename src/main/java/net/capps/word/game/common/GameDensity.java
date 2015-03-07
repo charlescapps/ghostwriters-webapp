@@ -11,17 +11,11 @@ public enum GameDensity {
     public int getNumWords(BoardSize boardSize) {
         Preconditions.checkNotNull(boardSize);
         switch (boardSize) {
-            case TINY:
-                switch(this) {
-                    case SPARSE: return 4;
-                    case REGULAR: return 5;
-                    case WORD_JUNGLE: return 6;
-                }
             case TALL:
                 switch(this) {
-                    case SPARSE: return 9;
-                    case REGULAR: return 12;
-                    case WORD_JUNGLE: return 15;
+                    case SPARSE: return 6;
+                    case REGULAR: return 7;
+                    case WORD_JUNGLE: return 8;
                 }
             case GRANDE:
                 switch(this) {

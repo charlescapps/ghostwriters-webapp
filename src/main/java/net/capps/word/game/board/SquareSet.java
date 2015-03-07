@@ -1,14 +1,9 @@
 package net.capps.word.game.board;
 
-import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
-import net.capps.word.game.move.Move;
-import net.capps.word.game.move.MoveType;
-import net.capps.word.game.tile.LetterPoints;
 
 import java.io.IOException;
 import java.io.Reader;

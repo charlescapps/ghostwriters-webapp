@@ -4,10 +4,9 @@ package net.capps.word.game.common;
  * Created by charlescapps on 1/15/15.
  */
 public enum BoardSize {
-    TINY(5, 4, 4, 2, 2, 1, "net/capps/word/layouts/DefaultTinySquareConfig.txt"),
-    TALL(9, 7, 13, 8, 4, 3, "net/capps/word/layouts/DefaultTallSquareConfig.txt"),
-    GRANDE(13, 9, 17, 12, 7, 6, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt"),
-    VENTI(15, 11, 19, 14, 9, 8, "net/capps/word/layouts/DefaultVentiSquareConfig.txt");
+    TALL(5, 5, 4, 4, 3, 1, "net/capps/word/layouts/DefaultTallSquareConfig.txt"),
+    GRANDE(9, 7, 13, 8, 4, 3, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt"),
+    VENTI(13, 9, 17, 12, 7, 6, "net/capps/word/layouts/DefaultVentiSquareConfig.txt");
 
     private final int N; // Number of rows/cols in an NxN board
     private final int maxInitialWordSize; // Max size for words in the randomly generated starting game

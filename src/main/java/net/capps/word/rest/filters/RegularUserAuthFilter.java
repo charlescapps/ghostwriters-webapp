@@ -1,7 +1,6 @@
 package net.capps.word.rest.filters;
 
 import com.google.common.base.Optional;
-import net.capps.word.constants.WordConstants;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.models.UserModel;
 import org.slf4j.Logger;
@@ -15,7 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Provider
 @Filters.RegularUserAuthRequired

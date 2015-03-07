@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.List;
 
-import static net.capps.word.game.common.Dir.E;
 import static net.capps.word.game.common.Dir.S;
 
 

@@ -5,10 +5,7 @@ import com.google.common.collect.Lists;
 import net.capps.word.rest.models.PosModel;
 
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.lang.String.format;
 
 /**
  * Created by charlescapps on 1/16/15.

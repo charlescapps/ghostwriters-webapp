@@ -2,7 +2,6 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
