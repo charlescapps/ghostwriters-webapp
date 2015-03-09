@@ -158,7 +158,6 @@ public class GameState {
         }
         int perpWordPoints = 0;
         int wordPoints = 0;
-        int wordScale = 1;
         String word = move.getLetters();
         Pos start = move.getStart();
         Dir dir = move.getDir();
@@ -172,8 +171,7 @@ public class GameState {
             if (tile.isAbsent()) {
                 Square square = squareSet.get(p);
                 wordPoints += letterPoints.getPointValue(c) * square.getLetterMultiplier();
-                wordScale *= square.getWordMultiplier();
-                perpWordPoints += computePerpWordPoints(p, dir, c, square.getLetterMultiplier(), square.getWordMultiplier());
+                perpWordPoints += computePerpWordPoints(p, dir, c, square.getLetterMultiplier());
             }
             // If the tile was already on the board, just include the base point value.
             else {
@@ -181,14 +179,14 @@ public class GameState {
             }
         }
 
-        int totalPoints = wordPoints * wordScale + perpWordPoints;
+        int totalPoints = wordPoints + perpWordPoints;
         if (totalPoints <= 0) {
             throw new IllegalStateException("Something went wrong computing the points - any move must earn > 0 points!");
         }
         return totalPoints;
     }
 
-    private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale, int wordScale) {
+    private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
         final Dir perp = d.perp();
         final Pos end = tileSet.getEndOfOccupied(baseWordPos.go(perp), perp);
         final Pos start = tileSet.getEndOfOccupied(baseWordPos.go(perp.negate()), perp.negate());
@@ -205,12 +203,12 @@ public class GameState {
                 wordPoints += letterPoints.getPointValue(c);
             }
         }
-        return wordPoints * wordScale;
+        return wordPoints;
     }
 
     private int playWordMove(Move validatedMove) {
         int numPoints = computePoints(validatedMove);
-        tileSet.playWordMove(validatedMove);
+        tileSet.playWordMove(validatedMove, squareSet);
         getCurrentPlayerRack().removeTiles(validatedMove.getTiles());
         if (player1Turn) {
             player1Points += numPoints;
@@ -294,11 +292,11 @@ public class GameState {
     private Optional<String> isValidGrabTilesMove(Move move) {
         // Check that the player's tiles won't exceed the maximum number of tiles in hand.
         if (player1Turn && !player1Rack.canAddTiles(move.getTiles())) {
-            return Optional.of(format("Player 1 cannot add tiles \"%s\", would exceed max rack size of %d",
+            return Optional.of(format("You can't grab the tiles, \"%s\". You can only hold %d tiles!",
                     move.getTilesAsString(),
                     Rack.MAX_TILES_IN_RACK));
         } else if (!player1Turn && !player2Rack.canAddTiles(move.getTiles())) {
-            return Optional.of(format("Player 2 cannot add tiles \"%s\", would exceed max rack size of %d",
+            return Optional.of(format("You can't grab the tiles, \"%s\". You can only hold %d tiles!",
                     move.getTilesAsString(),
                     Rack.MAX_TILES_IN_RACK));
         }

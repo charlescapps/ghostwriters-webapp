@@ -161,7 +161,7 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public void playWordMove(Move move) {
+    public void playWordMove(Move move, SquareSet squareSet) {
         Preconditions.checkArgument(move.getMoveType() == MoveType.PLAY_WORD, "Move type must be Play Word.");
         Dir dir = move.getDir();
         Pos start = move.getStart();
@@ -175,7 +175,13 @@ public class TileSet implements Iterable<Pos> {
             Tile existing = get(p);
             if (existing.isAbsent()) {
                 RackTile rackTile = tilesPlayed.get(rackIndex++);
-                set(p, rackTile.toTile(letter));
+                // Do not add tiles to board where there's a MINE!
+                if (squareSet.get(p) == Square.MINE) {
+                    // Remove the mine after it "explodes"
+                    squareSet.set(p, Square.NORMAL);
+                } else {
+                    set(p, rackTile.toTile(letter));
+                }
             } else {
                 if (existing.getLetter() != letter) {
                     throw new IllegalStateException("Attempting to place invalid move: " + move);

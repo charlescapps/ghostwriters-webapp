@@ -9,11 +9,11 @@ import java.util.Map;
  * Created by charlescapps on 1/12/15.
  */
 public enum Square {
-    NORMAL('0', 1, 1),
-    DOUBLE_LETTER('1', 2, 1),
-    TRIPLE_LETTER('2', 3, 1),
-    DOUBLE_WORD('3', 1, 2),
-    TRIPLE_WORD('4', 1, 3);
+    MINE('0', 0),
+    NORMAL('1', 1),
+    DOUBLE_LETTER('2', 2),
+    TRIPLE_LETTER('3', 3),
+    QUAD_LETTER('4', 4);
 
     private static final Map<Character, Square> CHAR_TO_SQUARE;
 
@@ -27,12 +27,10 @@ public enum Square {
 
     private final char charRep;
     private final int letterMultiplier;
-    private final int wordMultiplier;
 
-    private Square(char charRep, int letterMultiplier, int wordMultiplier) {
+    private Square(char charRep, int letterMultiplier) {
         this.charRep = charRep;
         this.letterMultiplier = letterMultiplier;
-        this.wordMultiplier = wordMultiplier;
     }
 
     public char getCharRep() {
@@ -41,10 +39,6 @@ public enum Square {
 
     public int getLetterMultiplier() {
         return letterMultiplier;
-    }
-
-    public int getWordMultiplier() {
-        return wordMultiplier;
     }
 
     public static Square valueOf(char c) {

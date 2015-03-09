@@ -20,15 +20,15 @@ public class DefaultLayoutGenerator implements LayoutGenerator {
         SquareSet squareSet = new SquareSet(N);
         addRandomBonusSquares(dl, Square.DOUBLE_LETTER, squareSet);
         addRandomBonusSquares(tl, Square.TRIPLE_LETTER, squareSet);
-        addRandomBonusSquares(dw, Square.DOUBLE_WORD, squareSet);
-        addRandomBonusSquares(tw, Square.TRIPLE_WORD, squareSet);
+        addRandomBonusSquares(dw, Square.QUAD_LETTER, squareSet);
+        addRandomBonusSquares(tw, Square.MINE, squareSet);
 
         return squareSet;
     }
 
     @Override
     public SquareSet generateRandomBonusLayout(BoardSize bs) {
-        return generateRandomBonusLayout(bs.getN(), bs.getDl(), bs.getTl(), bs.getDw(), bs.getTw());
+        return generateRandomBonusLayout(bs.getN(), bs.getX2(), bs.getX3(), bs.getX4(), bs.getNumMines());
     }
 
     private void addRandomBonusSquares(int num, Square type, SquareSet squareSet) {
