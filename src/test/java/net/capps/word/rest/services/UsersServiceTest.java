@@ -36,8 +36,8 @@ public class UsersServiceTest extends BaseWordServiceTest {
     public static void createUsers() throws Exception {
         final String username1 = RandomStringUtils.randomAlphanumeric(8);
         final String username2 = username1 + RandomStringUtils.randomAlphanumeric(8);
-        UserModel user1Input = new UserModel(null, username1, username1 + "@example.com", "foo", null, false);
-        UserModel user2Input = new UserModel(null, username2, username2 + "@example.com", "bar", null, false);
+        UserModel user1Input = new UserModel(null, username1, username1 + "@example.com", null, null, false);
+        UserModel user2Input = new UserModel(null, username2, username2 + "@example.com", null, null, false);
         user1 = UsersProvider.getInstance().createNewUser(user1Input);
         user2 = UsersProvider.getInstance().createNewUser(user2Input);
     }

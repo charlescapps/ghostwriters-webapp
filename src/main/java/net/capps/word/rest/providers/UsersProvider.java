@@ -47,32 +47,46 @@ public class UsersProvider {
         if (Strings.isNullOrEmpty(userModel.getUsername())) {
             return Optional.of(new ErrorModel("Missing username"));
         }
-        if (Strings.isNullOrEmpty(userModel.getPassword())) {
-            return Optional.of(new ErrorModel("Missing password"));
+        userModel.setUsername(userModel.getUsername().trim());
+        if (Strings.isNullOrEmpty(userModel.getDeviceId())) {
+            return Optional.of(new ErrorModel("Missing device ID"));
         }
         Optional<ErrorModel> usernameError = isValidUsername(userModel.getUsername());
         if (usernameError.isPresent()) {
             return usernameError;
         }
         // Validate the email, if present.
-        String email = userModel.getEmail();
-        if (email != null) {
-            try {
-                InternetAddress emailAddress = new InternetAddress(email);
-                emailAddress.validate();
-            } catch (AddressException e) {
-                return Optional.of(new ErrorModel(
-                        String.format("The given email address '%s' is not a valid email address.", email)));
+        if (userModel.getEmail() != null) {
+            userModel.setEmail(userModel.getEmail().trim());
+            if (userModel.getEmail().isEmpty()) {
+                userModel.setEmail(null); // If the client sends the empty string, use null
+            } else {
+                try {
+                    InternetAddress emailAddress = new InternetAddress(userModel.getEmail());
+                    emailAddress.validate();
+                } catch (AddressException e) {
+                    return Optional.of(new ErrorModel(
+                            String.format("The given email address '%s' is not a valid email address.", userModel.getEmail())));
+                }
             }
         }
 
-        return isValidPassword(userModel.getPassword());
+        return Optional.absent();
     }
 
     public UserModel createNewUser(UserModel validatedInput) throws Exception {
+        return usersDao.insertNewUser(validatedInput);
+    }
+
+    public Optional<ErrorModel> updateUserPassword(int userId, String password) throws Exception {
+        Optional<ErrorModel> errorOpt = isValidPassword(password);
+        if (errorOpt.isPresent()) {
+            return errorOpt;
+        }
         byte[] salt = generateSalt();
-        byte[] hashPass = hashPassUsingSha256(validatedInput.getPassword(), salt);
-        return usersDao.insertNewUser(validatedInput, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
+        byte[] hashPass = hashPassUsingSha256(password, salt);
+        usersDao.updateUserPassword(userId, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
+        return Optional.absent();
     }
 
     public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {

@@ -9,8 +9,9 @@ public class TableDefinitions {
             "id serial PRIMARY KEY," +
             "username VARCHAR(16) UNIQUE NOT NULL," +
             "email VARCHAR(128) UNIQUE," +
-            "hashpass VARCHAR(64) NOT NULL," +
-            "salt VARCHAR(16) NOT NULL," +
+            "device_id VARCHAR(64) UNIQUE," +
+            "hashpass VARCHAR(64)," +
+            "salt VARCHAR(16)," +
             "date_joined TIMESTAMP WITH TIME ZONE NOT NULL, " +
             "is_system_user BOOLEAN NOT NULL" +
             ");";

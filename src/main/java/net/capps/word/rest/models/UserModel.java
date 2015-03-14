@@ -15,7 +15,7 @@ public class UserModel {
     private String username;
     private String email;
     private Long dateJoined;
-    private String password; // Only present when creating a new user
+    private String deviceId;
     private UserHashInfo userHashInfo; // Not serialized
     private Boolean systemUser; // Not serialized
 
@@ -24,11 +24,11 @@ public class UserModel {
 
     }
 
-    public UserModel(Integer id, String username, String email, String password, UserHashInfo userHashInfo, boolean systemUser) {
+    public UserModel(Integer id, String username, String email, String deviceId, UserHashInfo userHashInfo, boolean systemUser) {
         this.id = id;
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.deviceId = deviceId;
         this.userHashInfo = userHashInfo;
         this.systemUser = systemUser;
     }
@@ -65,12 +65,12 @@ public class UserModel {
         this.dateJoined = dateJoined;
     }
 
-    public String getPassword() {
-        return password;
+    public String getDeviceId() {
+        return deviceId;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public void setUserHashInfo(UserHashInfo userHashInfo) {

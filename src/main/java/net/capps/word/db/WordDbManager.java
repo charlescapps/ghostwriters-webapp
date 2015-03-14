@@ -26,8 +26,9 @@ public class WordDbManager {
     private final String dbUrl;
 
     private WordDbManager() {
-        System.out.println("HEROKU_POSTGRESQL_RED_URL: " + System.getenv("HEROKU_POSTGRESQL_RED_URL"));
         final String databaseUrl = getDatabaseUrl();
+        LOG.info("HEROKU_POSTGRESQL_RED_URL: " + System.getenv("HEROKU_POSTGRESQL_RED_URL"));
+        LOG.info("DATABASE_URL: " + databaseUrl);
         DATABASE_URI = URI.create(databaseUrl);
         LOG.info("DATABASE_URL=" + DATABASE_URI);
         username = DATABASE_URI.getUserInfo().split(":")[0];
