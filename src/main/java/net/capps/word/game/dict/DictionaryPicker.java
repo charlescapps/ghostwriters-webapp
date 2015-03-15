@@ -17,17 +17,13 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by charlescapps on 1/15/15.
  */
-public class DictionaryWordPicker {
+public class DictionaryPicker {
     // ---------------- Static ----------------
-    private static final DictionaryWordPicker INSTANCE = new DictionaryWordPicker();
-    private static final Logger LOG = LoggerFactory.getLogger(DictionaryWordPicker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DictionaryPicker.class);
 
-    public static DictionaryWordPicker getInstance() {
-        return INSTANCE;
-    }
 
     // ---------------- Constructor -----------
-    private DictionaryWordPicker() { }
+    DictionaryPicker() { }
 
     // ---------------- Private fields ---------------
     private ImmutableList<String> words;
@@ -78,11 +74,41 @@ public class DictionaryWordPicker {
             throw new IllegalArgumentException("The max word length for a random word cannot be less than 2");
         }
 
-        int chosenLength = RandomUtil.randomInt(2, maxLength);
+        return getRandomWordEqualProbabilityByLength(2, maxLength);
+    }
+
+    public String getRandomWordEqualProbabilityByLength(int minLen, int maxLen) {
+        if (maxLen < minLen) {
+            throw new IllegalArgumentException("The max word length for a random word cannot be less than the min length");
+        }
+
+        int chosenLength = RandomUtil.randomInt(minLen, maxLen);
         List<String> wordsOfLen = wordsByLen.get(chosenLength);
 
         int index = ThreadLocalRandom.current().nextInt(wordsOfLen.size());
         return wordsOfLen.get(index);
+    }
+
+    public String getRandomWordBetweenLengths(int minLen, int maxLen) {
+        // Compute total number of such words
+        int totalWords = 0;
+        for (int i = minLen; i <= maxLen; i++) {
+            List<String> words = wordsByLen.get(i);
+            if (words != null) {
+                totalWords += words.size();
+            }
+        }
+
+        // Get a random index into the words
+        int index = ThreadLocalRandom.current().nextInt(totalWords);
+        int len = minLen;
+        List<String> wordsForLen = wordsByLen.get(len);
+        while (index >= wordsForLen.size()) {
+            index -= wordsForLen.size();
+            ++len;
+            wordsForLen = wordsByLen.get(len);
+        }
+        return wordsForLen.get(index);
     }
 
     // ------------- Private helpers -----------

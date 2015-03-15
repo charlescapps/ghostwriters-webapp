@@ -8,8 +8,8 @@ import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
+import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionaryTrie;
-import net.capps.word.game.dict.DictionaryWordPicker;
 import net.capps.word.game.dict.WordConstraint;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class DefaultGameGenerator implements GameGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
 
-    private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+    private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
     public DefaultGameGenerator() {
     }
@@ -75,7 +75,7 @@ public class DefaultGameGenerator implements GameGenerator {
 
     private Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
-        final String word = DictionaryWordPicker.getInstance().getRandomWordEqualProbabilityByLength(maxWordSize);
+        final String word = Dictionaries.getAllWordsPicker().getRandomWordEqualProbabilityByLength(maxWordSize);
         final int len = word.length();
         final Dir dir = Dir.randomPlayDir();
 

@@ -30,8 +30,8 @@ public class DictionaryTrieTest {
 
     @Test
     public void testTrieContainsMethod() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
-        final DictionarySet SET = DictionarySet.getInstance();
+        final DictionarySet SET = Dictionaries.getAllWordsSet();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
         LOG.info("Verifying that the Trie contains every word...");
         for (String word: SET.getWords()) {
@@ -51,8 +51,8 @@ public class DictionaryTrieTest {
 
     @Test
     public void testContainsPerformance() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
-        final DictionarySet SET = DictionarySet.getInstance();
+        final DictionarySet SET = Dictionaries.getAllWordsSet();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
         Set<String> words = SET.getWords();
 
         long START = System.currentTimeMillis();
@@ -73,7 +73,7 @@ public class DictionaryTrieTest {
 
     @Test
     public void testEnumerateWordsInRandomOrder() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
         Set<String> foundWords = Sets.newHashSet();
 
         long START = System.currentTimeMillis();
@@ -94,8 +94,8 @@ public class DictionaryTrieTest {
         long END = System.currentTimeMillis();
         LOG.info("Enumerated all words in {}", DateUtil.getDurationPrettyMillis(END - START));
 
-        if (foundWords.size() != DictionarySet.getInstance().getWords().size()) {
-            Set<String> missingWords = Sets.newHashSet(DictionarySet.getInstance().getWords());
+        if (foundWords.size() != Dictionaries.getAllWordsSet().getWords().size()) {
+            Set<String> missingWords = Sets.newHashSet(Dictionaries.getAllWordsSet().getWords());
             missingWords.removeAll(foundWords);
             for (String word : missingWords) {
                 LOG.info("MISSING: {}", word);
@@ -103,12 +103,12 @@ public class DictionaryTrieTest {
         }
 
         Assert.assertEquals("Expected all words to be enumerated!",
-                DictionarySet.getInstance().getWords().size(), foundWords.size());
+                Dictionaries.getAllWordsSet().getWords().size(), foundWords.size());
     }
 
     @Test
     public void testEnumerateWordsWithOneConstraint() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
         Set<String> foundWords = Sets.newHashSet();
 
         WordConstraint constraint = new WordConstraint(2, 'C');
@@ -126,7 +126,7 @@ public class DictionaryTrieTest {
 
     @Test
     public void testEnumerateWordsWithAllSingleConstraints() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
         for (int len = 2; len <= 15; len++) {
             for (int pos = 0; pos < len; pos++) {
@@ -151,7 +151,7 @@ public class DictionaryTrieTest {
 
     @Test
     public void testEnumerateWordsWith2Constraints() {
-        final DictionaryTrie TRIE = DictionaryTrie.getInstance();
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
         for (int len = 2; len <= 15; len++) {
             for (int pos1 = 0; pos1 < len - 1; pos1++) {
                 for (int pos2 = pos1 + 1; pos2 < len; pos2++) {

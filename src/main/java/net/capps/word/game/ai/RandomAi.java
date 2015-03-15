@@ -9,6 +9,7 @@ import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
+import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.DictionaryTrie;
 import net.capps.word.game.gen.PositionLists;
@@ -28,8 +29,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomAi implements GameAi {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
-    private static final DictionaryTrie TRIE = DictionaryTrie.getInstance();
-    private static final DictionarySet SET = DictionarySet.getInstance();
+    private static final DictionarySet SET = Dictionaries.getAllWordsSet();
+    private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
     private static final RandomAi INSTANCE = new RandomAi();
 

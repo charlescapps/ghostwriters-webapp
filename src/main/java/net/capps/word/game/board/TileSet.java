@@ -8,6 +8,7 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
+import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
@@ -29,7 +30,7 @@ import static java.lang.String.format;
  */
 public class TileSet implements Iterable<Pos> {
     private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
-    private static final DictionarySet DICTIONARY_SET = DictionarySet.getInstance();
+    private static final DictionarySet DICTIONARY_SET = Dictionaries.getAllWordsSet();
 
     public final Tile[][] tiles;
     public final int N;

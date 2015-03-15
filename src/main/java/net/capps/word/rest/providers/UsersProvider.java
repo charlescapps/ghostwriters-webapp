@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 public class UsersProvider {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_ \\-]*");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("[a-zA-Z0-9!@#$%^&*\\(\\)\\-_=\\+\\[\\]\\{\\}]+");
-    private static final int MIN_USERNAME_LEN = 4;
-    private static final int MAX_USERNAME_LEN = 16;
+    public static final int MIN_USERNAME_LEN = 4;
+    public static final int MAX_USERNAME_LEN = 16;
 
     private static final int MIN_PASSWORD_LEN = 4;
     private static final int MAX_PASSWORD_LEN = 32;

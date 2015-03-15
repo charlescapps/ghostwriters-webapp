@@ -1,15 +1,11 @@
 package net.capps.word.heroku;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.FixedLayouts;
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.dict.DictionarySet;
-import net.capps.word.game.dict.DictionaryTrie;
-import net.capps.word.game.dict.DictionaryWordPicker;
+import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.rest.models.ErrorModel;
@@ -92,13 +88,7 @@ public class SetupHelper {
     }
 
     public void initDictionaryDataStructures() throws IOException {
-        DictionarySet.getInstance().loadDictionary(WordConstants.SCRABBLE_DICT_FILE, 2, BoardSize.VENTI.getN());
-        ImmutableSet<String> dict = DictionarySet.getInstance().getWords();
-
-        // Store dictionary in a Trie
-        DictionaryTrie.getInstance().loadDictionary(dict);
-
-        DictionaryWordPicker.getInstance().loadDictionary(dict);
+        Dictionaries.initializeAllDictionaries();
     }
 
     public void initJetty() throws Exception {

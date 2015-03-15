@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by charlescapps on 1/18/15.
  */
-public class DictionaryWordPickerTest {
+public class DictionaryPickerTest {
     @BeforeClass
     public static void setup() throws IOException {
         SetupHelper.getInstance().initDictionaryDataStructures();
@@ -20,7 +20,7 @@ public class DictionaryWordPickerTest {
     public void testGenerateRandomWordsOfLen() {
         for (int maxLen = 2; maxLen <= 15; maxLen++) {
             for (int i = 0; i < 100; i++) {
-                String word = DictionaryWordPicker.getInstance().getRandomWordEqualProbabilityByLength(maxLen);
+                String word = Dictionaries.getAllWordsPicker().getRandomWordEqualProbabilityByLength(maxLen);
                 Assert.assertTrue(String.format("Len of word %s of %d exceeds max len %d", word, word.length(), maxLen),
                        word.length() <= maxLen);
             }

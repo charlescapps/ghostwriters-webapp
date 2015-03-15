@@ -15,16 +15,11 @@ import java.util.regex.Pattern;
  */
 public class DictionarySet {
     // ---------------- Static ----------------
-    private static final DictionarySet INSTANCE = new DictionarySet();
     private static final Pattern VALID_WORD_PATTERN = Pattern.compile("[A-Z]+");
     private static final Logger LOG = LoggerFactory.getLogger(DictionarySet.class);
 
-    public static DictionarySet getInstance() {
-        return INSTANCE;
-    }
-
     // ---------------- Constructor -----------
-    private DictionarySet() { }
+    DictionarySet() { } // Must call loadDictionary() after instantiation
 
     // ---------------- Private ---------------
     private ImmutableSet<String> words;
@@ -49,7 +44,7 @@ public class DictionarySet {
         }
         File file = new File(resource.getPath());
 
-        LOG.info("***** Starting to load dictionary from file: {} *****", file.getPath());
+        LOG.info("***** Starting to load dictionary set from file: {} *****", file.getPath());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 
             ImmutableSet.Builder<String> builder = ImmutableSet.builder();
@@ -58,7 +53,7 @@ public class DictionarySet {
                 String word = line.trim().toUpperCase();
                 Matcher m = VALID_WORD_PATTERN.matcher(word);
                 if (word.length() > maxWordLength || word.length() < minWordLength) {
-                    LOG.trace("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
+                    LOG.info("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
                     continue;
                 }
                 if (!m.matches()) {
@@ -69,7 +64,7 @@ public class DictionarySet {
             }
             words = builder.build();
         }
-        LOG.info("SUCCESS - loaded {} words!", words.size());
+        LOG.info("SUCCESS - loaded {} words from file {}!", words.size(), file.getPath());
     }
 
     public boolean contains(String word) {

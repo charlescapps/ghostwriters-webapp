@@ -26,7 +26,7 @@ public class DictionaryTrie {
     }
 
     // ---------------- Constructor -----------
-    private DictionaryTrie() { }
+    DictionaryTrie() { }
 
     // ---------------- Private fields ---------------
     private final TrieNode root = new TrieNode("");

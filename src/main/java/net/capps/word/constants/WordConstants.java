@@ -11,5 +11,5 @@ public class WordConstants {
     public static final String BOOKWORM_AI_USERNAME = "Bookworm";
     public static final String PROFESSOR_AI_USERNAME = "Professor";
 
-    public static final String SCRABBLE_DICT_FILE = "net/capps/word/dict/OSPDv2.txt";
+    public static final String SCRABBLE_DICT_FILE = "net/capps/word/dict/scowl.words.95.lowercase";
 }
