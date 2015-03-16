@@ -12,7 +12,6 @@ import java.util.Map;
 public class TrieLevel {
     // Structure so we can get the words having character at position i in O(1) time.
     private final Map<Character, List<TrieNode>> nodesByChar = Maps.newHashMap();
-    private final List<Character> chars = Lists.newArrayList();
     private TrieNode[] validWordNodes;
 
     public TrieLevel() {
@@ -20,10 +19,6 @@ public class TrieLevel {
 
     public Map<Character, List<TrieNode>> getNodesByChar() {
         return nodesByChar;
-    }
-
-    public List<Character> getChars() {
-        return chars;
     }
 
     public boolean containsKey(char c) {
@@ -40,10 +35,6 @@ public class TrieLevel {
         } else {
             nodesByChar.get(c).add(node);
         }
-
-        if (!chars.contains(c)) {
-            chars.add(c);
-        }
     }
 
     public void storeValidWordNodes() {
@@ -55,6 +46,8 @@ public class TrieLevel {
                 }
             }
         }
-        validWordNodes = validWordNodeList.toArray(new TrieNode[validWordNodeList.size()]);
+        validWordNodes = validWordNodeList.isEmpty() ?
+                TrieNode.EMPTY_TRIE_NODE_ARRAY :
+                validWordNodeList.toArray(new TrieNode[validWordNodeList.size()]);
     }
 }

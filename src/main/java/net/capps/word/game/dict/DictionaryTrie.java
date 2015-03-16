@@ -103,13 +103,13 @@ public class DictionaryTrie {
         return contains(str.substring(1), child);
     }
 
-    private static void insertWord(String word, TrieNode TrieNode) {
+    private static void insertWord(String word, TrieNode trieNode) {
         if (word.isEmpty()) {
-            TrieNode.setValidWord(true);
+            trieNode.setValidWord(true);
             return;
         }
         char c = word.charAt(0);
-        TrieNode child = TrieNode.addChild(c);
+        TrieNode child = trieNode.addChild(c);
         insertWord(word.substring(1), child);
     }
 
