@@ -7,10 +7,10 @@ import java.io.InputStream;
  */
 public enum DictType {
 
-    ALL_WORDS("English dictionary", "scowl.words.95.lowercase"),
+    ALL_WORDS("English dictionary", "scowl.words.80.lowercase"),
     ADJECTIVES("Adjectives", "adjectives.txt"),
     NOUNS("Nouns", "nouns.txt"),
-    VICTORIAN("Charles Dickens", "dickens_dict.txt"),
+    VICTORIAN("Charles Dickens", "dickens_dict.filtered.txt"),
     HORROR("H.P. Lovecraft", "hp_lovecraft_dict.txt");
 
     private static final String PACKAGE = "net/capps/word/dict/";

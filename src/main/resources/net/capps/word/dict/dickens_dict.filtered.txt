@@ -416,7 +416,6 @@ reckon
 interrelate
 correlate
 identify
-free-associate
 feel
 find
 anticipate
@@ -472,16 +471,13 @@ crawfish
 schoolroom
 oblige
 writhe
-destroying angel
 observe
-elm tree
 poppet
 disfigure
 bluebottle
 interlace
 falter
 interpose
-red-eye
 doleful
 parasol
 gaiter
@@ -490,7 +486,6 @@ dismal
 whisper
 phosphorus
 contrary
-assault and battery
 master
 rasher
 evening
@@ -508,7 +503,6 @@ whistle
 glance
 aggravate
 contaminate
-roly-poly
 constrictor
 meander
 impersonate
@@ -593,7 +587,6 @@ parenthesis
 reversion
 alter
 adage
-Arabian Nights
 frown
 castor
 pliant
@@ -613,7 +606,6 @@ sneeze
 button
 allude
 entreat
-write off
 precious
 pedlar
 fell
@@ -654,7 +646,6 @@ unwieldy
 feint
 viand
 devotional
-sun rose
 forlorn
 detract
 depreciation
@@ -747,7 +738,6 @@ desolate
 performance
 nutmeg
 severity
-human being
 thrush
 exemplary
 descry
@@ -828,7 +818,6 @@ resolve
 sumptuous
 flutter
 recompense
-fairy tale
 repute
 anxious
 stare
@@ -899,7 +888,6 @@ entail
 austere
 monotony
 devise
-work of art
 misty
 signified
 premature
