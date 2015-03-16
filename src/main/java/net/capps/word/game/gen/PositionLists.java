@@ -27,7 +27,8 @@ public class PositionLists {
 
         ImmutableMap.Builder<Integer, ImmutableList<Pos>> builder = ImmutableMap.builder();
 
-        for (int N = BoardSize.TALL.getN(); N <= BoardSize.VENTI.getN(); N++) {
+        for (BoardSize boardSize: BoardSize.values()) {
+            final int N = boardSize.getN();
             builder.put(N, generatePositions(N));
         }
 

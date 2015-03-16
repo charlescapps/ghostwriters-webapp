@@ -6,6 +6,8 @@ package net.capps.word.rest.models;
 public class NextUsernameModel {
     private String nextUsername;
 
+    public NextUsernameModel() {}
+
     public NextUsernameModel(String nextUsername) {
         this.nextUsername = nextUsername;
     }
