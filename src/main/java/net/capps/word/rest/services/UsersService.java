@@ -40,6 +40,18 @@ public class UsersService {
     @Filters.InitialUserAuthRequired
     public Response createUser(@Context HttpServletRequest request, UserModel inputUser) throws Exception {
 
+        // Check if the device is already registered, then just login as this user.
+        if (!Strings.isNullOrEmpty(inputUser.getDeviceId())) {
+            Optional<UserModel> existingUser = UsersDAO.getInstance().getUserByDeviceId(inputUser.getDeviceId());
+            if (existingUser.isPresent()) {
+                SessionModel session = sessionProvider.createNewSession(existingUser.get());
+                return Response.ok(existingUser.get())
+                        .cookie(session.getNewCookie())
+                        .build();
+            }
+        }
+
+        // Otherwise, proceed with validating the new user input and creating a new user.
         Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
         if (validationError.isPresent()) {
             return Response.status(BAD_REQUEST)
