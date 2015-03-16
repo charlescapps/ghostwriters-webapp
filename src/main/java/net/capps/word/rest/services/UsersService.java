@@ -3,11 +3,9 @@ package net.capps.word.rest.services;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.exceptions.ConflictException;
+import net.capps.word.game.dict.RandomUsernamePicker;
 import net.capps.word.rest.filters.Filters;
-import net.capps.word.rest.models.ErrorModel;
-import net.capps.word.rest.models.SessionModel;
-import net.capps.word.rest.models.UserListModel;
-import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.models.*;
 import net.capps.word.rest.providers.SessionProvider;
 import net.capps.word.rest.providers.UsersProvider;
 
@@ -18,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.sql.SQLException;
 import java.util.List;
 
 import static javax.ws.rs.core.Response.Status.*;
@@ -64,6 +63,7 @@ public class UsersService {
     }
 
     @Path("/{id}")
+    @GET
     @Filters.RegularUserAuthRequired
     public Response getUser(@PathParam("id") int id) throws Exception {
         Optional<UserModel> result = usersProvider.getUserById(id);
@@ -74,6 +74,15 @@ public class UsersService {
         }
         return Response.ok(result.get())
                 .build();
+    }
+
+    @Path("/nextUsername")
+    @GET
+    @Filters.InitialUserAuthRequired
+    public Response getNextUsername() throws SQLException {
+        Optional<String> randomUsername = RandomUsernamePicker.getInstance().generateRandomUsername();
+        String nextUsername = randomUsername.isPresent() ? randomUsername.get() : null;
+        return Response.ok(new NextUsernameModel(nextUsername)).build();
     }
 
     @GET

@@ -17,6 +17,10 @@ public class RandomUsernamePicker {
     private static final DictionaryPicker nounPicker = Dictionaries.getNounsPicker();
     private static final int MAX_TRIES = 5;
 
+    public static RandomUsernamePicker getInstance() {
+        return INSTANCE;
+    }
+
     public Optional<String> generateRandomUsername() throws SQLException {
         String username;
         Optional<UserModel> conflictUser;
