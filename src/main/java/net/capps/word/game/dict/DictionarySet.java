@@ -53,7 +53,7 @@ public class DictionarySet {
                 String word = line.trim().toUpperCase();
                 Matcher m = VALID_WORD_PATTERN.matcher(word);
                 if (word.length() > maxWordLength || word.length() < minWordLength) {
-                    LOG.info("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
+                    LOG.trace("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
                     continue;
                 }
                 if (!m.matches()) {
