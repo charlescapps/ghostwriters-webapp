@@ -1,5 +1,6 @@
 package net.capps.word.game.dict;
 
+import com.google.common.base.Optional;
 import net.capps.word.game.common.BoardSize;
 
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.io.IOException;
 public class Dictionaries {
     private static final int MIN_WORD_LEN = 2;
     private static final int MAX_WORD_LEN = BoardSize.VENTI.getN();
+
+    private static final DictionarySet BANNED_SET = new DictionarySet();
 
     private static final DictionarySet ALL_WORDS_SET = new DictionarySet();
     private static final DictionaryTrie ALL_WORDS_TRIE = new DictionaryTrie();
@@ -28,20 +31,22 @@ public class Dictionaries {
     private static final DictionaryPicker NOUNS_PICKER = new DictionaryPicker();
 
     public static void initializeAllDictionaries() throws IOException {
-        ALL_WORDS_SET.loadDictionary(DictType.ALL_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN);
+        BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.<DictionarySet>absent());
+
+        ALL_WORDS_SET.loadDictionary(DictType.ALL_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ALL_WORDS_TRIE.loadDictionary(ALL_WORDS_SET.getWords());
         ALL_WORDS_PICKER.loadDictionary(ALL_WORDS_SET.getWords());
 
-        VICTORIAN_WORDS_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN);
+        VICTORIAN_WORDS_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         VICTORIAN_WORDS_TRIE.loadDictionary(VICTORIAN_WORDS_SET.getWords());
 
-        HORROR_WORDS_SET.loadDictionary(DictType.HORROR.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN);
+        HORROR_WORDS_SET.loadDictionary(DictType.HORROR.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         HORROR_WORDS_TRIE.loadDictionary(HORROR_WORDS_SET.getWords());
 
-        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN);
+        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWords());
 
-        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN);
+        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         NOUNS_PICKER.loadDictionary(NOUNS_SET.getWords());
     }
 

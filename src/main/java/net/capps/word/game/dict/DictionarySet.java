@@ -1,5 +1,6 @@
 package net.capps.word.game.dict;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
@@ -29,10 +30,11 @@ public class DictionarySet {
      * Load in dictionary from a file.
      *
      * @param resourceFile path to a resource text file containing a dictionary.
+     * @param bannedWords
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void loadDictionary(final String resourceFile, final int minWordLength, final int maxWordLength) throws IOException {
+    public void loadDictionary(final String resourceFile, final int minWordLength, final int maxWordLength, Optional<DictionarySet> bannedWords) throws IOException {
         if (words != null) {
             throw new IllegalStateException(
                     String.format("Cannot load dictionary twice! Dictionary already has %d entries!", words.size()));
@@ -44,7 +46,7 @@ public class DictionarySet {
         }
         File file = new File(resource.getPath());
 
-        LOG.info("***** Starting to load dictionary set from file: {} *****", file.getPath());
+        LOG.info("***** Starting to load dictionary set from file: {} *****", file.getName());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 
             ImmutableSet.Builder<String> builder = ImmutableSet.builder();
@@ -58,6 +60,10 @@ public class DictionarySet {
                 }
                 if (!m.matches()) {
                     LOG.error("Error - invalid word found in dictionary: '{}'", word);
+                    continue;
+                }
+                if (bannedWords.isPresent() && bannedWords.get().contains(word)) {
+                    LOG.error("Not including banned word '{}'", word);
                     continue;
                 }
                 builder.add(word);
