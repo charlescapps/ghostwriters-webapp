@@ -10,11 +10,11 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         setupHelper.initDatabase();
+        setupHelper.initJetty();
         setupHelper.createInitialUser();
         setupHelper.createAiUsers();
         setupHelper.initDictionaryDataStructures();
         setupHelper.initGameDataStructures();
-        setupHelper.initJetty();
     }
 
 }
