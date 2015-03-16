@@ -2,6 +2,7 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.game.dict.RandomUsernamePicker;
 import net.capps.word.rest.filters.Filters;
@@ -79,10 +80,17 @@ public class UsersService {
     @Path("/nextUsername")
     @GET
     @Filters.InitialUserAuthRequired
-    public Response getNextUsername() throws SQLException {
+    public Response getNextUsername(@QueryParam("deviceId") String deviceId) throws SQLException {
+        if (!Strings.isNullOrEmpty(deviceId)) {
+            Optional<UserModel> existingUser = UsersDAO.getInstance().getUserByDeviceId(deviceId);
+            if (existingUser.isPresent()) {
+                return Response.ok(new NextUsernameModel(existingUser.get().getUsername(), true))
+                        .build();
+            }
+        }
         Optional<String> randomUsername = RandomUsernamePicker.getInstance().generateRandomUsername();
         String nextUsername = randomUsername.isPresent() ? randomUsername.get() : null;
-        return Response.ok(new NextUsernameModel(nextUsername)).build();
+        return Response.ok(new NextUsernameModel(nextUsername, false)).build();
     }
 
     @GET

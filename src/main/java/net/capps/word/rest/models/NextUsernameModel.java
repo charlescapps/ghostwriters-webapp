@@ -5,11 +5,13 @@ package net.capps.word.rest.models;
  */
 public class NextUsernameModel {
     private String nextUsername;
+    private Boolean required;
 
     public NextUsernameModel() {}
 
-    public NextUsernameModel(String nextUsername) {
+    public NextUsernameModel(String nextUsername, boolean required) {
         this.nextUsername = nextUsername;
+        this.required = required;
     }
 
     public String getNextUsername() {
@@ -18,5 +20,13 @@ public class NextUsernameModel {
 
     public void setNextUsername(String nextUsername) {
         this.nextUsername = nextUsername;
+    }
+
+    public Boolean getRequired() {
+        return required;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
     }
 }

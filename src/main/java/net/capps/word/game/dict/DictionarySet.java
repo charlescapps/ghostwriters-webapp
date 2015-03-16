@@ -70,7 +70,7 @@ public class DictionarySet {
             }
             words = builder.build();
         }
-        LOG.info("SUCCESS - loaded {} words from file {}!", words.size(), file.getPath());
+        LOG.info("SUCCESS - loaded {} words from file {}!", words.size(), file.getName());
     }
 
     public boolean contains(String word) {
