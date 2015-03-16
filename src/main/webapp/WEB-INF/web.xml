@@ -16,4 +16,7 @@
         <servlet-name>Word Attack Webapp</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+    <listener>
+        <listener-class>net.capps.word.servlet.WordServletContextListener</listener-class>
+    </listener>
 </web-app>

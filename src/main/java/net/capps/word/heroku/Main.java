@@ -9,23 +9,9 @@ public class Main {
     private final static SetupHelper setupHelper = SetupHelper.getInstance();
 
     public static void main(String[] args) throws Exception {
-        Runnable initializeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    setupHelper.initDatabase();
-                    setupHelper.createInitialUser();
-                    setupHelper.createAiUsers();
-                    setupHelper.initDictionaryDataStructures();
-                    setupHelper.initGameDataStructures();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-
-        Thread initializeThread = new Thread(initializeRunnable, "Initialize thread");
-        initializeThread.run();
+        setupHelper.initDatabase();
+        setupHelper.createInitialUser();
+        setupHelper.createAiUsers();
 
         setupHelper.initJetty();
 
