@@ -44,10 +44,16 @@ public class UsersService {
         if (!Strings.isNullOrEmpty(inputUser.getDeviceId())) {
             Optional<UserModel> existingUser = UsersDAO.getInstance().getUserByDeviceId(inputUser.getDeviceId());
             if (existingUser.isPresent()) {
-                SessionModel session = sessionProvider.createNewSession(existingUser.get());
-                return Response.ok(existingUser.get())
-                        .cookie(session.getNewCookie())
-                        .build();
+                if ( existingUser.get().getUsername().equals(inputUser.getUsername())) {
+                    SessionModel session = sessionProvider.createNewSession(existingUser.get());
+                    return Response.ok(existingUser.get())
+                            .cookie(session.getNewCookie())
+                            .build();
+                } else {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(new ErrorModel("A username is already associated with your device. Please enter this username."))
+                            .build();
+                }
             }
         }
 
