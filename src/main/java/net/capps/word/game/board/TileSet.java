@@ -396,6 +396,11 @@ public class TileSet implements Iterable<Pos> {
                 }
             }
         }
+
+        Pos afterWordPos = start.go(dir, word.length());
+        if (isOccupied(afterWordPos)) {
+            return Optional.of("Letters given to play must include all consecutive letters on the board from start position.");
+        }
         return Optional.absent();
     }
 
