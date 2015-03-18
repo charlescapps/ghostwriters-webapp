@@ -419,7 +419,7 @@ public class TileSet implements Iterable<Pos> {
             Optional<String> perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord.isPresent()) {
                 if (!DICTIONARY_SET.contains(perpWord.get())) {
-                    return Optional.of(format("Word formed, \"%s\", is not a valid dictionary word.", perpWord.get()));
+                    return Optional.of(format("Sorry, \"%s\" isn't in our dictionary.", perpWord.get()));
                 }
             }
         }
