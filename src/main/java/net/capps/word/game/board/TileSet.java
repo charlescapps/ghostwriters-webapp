@@ -187,6 +187,7 @@ public class TileSet implements Iterable<Pos> {
                 if (existing.getLetter() != letter) {
                     throw new IllegalStateException("Attempting to place invalid move: " + move);
                 }
+                set(p, Tile.playedTile(letter)); // Any tile that is part of the played word is now "set in stone"
             }
         }
         if (rackIndex != tilesPlayed.size()) {
