@@ -2,6 +2,7 @@ package net.capps.word.db.dao;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.board.SquareSet;
@@ -12,6 +13,7 @@ import net.capps.word.rest.models.MoveModel;
 
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by charlescapps on 1/21/15.
@@ -31,6 +33,12 @@ public class GamesDAO {
 
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
+
+    private static final String QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC =
+            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result = ? LIMIT ? ORDER BY date_started DESC;";
+
+    private static final String QUERY_FINISHED_GAMES_DATE_CREATED_DESC =
+            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result != ? LIMIT ? ORDER BY date_started DESC;";
 
     public static GamesDAO getInstance() {
         return INSTANCE;
@@ -138,6 +146,45 @@ public class GamesDAO {
         }
     }
 
+    public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
+        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC);
+            stmt.setInt(1, userId);
+            stmt.setInt(2, userId);
+            stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
+            stmt.setInt(4, count);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            List<GameModel> games = Lists.newArrayList();
+            while (resultSet.next()) {
+                games.add(getGameByResultSetRow(resultSet));
+            }
+
+            return games;
+        }
+    }
+
+    public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
+        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_DATE_CREATED_DESC);
+            stmt.setInt(1, userId);
+            stmt.setInt(2, userId);
+            stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
+            stmt.setInt(4, count);
+
+            ResultSet resultSet = stmt.executeQuery();
+
+            List<GameModel> games = Lists.newArrayList();
+            while (resultSet.next()) {
+                games.add(getGameByResultSetRow(resultSet));
+            }
+
+            return games;
+        }
+    }
+
+    // ---------------- Private ----------------
     private GameModel getGameByResultSetRow(ResultSet result) throws SQLException {
         Preconditions.checkArgument(!result.isClosed() && !result.isAfterLast() && !result.isBeforeFirst(),
                 "Error - attempting to create a Game from an invalid ResultSet.");
@@ -163,5 +210,9 @@ public class GamesDAO {
         Timestamp dateStarted = result.getTimestamp("date_started");
         game.setDateCreated(dateStarted.getTime());
         return game;
+    }
+
+    public static enum OrderGamesBy {
+        dateCreatedDesc, dateCreatedAsc, dateOfLastMoveDesc, dateOfLastMoveAsc
     }
 }
