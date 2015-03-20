@@ -22,7 +22,7 @@ public class GameModel {
     private Integer player1Points;
     private Integer player2Points;
     private BoardSize boardSize;
-    private Integer N;
+    private Integer numRows;
     private BonusesType bonusesType;
     private GameDensity gameDensity;
     private String squares;
@@ -130,11 +130,15 @@ public class GameModel {
 
     public void setBoardSize(BoardSize boardSize) {
         this.boardSize = boardSize;
-        this.N = boardSize.getN();
+        this.numRows = boardSize.getN();
     }
 
-    public Integer getN() {
-        return N;
+    public Integer getNumRows() {
+        return numRows;
+    }
+
+    public void setNumRows(Integer numRows) {
+        this.numRows = numRows;
     }
 
     public BonusesType getBonusesType() {
