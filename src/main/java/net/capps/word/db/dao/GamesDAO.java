@@ -35,10 +35,10 @@ public class GamesDAO {
             "SELECT * FROM word_games WHERE id = ?;";
 
     private static final String QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC =
-            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result = ? LIMIT ? ORDER BY date_started DESC;";
+            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY date_started DESC LIMIT ?;";
 
     private static final String QUERY_FINISHED_GAMES_DATE_CREATED_DESC =
-            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result != ? LIMIT ? ORDER BY date_started DESC;";
+            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY date_started DESC LIMIT ?;";
 
     public static GamesDAO getInstance() {
         return INSTANCE;
