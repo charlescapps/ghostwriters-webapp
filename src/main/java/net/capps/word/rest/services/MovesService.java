@@ -36,13 +36,10 @@ public class MovesService {
 
     @POST
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
-        Optional<UserModel> authUserOpt = authHelper.validateSession(request);
-        if (!authUserOpt.isPresent()) {
-            return Response.status(Status.UNAUTHORIZED)
-                    .entity(new ErrorModel("Must be authenticated as a regular user to send a Move."))
-                    .build();
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
-        UserModel authUser = authUserOpt.get();
         Optional<ErrorModel> errorOpt = MovesProvider.getInstance().validateMove(input, authUser);
         if (errorOpt.isPresent()) {
             return Response.status(Status.BAD_REQUEST)

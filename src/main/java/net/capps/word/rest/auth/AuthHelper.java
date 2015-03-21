@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
  */
 public class AuthHelper {
     public static final String COOKIE_NAME = "WORDS_SESSIONID";
+    public static final String AUTH_USER_PROPERTY = "WORDS_AUTH_USER";
 
     private static final AuthHelper INSTANCE = new AuthHelper();
     private static final Pattern BASIC_AUTH = Pattern.compile("Basic ([a-zA-Z0-9=]+)");

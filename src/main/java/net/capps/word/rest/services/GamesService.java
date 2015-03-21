@@ -41,14 +41,11 @@ public class GamesService {
 
     @POST
     public Response createNewGame(@Context HttpServletRequest request, GameModel input) throws Exception {
-        Optional<UserModel> authUserOpt = authHelper.validateSession(request);
-        if (!authUserOpt.isPresent()) {
-            return Response.status(Status.UNAUTHORIZED)
-                    .entity(new ErrorModel("You must be logged in to create a new game!"))
-                    .build();
+        UserModel player1 = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (player1 == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
 
-        UserModel player1 = authUserOpt.get();
         Optional<ErrorModel> errorOpt = gamesProvider.validateInputForCreateGame(input, player1);
         if (errorOpt.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
@@ -56,7 +53,7 @@ public class GamesService {
                     .build();
         }
 
-        GameModel created = gamesProvider.createNewGame(input, authUserOpt.get());
+        GameModel created = gamesProvider.createNewGame(input, player1);
 
         URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
 
@@ -78,17 +75,21 @@ public class GamesService {
     }
 
     @GET
-    public Response getGamesForUser(@QueryParam("userId") Integer userId,
-                                    @QueryParam("count") Integer count,
-                                    @QueryParam("inProgress") Boolean inProgress) throws SQLException {
-        Optional<ErrorModel> error = gamesSearchProvider.validateSearchParams(userId, count, inProgress);
+    public Response getMyGames(@Context HttpServletRequest request,
+                               @QueryParam("count") Integer count,
+                               @QueryParam("inProgress") Boolean inProgress) throws SQLException {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        Optional<ErrorModel> error = gamesSearchProvider.validateSearchParams(count, inProgress);
         if (error.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
                     .entity(error.get())
                     .build();
         }
 
-        List<GameModel> games = gamesSearchProvider.getGamesForUser(userId, count, inProgress);
+        List<GameModel> games = gamesSearchProvider.getGamesForUser(authUser, count, inProgress);
         return Response.ok(new ListModel<>(games)).build();
     }
 }

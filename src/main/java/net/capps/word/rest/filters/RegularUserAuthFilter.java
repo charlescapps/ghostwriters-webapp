@@ -40,6 +40,7 @@ public class RegularUserAuthFilter implements ContainerRequestFilter {
                 return;
             }
             UserModel authUser = authUserOpt.get();
+            requestContext.setProperty(AuthHelper.AUTH_USER_PROPERTY, authUser);
             if (authUser.getSystemUser()) {
                 LOG.warn("Forbidden {} to {} as System user '{}' from IP {}",
                         webRequest.getMethod(),
