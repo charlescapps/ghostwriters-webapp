@@ -2,7 +2,8 @@ package net.capps.word.rest.services;
 
 import net.capps.word.rest.filters.InitialUserAuthFilter;
 import net.capps.word.rest.filters.RegularUserAuthFilter;
-import net.capps.word.rest.models.ListModel;
+import net.capps.word.rest.models.GameListModel;
+import net.capps.word.rest.models.UserListModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -47,15 +48,15 @@ public class UsersServiceTest extends BaseWordServiceTest {
         String cookie = login(fooUser.getUsername(), "foo");
         LOG.info("Cookie={}", cookie);
 
-        ListModel listModel = target("/users")
+        UserListModel userListModel = target("/users")
                 .queryParam("q", user2.getUsername())
                 .queryParam("maxResults", "10")
                 .request()
                 .header("Cookie", cookie)
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ListModel.class);
+                .get(UserListModel.class);
 
-        List<UserModel> users = listModel.getList();
+        List<UserModel> users = userListModel.getList();
         Assert.assertEquals(1, users.size());
         Assert.assertEquals(user2, users.get(0));
     }
@@ -65,15 +66,15 @@ public class UsersServiceTest extends BaseWordServiceTest {
         String cookie = login(fooUser.getUsername(), "foo");
         LOG.info("Cookie={}", cookie);
 
-        ListModel listModel = target("/users")
+        UserListModel gameListModel = target("/users")
                 .queryParam("q", user2.getUsername().toLowerCase())
                 .queryParam("maxResults", "10")
                 .request()
                 .header("Cookie", cookie)
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ListModel.class);
+                .get(UserListModel.class);
 
-        List<UserModel> users = listModel.getList();
+        List<UserModel> users = gameListModel.getList();
         Assert.assertEquals(1, users.size());
         Assert.assertEquals(user2, users.get(0));
     }
@@ -83,15 +84,15 @@ public class UsersServiceTest extends BaseWordServiceTest {
         String cookie = login(fooUser.getUsername(), "foo");
         LOG.info("Cookie={}", cookie);
 
-        ListModel listModel = target("/users")
+        UserListModel gameListModel = target("/users")
                 .queryParam("q", user2.getUsername().substring(8, 14))
                 .queryParam("maxResults", "10")
                 .request()
                 .header("Cookie", cookie)
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ListModel.class);
+                .get(UserListModel.class);
 
-        List<UserModel> users = listModel.getList();
+        List<UserModel> users = gameListModel.getList();
         Assert.assertEquals(1, users.size());
         Assert.assertEquals(user2, users.get(0));
 
@@ -102,15 +103,15 @@ public class UsersServiceTest extends BaseWordServiceTest {
         String cookie = login(fooUser.getUsername(), "foo");
         LOG.info("Cookie={}", cookie);
 
-        ListModel listModel = target("/users")
+        UserListModel gameListModel = target("/users")
                 .queryParam("q", user1.getUsername())
                 .queryParam("maxResults", "10")
                 .request()
                 .header("Cookie", cookie)
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ListModel.class);
+                .get(UserListModel.class);
 
-        List<UserModel> users = listModel.getList();
+        List<UserModel> users = gameListModel.getList();
         Assert.assertEquals(2, users.size());
         Assert.assertEquals(user1, users.get(0));
         Assert.assertEquals(user2, users.get(1));

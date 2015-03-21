@@ -126,7 +126,7 @@ public class UsersService {
                     .build();
         }
         List<UserModel> results = usersProvider.searchUsers(q, maxResults);
-        return Response.ok(new ListModel(results)).build();
+        return Response.ok(new UserListModel(results)).build();
     }
 
 

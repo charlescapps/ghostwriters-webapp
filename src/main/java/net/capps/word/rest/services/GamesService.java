@@ -5,8 +5,8 @@ import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.GameListModel;
 import net.capps.word.rest.models.GameModel;
-import net.capps.word.rest.models.ListModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.GamesProvider;
 import net.capps.word.rest.providers.GamesSearchProvider;
@@ -90,6 +90,6 @@ public class GamesService {
         }
 
         List<GameModel> games = gamesSearchProvider.getGamesForUser(authUser, count, inProgress);
-        return Response.ok(new ListModel<>(games)).build();
+        return Response.ok(new GameListModel(games)).build();
     }
 }
