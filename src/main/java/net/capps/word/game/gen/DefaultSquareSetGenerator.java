@@ -1,5 +1,6 @@
 package net.capps.word.game.gen;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.capps.word.game.board.Square;
 import net.capps.word.game.board.SquareSet;
@@ -21,7 +22,8 @@ public class DefaultSquareSetGenerator implements SquareSetGenerator {
     @Override
     public SquareSet generateRandomBonusLayout(int N, int x2, int x3, int x4, int x5) {
         SquareSet squareSet = new SquareSet(N);
-        List<Pos> emptyPositions = PositionLists.getInstance().getPositionList(N);
+        ImmutableList<Pos> emptyPositionsImmutable = PositionLists.getInstance().getPositionList(N);
+        List<Pos> emptyPositions = Lists.newArrayList(emptyPositionsImmutable);
         addRandomBonusSquares(x2, Square.DOUBLE_LETTER, squareSet, emptyPositions);
         addRandomBonusSquares(x3, Square.TRIPLE_LETTER, squareSet, emptyPositions);
         addRandomBonusSquares(x4, Square.QUAD_LETTER, squareSet, emptyPositions);
