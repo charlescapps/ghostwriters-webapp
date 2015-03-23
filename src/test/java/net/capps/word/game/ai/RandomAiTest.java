@@ -79,7 +79,7 @@ public class RandomAiTest {
             Assert.assertTrue("Player2 should win since they have more points", gameState.getGameResult() == GameResult.PLAYER2_WIN);
         }
         else {
-            Assert.assertTrue("Draw since players have equal points", gameState.getGameResult() == GameResult.DRAW);
+            Assert.assertTrue("Draw since players have equal points", gameState.getGameResult() == GameResult.TIE);
         }
 
     }

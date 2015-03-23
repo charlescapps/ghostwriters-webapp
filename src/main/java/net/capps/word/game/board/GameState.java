@@ -231,7 +231,7 @@ public class GameState {
                 } else if (player2Points > player1Points) {
                     gameResult = GameResult.PLAYER2_WIN;
                 } else {
-                    gameResult = GameResult.DRAW;
+                    gameResult = GameResult.TIE;
                 }
             }
         }
@@ -267,7 +267,7 @@ public class GameState {
         } else if (player1Points < player2Points) {
             return GameResult.PLAYER2_WIN;
         }
-        return GameResult.DRAW;
+        return GameResult.TIE;
     }
 
     private int playGrabTilesMove(Move validatedMove) {
