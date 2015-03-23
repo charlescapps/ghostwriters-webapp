@@ -49,7 +49,7 @@ public class DefaultGameGenerator implements GameGenerator {
             Optional<Placement> validPlacementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
             if (!validPlacementOpt.isPresent()) {
                 LOG.error("ERROR - couldn't find placement for board:\n{}", tileSet);
-                throw new IllegalStateException("Could not find any valid placements!!");
+                return tileSet;
             }
             Placement placement = validPlacementOpt.get();
             // LOG.trace("Placing word: " + placement);
