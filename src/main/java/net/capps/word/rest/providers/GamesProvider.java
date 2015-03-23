@@ -11,9 +11,9 @@ import net.capps.word.game.common.BonusesType;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.game.common.GameType;
 import net.capps.word.game.gen.DefaultGameGenerator;
-import net.capps.word.game.gen.DefaultLayoutGenerator;
+import net.capps.word.game.gen.DefaultSquareSetGenerator;
 import net.capps.word.game.gen.GameGenerator;
-import net.capps.word.game.gen.LayoutGenerator;
+import net.capps.word.game.gen.SquareSetGenerator;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -31,7 +31,7 @@ public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
     private static final GameGenerator gameGenerator = new DefaultGameGenerator();
-    private static final LayoutGenerator layoutGenerator = new DefaultLayoutGenerator();
+    private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
 
     // -------------- Private fields ---------
 
@@ -106,7 +106,7 @@ public class GamesProvider {
 
         SquareSet squareSet = bt == BonusesType.FIXED_BONUSES ?
                 FixedLayouts.getInstance().getFixedLayout(bs) :
-                layoutGenerator.generateRandomBonusLayout(bs);
+                SQUARE_SET_GENERATOR.generateRandomBonusLayout(bs);
 
         // Add the system AI user for single player games
         if (validatedInputGame.getGameType() == GameType.SINGLE_PLAYER) {

@@ -9,9 +9,9 @@ import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.gen.DefaultGameGenerator;
-import net.capps.word.game.gen.DefaultLayoutGenerator;
+import net.capps.word.game.gen.DefaultSquareSetGenerator;
 import net.capps.word.game.gen.GameGenerator;
-import net.capps.word.game.gen.LayoutGenerator;
+import net.capps.word.game.gen.SquareSetGenerator;
 import net.capps.word.game.move.Move;
 import net.capps.word.heroku.SetupHelper;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RandomAiTest {
     private static final GameGenerator GG = new DefaultGameGenerator();
-    private static final LayoutGenerator LG = new DefaultLayoutGenerator();
+    private static final SquareSetGenerator LG = new DefaultSquareSetGenerator();
     private static final RandomAi RA = RandomAi.getInstance();
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomAiTest.class);

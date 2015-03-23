@@ -9,11 +9,11 @@ import java.util.Map;
  * Created by charlescapps on 1/12/15.
  */
 public enum Square {
-    MINE('0', 0),
     NORMAL('1', 1),
     DOUBLE_LETTER('2', 2),
     TRIPLE_LETTER('3', 3),
-    QUAD_LETTER('4', 4);
+    QUAD_LETTER('4', 4),
+    PENTA_LETTER('5', 5);
 
     private static final Map<Character, Square> CHAR_TO_SQUARE;
 

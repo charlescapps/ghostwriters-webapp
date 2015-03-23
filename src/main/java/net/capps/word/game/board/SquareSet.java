@@ -78,6 +78,31 @@ public class SquareSet implements Iterable<Pos> {
         }
     }
 
+    public int getNumAdjacentBonuses(Pos p) {
+        if (!isValid(p)) {
+            return 0;
+        }
+        int numAdjs = 0;
+        Pos n = p.n();
+        Pos s = p.s();
+        Pos e = p.e();
+        Pos w = p.w();
+
+        if (isValid(n) && get(n) != Square.NORMAL) {
+            ++numAdjs;
+        }
+        if (isValid(s) && get(s) != Square.NORMAL) {
+            ++numAdjs;
+        }
+        if (isValid(e) && get(e) != Square.NORMAL) {
+            ++numAdjs;
+        }
+        if (isValid(w) && get(w) != Square.NORMAL) {
+            ++numAdjs;
+        }
+        return numAdjs;
+    }
+
     @Override
     public Iterator<Pos> iterator() {
         return new PosIterator(N);

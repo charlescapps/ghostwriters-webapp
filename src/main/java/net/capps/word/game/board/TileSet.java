@@ -176,13 +176,7 @@ public class TileSet implements Iterable<Pos> {
             Tile existing = get(p);
             if (existing.isAbsent()) {
                 RackTile rackTile = tilesPlayed.get(rackIndex++);
-                // Do not add tiles to board where there's a MINE!
-                if (squareSet.get(p) == Square.MINE) {
-                    // Remove the mine after it "explodes"
-                    squareSet.set(p, Square.NORMAL);
-                } else {
-                    set(p, rackTile.toTile(letter));
-                }
+                set(p, rackTile.toTile(letter));
             } else {
                 if (existing.getLetter() != letter) {
                     throw new IllegalStateException("Attempting to place invalid move: " + move);
