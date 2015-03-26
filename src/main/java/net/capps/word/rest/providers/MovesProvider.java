@@ -1,10 +1,10 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
-import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.ai.GameAi;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.common.AiType;
@@ -16,6 +16,7 @@ import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
+import net.capps.word.util.ErrorOrResult;
 
 import java.sql.Connection;
 import java.util.List;
@@ -27,6 +28,7 @@ import static java.lang.String.format;
  */
 public class MovesProvider {
     private static final MovesProvider INSTANCE = new MovesProvider();
+    private static final GamesDAO gamesDAO = GamesDAO.getInstance();
 
     public static MovesProvider getInstance() {
         return INSTANCE;
@@ -34,24 +36,24 @@ public class MovesProvider {
 
     private MovesProvider() { } // Singleton pattern
 
-    public Optional<ErrorModel> validateMove(MoveModel inputMoveModel, UserModel authUser) throws Exception {
+    public ErrorOrResult<GameModel> validateMove(MoveModel inputMoveModel, UserModel authUser) throws Exception {
 
         Optional<ErrorModel> errorOpt = validateFieldsArePresent(inputMoveModel);
         if (errorOpt.isPresent()) {
-            return errorOpt;
+            return ErrorOrResult.ofError(errorOpt.get());
         }
 
         errorOpt = isValidLettersField(inputMoveModel.getLetters());
         if (errorOpt.isPresent()) {
-            return errorOpt;
+            return ErrorOrResult.ofError(errorOpt.get());
         }
 
         Integer gameId = inputMoveModel.getGameId();
 
         // Get the full Game using the gameId
-        Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId);
+        Optional<GameModel> gameOpt = gamesDAO.getGameWithPlayerModelsById(gameId);
         if (!gameOpt.isPresent()) {
-            return Optional.of(new ErrorModel(format("gameId %d is not a valid game.", gameId)));
+            return ErrorOrResult.ofError(new ErrorModel(format("gameId %d is not a valid game.", gameId)));
         }
         GameModel game = gameOpt.get();
 
@@ -59,11 +61,11 @@ public class MovesProvider {
         boolean isPlayer1Turn = game.getPlayer1Turn();
         if (isPlayer1Turn) {
             if (!authUser.getId().equals(game.getPlayer1())) {
-                return Optional.of(new ErrorModel("It's not your turn!"));
+                return ErrorOrResult.ofError(new ErrorModel("It's not your turn!"));
             }
         } else {
             if (!authUser.getId().equals(game.getPlayer2())) {
-                return Optional.of(new ErrorModel("It's not your turn!"));
+                return ErrorOrResult.ofError(new ErrorModel("It's not your turn!"));
             }
         }
 
@@ -74,82 +76,66 @@ public class MovesProvider {
         // Check if it's a valid move.
         Optional<String> moveErrorOpt = gameState.getMoveError(move);
         if (moveErrorOpt.isPresent()) {
-            return Optional.of(new ErrorModel(moveErrorOpt.get()));
+            return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
         }
 
-        return Optional.absent();
+        // Set the playerId as the currently authenticated user.
+        inputMoveModel.setPlayerId(authUser.getId());
+
+        return ErrorOrResult.ofResult(game);
     }
 
-    public GameModel playMove(MoveModel validatedMove, Connection dbConn) throws Exception {
-        // Get the full Game using the gameId
-        int gameId = validatedMove.getGameId();
+    public GameModel playMove(MoveModel validatedMove, GameModel gameModel, Connection dbConn) throws Exception {
+        Preconditions.checkArgument(validatedMove.getGameId() != null &&
+                                    validatedMove.getGameId().equals(gameModel.getId()),
+                "The game ID on the move must match the original game's ID");
 
-        Optional<GameModel> gameOpt = GamesDAO.getInstance().getGameById(gameId, dbConn);
-        if (!gameOpt.isPresent()) {
-            throw new IllegalStateException(format("gameId %d is not a valid game.", gameId));
-        }
-
-        List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(gameId, 1, dbConn);
+        List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(validatedMove.getGameId(), 1, dbConn);
         Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
                 Optional.of(new Move(prevMove.get(0))) :
                 Optional.<Move>absent();
 
-        GameModel gameModel = gameOpt.get();
         GameState gameState = new GameState(gameModel, previousMoveOpt);
         Move move = new Move(validatedMove);
 
         int numPoints = gameState.playMove(move); // Play the move, updating the game state.
 
-        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, validatedMove, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(gameState, validatedMove, numPoints, dbConn);
         updatedGame.setLastMove(validatedMove);
-        Optional<UserModel> player1Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer1());
-        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer2());
-
-        if (!player1Model.isPresent()) {
-            throw new IllegalStateException(String.format("Player 1 with ID %d wasn't present in the database", updatedGame.getPlayer1()));
-        }
-
-        if (!player2Model.isPresent()) {
-            throw new IllegalStateException(String.format("Player 2 with ID %d wasn't present in the database", updatedGame.getPlayer2()));
-        }
-
-        updatedGame.setPlayer1Model(player1Model.get());
-        updatedGame.setPlayer2Model(player2Model.get());
+        updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
+        updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
         return updatedGame;
     }
 
     public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
-        if (gameModel.getGameResult() != GameResult.IN_PROGRESS) {
-            return gameModel;
+        boolean isPlayer1Turn = gameModel.getPlayer1Turn();
+        // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
+        while (gameModel.getPlayer1Turn() == isPlayer1Turn && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
+            gameModel = playeOneAIMove(aiType, gameModel, previousMove, dbConn);
         }
+        return gameModel;
+    }
+
+    private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
 
         GameAi gameAi = aiType.getGameAiInstance();
+        int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
         GameState gameState = new GameState(gameModel, Optional.of(new Move(previousMove)));
         Move aiMove = gameAi.getNextMove(gameState);
 
         int numPoints = gameState.playMove(aiMove);
 
-        MoveModel aiMoveModel = aiMove.toMoveModel(numPoints);
+        MoveModel aiMoveModel = aiMove.toMoveModel(gameAiId, numPoints);
 
-        GameModel updatedGame = GamesDAO.getInstance().updateGame(gameState, aiMoveModel, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(gameState, aiMoveModel, numPoints, dbConn);
+        updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
+        updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
         updatedGame.setLastMove(aiMoveModel);
-        Optional<UserModel> player1Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer1());
-        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(updatedGame.getPlayer2());
-
-        if (!player1Model.isPresent()) {
-            throw new IllegalStateException(String.format("Player 1 with ID %d wasn't present in the database", updatedGame.getPlayer1()));
-        }
-
-        if (!player2Model.isPresent()) {
-            throw new IllegalStateException(String.format("Player 2 with ID %d wasn't present in the database", updatedGame.getPlayer2()));
-        }
-
-        updatedGame.setPlayer1Model(player1Model.get());
-        updatedGame.setPlayer2Model(player2Model.get());
 
         return updatedGame;
+
     }
 
     private Optional<ErrorModel> validateFieldsArePresent(MoveModel inputMoveModel) {

@@ -10,6 +10,7 @@ import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.*;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
+import net.capps.word.rest.models.UserModel;
 
 import java.sql.*;
 import java.util.Date;
@@ -34,11 +35,24 @@ public class GamesDAO {
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
 
+    private static final String SELECT_FROM_WITH_JOIN_ON_PLAYERS =
+            "SELECT word_games.*, " +
+                    "p1.username AS p1_username, p1.email AS p1_email, p1.is_system_user AS p1_is_system_user, p1.date_joined AS p1_date_joined, " +
+                    "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined " +
+                    "FROM word_games JOIN word_users AS p1 ON (player1 = p1.id) " +
+                                    "JOIN word_users AS p2 ON (player2 = p2.id) ";
+
+    private static final String QUERY_GAME_BY_ID_WITH_PLAYERS =
+            SELECT_FROM_WITH_JOIN_ON_PLAYERS +
+                    "WHERE word_games.id = ?;";
+
     private static final String QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC =
-            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY date_started DESC LIMIT ?;";
+            SELECT_FROM_WITH_JOIN_ON_PLAYERS +
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY date_started DESC LIMIT ?;";
 
     private static final String QUERY_FINISHED_GAMES_DATE_CREATED_DESC =
-            "SELECT * FROM word_games WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY date_started DESC LIMIT ?;";
+            SELECT_FROM_WITH_JOIN_ON_PLAYERS +
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY date_started DESC LIMIT ?;";
 
     public static GamesDAO getInstance() {
         return INSTANCE;
@@ -102,14 +116,21 @@ public class GamesDAO {
         return Optional.of(getGameByResultSetRow(result));
     }
 
-    public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints) throws Exception {
+    public Optional<GameModel> getGameWithPlayerModelsById(int gameId) throws Exception {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            // Set auto-commit to false, to update Games table and Moves table and rollback if anything fails.
-            dbConn.setAutoCommit(false);
-            GameModel gameModel = updateGame(updatedGame, validatedMove, numPoints, dbConn);
-            dbConn.commit();
-            return gameModel;
+            return getGameWithPlayerModelsById(gameId, dbConn);
         }
+    }
+
+    public Optional<GameModel> getGameWithPlayerModelsById(int gameId, Connection dbConn) throws Exception {
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID_WITH_PLAYERS);
+        stmt.setInt(1, gameId);
+
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.absent();
+        }
+        return Optional.of(getGameWithPlayersByResultSetRow(result));
     }
 
     public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints, Connection dbConn) throws Exception {
@@ -158,7 +179,7 @@ public class GamesDAO {
 
             List<GameModel> games = Lists.newArrayList();
             while (resultSet.next()) {
-                games.add(getGameByResultSetRow(resultSet));
+                games.add(getGameWithPlayersByResultSetRow(resultSet));
             }
 
             return games;
@@ -177,7 +198,7 @@ public class GamesDAO {
 
             List<GameModel> games = Lists.newArrayList();
             while (resultSet.next()) {
-                games.add(getGameByResultSetRow(resultSet));
+                games.add(getGameWithPlayersByResultSetRow(resultSet));
             }
 
             return games;
@@ -209,6 +230,32 @@ public class GamesDAO {
         game.setPlayer1Turn(result.getBoolean("player1_turn"));
         Timestamp dateStarted = result.getTimestamp("date_started");
         game.setDateCreated(dateStarted.getTime());
+        return game;
+    }
+
+    private GameModel getGameWithPlayersByResultSetRow(ResultSet result) throws SQLException {
+        GameModel game = getGameByResultSetRow(result);
+        int p1Id = result.getInt("player1");
+        String p1Username = result.getString("p1_username");
+        String p1Email = result.getString("p1_email");
+        Timestamp p1DateJoined = result.getTimestamp("p1_date_joined");
+        boolean p1IsSystemUser = result.getBoolean("p1_is_system_user");
+
+        int p2Id = result.getInt("player2");
+        String p2Username = result.getString("p2_username");
+        String p2Email = result.getString("p2_email");
+        Timestamp p2DateJoined = result.getTimestamp("p2_date_joined");
+        boolean p2IsSystemUser = result.getBoolean("p2_is_system_user");
+
+        UserModel player1Model = new UserModel(p1Id, p1Username, p1Email, null, null, p1IsSystemUser);
+        player1Model.setDateJoined(p1DateJoined.getTime());
+
+        UserModel player2Model = new UserModel(p2Id, p2Username, p2Email, null, null, p2IsSystemUser);
+        player2Model.setDateJoined(p2DateJoined.getTime());
+
+        game.setPlayer1Model(player1Model);
+        game.setPlayer2Model(player2Model);
+
         return game;
     }
 

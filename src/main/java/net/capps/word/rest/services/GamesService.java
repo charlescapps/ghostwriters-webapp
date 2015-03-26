@@ -65,7 +65,7 @@ public class GamesService {
     @GET
     @Path("/{id}")
     public Response getGameById(@PathParam("id") int id) throws Exception {
-        Optional<GameModel> game = GamesDAO.getInstance().getGameById(id);
+        Optional<GameModel> game = GamesDAO.getInstance().getGameWithPlayerModelsById(id);
         if (game.isPresent()) {
             return Response.ok(game.get()).build();
         }

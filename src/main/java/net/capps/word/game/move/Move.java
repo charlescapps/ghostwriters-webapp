@@ -91,8 +91,9 @@ public class Move {
         return new Placement(letters, start, dir);
     }
 
-    public MoveModel toMoveModel(int points) {
+    public MoveModel toMoveModel(int playerId, int points) {
         return new MoveModel(gameId,
+                             playerId,
                              moveType,
                              letters,
                              start.toPosModel(),

@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class MoveModel {
     private Integer gameId;
+    private Integer playerId;
     private String letters;
     private PosModel start;
     private Dir dir;
@@ -23,8 +24,9 @@ public class MoveModel {
 
     }
 
-    public MoveModel(Integer gameId, MoveType moveType, String letters, PosModel start, Dir dir, String tiles, Integer points, Long datePlayed) {
+    public MoveModel(Integer gameId, Integer playerId, MoveType moveType, String letters, PosModel start, Dir dir, String tiles, Integer points, Long datePlayed) {
         this.gameId = gameId;
+        this.playerId = playerId;
         this.moveType = moveType;
         this.letters = letters;
         this.start = start;
@@ -40,6 +42,14 @@ public class MoveModel {
 
     public void setGameId(Integer gameId) {
         this.gameId = gameId;
+    }
+
+    public Integer getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(Integer playerId) {
+        this.playerId = playerId;
     }
 
     public String getLetters() {

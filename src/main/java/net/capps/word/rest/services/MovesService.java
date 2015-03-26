@@ -14,6 +14,7 @@ import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.MovesProvider;
+import net.capps.word.util.ErrorOrResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -32,7 +33,7 @@ import static javax.ws.rs.core.Response.Status;
 @Produces(MediaType.APPLICATION_JSON)
 @Filters.RegularUserAuthRequired
 public class MovesService {
-    private static final AuthHelper authHelper = AuthHelper.getInstance();
+    private static final MovesProvider movesProvider = MovesProvider.getInstance();
 
     @POST
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
@@ -40,21 +41,28 @@ public class MovesService {
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> errorOpt = MovesProvider.getInstance().validateMove(input, authUser);
+        ErrorOrResult<GameModel> errorOrResult = MovesProvider.getInstance().validateMove(input, authUser);
+
+        Optional<ErrorModel> errorOpt = errorOrResult.getError();
         if (errorOpt.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
                     .entity(errorOpt.get())
                     .build();
         }
 
+        GameModel originalGame = errorOrResult.getResult().get();
+
         // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             dbConn.setAutoCommit(false);
-            GameModel updatedGame = MovesProvider.getInstance().playMove(input, dbConn);
 
-            // For single player games, immediately play the AI's move and return the updated game.
-            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
-                updatedGame = MovesProvider.getInstance().playAIMove(updatedGame.getAiType(), updatedGame, input, dbConn);
+            GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
+            boolean isAiTurn = updatedGame.getPlayer1().equals(authUser.getId()) && !updatedGame.getPlayer1Turn() ||
+                               updatedGame.getPlayer2().equals(authUser.getId()) && updatedGame.getPlayer1Turn();
+
+            // For single player games, play the AI's move if the turn changed
+            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {
+                updatedGame = movesProvider.playAIMove(updatedGame.getAiType(), updatedGame, input, dbConn);
             }
 
             dbConn.commit();

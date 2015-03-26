@@ -120,6 +120,10 @@ public class GameState {
         return player1Turn ? player1Rack : player2Rack;
     }
 
+    public Rack getOpponentPlayerRack() {
+        return player1Turn ? player2Rack : player1Rack;
+    }
+
     public GameResult getGameResult() {
         return gameResult;
     }
@@ -140,6 +144,9 @@ public class GameState {
     }
 
     public int playMove(Move validatedMove) {
+        if(gameResult != GameResult.IN_PROGRESS) {
+            throw new IllegalStateException("Can't play a move for a finished game!");
+        }
         switch (validatedMove.getMoveType()) {
             case PLAY_WORD:
                 return playWordMove(validatedMove);
@@ -206,6 +213,14 @@ public class GameState {
         return wordPoints;
     }
 
+    private boolean doChangeTurn() {
+        // If there are tiles left to grab, OR the other player's rack isn't empty, then swap whose turn it is
+        // Otherwise, it remains the same player's turn.
+        boolean areAllTilesPlayed = tileSet.areAllTilesPlayed();
+        return !areAllTilesPlayed || !getOpponentPlayerRack().isEmpty();
+    }
+
+
     private int playWordMove(Move validatedMove) {
         int numPoints = computePoints(validatedMove);
         tileSet.playWordMove(validatedMove, squareSet);
@@ -215,67 +230,66 @@ public class GameState {
         } else {
             player2Points += numPoints;
         }
-        gameResult = checkForGameEnd();
-        player1Turn = !player1Turn;
+        gameResult = checkForGameEnd(validatedMove);
+
+        if (doChangeTurn()) {
+            player1Turn = !player1Turn;
+        }
+
         previousMoveOpt = Optional.of(validatedMove);
         return numPoints;
     }
 
-    private int playPassMove(Move validatedMove) {
-        Preconditions.checkArgument(validatedMove.getMoveType() == MoveType.PASS);
-        if (previousMoveOpt.isPresent()) {
-            Move previousMove = previousMoveOpt.get();
-            if (previousMove.getMoveType() == MoveType.PASS) {
-                if (player1Points > player2Points) {
-                    gameResult = GameResult.PLAYER1_WIN;
-                } else if (player2Points > player1Points) {
-                    gameResult = GameResult.PLAYER2_WIN;
-                } else {
-                    gameResult = GameResult.TIE;
-                }
-            }
+    private int playGrabTilesMove(Move validatedMove) {
+        tileSet.playGrabTilesMove(validatedMove);
+        getCurrentPlayerRack().addTiles(validatedMove.getTiles());
+        if (doChangeTurn()) {
+            player1Turn = !player1Turn;
         }
+        previousMoveOpt = Optional.of(validatedMove);
+        return 0; // 0 points for a grab move.
+    }
+
+    private int playPassMove(Move validatedMove) {
+        gameResult = checkForGameEnd(validatedMove);
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
         return 0;
     }
 
-    private GameResult checkForGameEnd() {
-        // Possible end game if it's player 1's turn and rack is empty
-        if (player1Turn && player1Rack.isEmpty()) {
-            boolean allTilesArePlayed = tileSet.areAllTilesPlayed();
-            if (!allTilesArePlayed) {
+    private GameResult checkForGameEnd(Move validatedMove) {
+        switch (validatedMove.getMoveType()) {
+            case GRAB_TILES:
+                return GameResult.IN_PROGRESS; // Game cannot end immediately after grabbing tiles
+            case PLAY_WORD:
+                // End game if both player's racks are empty and all tiles are played
+                if (player1Rack.isEmpty() && player2Rack.isEmpty()) {
+                    boolean allTilesArePlayed = tileSet.areAllTilesPlayed();
+                    if (allTilesArePlayed) {
+                        return computeGameResultFromFinalPoints();
+                    }
+                }
                 return GameResult.IN_PROGRESS;
-            }
-            player1Points += player2Rack.getSumOfPoints();
+            case PASS:
+                if (previousMoveOpt.isPresent()) {
+                    Move previousMove = previousMoveOpt.get();
+                    if (previousMove.getMoveType() == MoveType.PASS) {
+                        return computeGameResultFromFinalPoints();
+                    }
+                }
+                return GameResult.IN_PROGRESS;
+            default:
+                throw new IllegalStateException("Impossible; all move types covered.");
+        }
+    }
 
-        }
-        // Also possible end game if player 2 turn and rack is empty
-        else if (!player1Turn && player2Rack.isEmpty()) {
-            boolean allTilesArePlayed = tileSet.areAllTilesPlayed();
-            if (!allTilesArePlayed) {
-                return GameResult.IN_PROGRESS;
-            }
-            player2Points += player1Rack.getSumOfPoints();
-        }
-        // If the current player's rack is not empty, the game isn't over yet.
-        else {
-            return GameResult.IN_PROGRESS;
-        }
+    private GameResult computeGameResultFromFinalPoints() {
         if (player1Points > player2Points) {
             return GameResult.PLAYER1_WIN;
         } else if (player1Points < player2Points) {
             return GameResult.PLAYER2_WIN;
         }
         return GameResult.TIE;
-    }
-
-    private int playGrabTilesMove(Move validatedMove) {
-        tileSet.playGrabTilesMove(validatedMove);
-        getCurrentPlayerRack().addTiles(validatedMove.getTiles());
-        player1Turn = !player1Turn;
-        previousMoveOpt = Optional.of(validatedMove);
-        return 0; // 0 points for a grab move.
     }
 
     private Optional<String> isValidPlayWordMove(Move move) {

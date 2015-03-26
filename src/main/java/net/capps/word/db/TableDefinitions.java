@@ -46,6 +46,7 @@ public class TableDefinitions {
             "CREATE TABLE IF NOT EXISTS word_moves " +
                     "( id BIGSERIAL PRIMARY KEY," +
                       "game_id INTEGER NOT NULL," +
+                      "player_id INTEGER NOT NULL," +
                       "move_type SMALLINT NOT NULL," +
                       "start_row SMALLINT NOT NULL," +
                       "start_col SMALLINT NOT NULL," +
