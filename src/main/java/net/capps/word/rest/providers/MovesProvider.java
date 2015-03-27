@@ -3,6 +3,7 @@ package net.capps.word.rest.providers;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
 import net.capps.word.game.ai.GameAi;
@@ -29,6 +30,7 @@ import static java.lang.String.format;
 public class MovesProvider {
     private static final MovesProvider INSTANCE = new MovesProvider();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
+    private static final MovesDAO movesDAO = MovesDAO.getInstance();
 
     public static MovesProvider getInstance() {
         return INSTANCE;
@@ -101,7 +103,6 @@ public class MovesProvider {
         int numPoints = gameState.playMove(move); // Play the move, updating the game state.
 
         GameModel updatedGame = gamesDAO.updateGame(gameState, validatedMove, numPoints, dbConn);
-        updatedGame.setLastMove(validatedMove);
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
@@ -110,18 +111,35 @@ public class MovesProvider {
 
     public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
         boolean isPlayer1Turn = gameModel.getPlayer1Turn();
+        List<MoveModel> aiMoves = Lists.newArrayList();
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
         while (gameModel.getPlayer1Turn() == isPlayer1Turn && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
-            gameModel = playeOneAIMove(aiType, gameModel, previousMove, dbConn);
+            gameModel = playeOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
         }
+
+        gameModel.setLastMoves(aiMoves);
+
         return gameModel;
     }
 
-    private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
+    public void populateLastMoves(GameModel newGame, GameModel originalGame, MoveModel playedMove, Connection dbConn) throws Exception {
+        // If the turn didn't change, then the lastMoves is an empty list
+        if (originalGame.getPlayer1Turn() == newGame.getPlayer1Turn()) {
+            newGame.setLastMoves(Lists.<MoveModel>newArrayList());
+            return;
+        }
+        // Otherwise, query the database for the previous consecutive moves by the current player
+        int playerId = playedMove.getPlayerId();
+        List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(playerId, newGame.getId(), dbConn);
+        newGame.setLastMoves(lastMoves);
+    }
+
+    private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 
         GameAi gameAi = aiType.getGameAiInstance();
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
-        GameState gameState = new GameState(gameModel, Optional.of(new Move(previousMove)));
+        MoveModel lastMove = aiMoves.isEmpty() ? lastHumanMove : aiMoves.get(aiMoves.size() - 1);
+        GameState gameState = new GameState(gameModel, Optional.of(new Move(lastMove)));
         Move aiMove = gameAi.getNextMove(gameState);
 
         int numPoints = gameState.playMove(aiMove);
@@ -132,7 +150,7 @@ public class MovesProvider {
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
-        updatedGame.setLastMove(aiMoveModel);
+        aiMoves.add(aiMoveModel);
 
         return updatedGame;
 

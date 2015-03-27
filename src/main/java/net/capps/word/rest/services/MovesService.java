@@ -63,6 +63,8 @@ public class MovesService {
             // For single player games, play the AI's move if the turn changed
             if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {
                 updatedGame = movesProvider.playAIMove(updatedGame.getAiType(), updatedGame, input, dbConn);
+            } else {
+                movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
             }
 
             dbConn.commit();

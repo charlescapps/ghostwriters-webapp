@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Created by charlescapps on 1/18/15.
@@ -30,7 +31,7 @@ public class GameModel {
     private GameResult gameResult;
     private Boolean player1Turn;
     private Long dateCreated;
-    private MoveModel lastMove;
+    private List<MoveModel> lastMoves;
 
     public GameModel() {
 
@@ -197,12 +198,12 @@ public class GameModel {
         this.dateCreated = dateCreated;
     }
 
-    public MoveModel getLastMove() {
-        return lastMove;
+    public List<MoveModel> getLastMoves() {
+        return lastMoves;
     }
 
-    public void setLastMove(MoveModel lastMove) {
-        this.lastMove = lastMove;
+    public void setLastMoves(List<MoveModel> lastMoves) {
+        this.lastMoves = lastMoves;
     }
 
     @Override
@@ -224,6 +225,7 @@ public class GameModel {
                 .add("tiles", tiles)
                 .add("gameResult", gameResult)
                 .add("player1Turn", player1Turn)
+                .add("lastMoves", lastMoves)
                 .toString();
     }
 }

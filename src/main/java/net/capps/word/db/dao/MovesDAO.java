@@ -3,6 +3,7 @@ package net.capps.word.db.dao;
 import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.Dir;
+import net.capps.word.game.common.Rack;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
@@ -27,6 +28,9 @@ public class MovesDAO {
 
     private static final String GET_RECENT_MOVES =
             "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
+
+    private static final String GET_MOVES_IN_ORDER =
+            "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id ASC LIMIT ?";
 
     public List<MoveModel> getMostRecentMoves(int gameId, int limit, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
@@ -72,6 +76,21 @@ public class MovesDAO {
         return getMoveFromResult(result);
     }
 
+    public List<MoveModel> getLastMovesByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
+        List<MoveModel> recentMoves = getMostRecentMoves(gameId, Rack.MAX_TILES_IN_RACK, dbConn);
+        List<MoveModel> movesByPlayer = Lists.newArrayList();
+        for (MoveModel move: recentMoves) {
+            if (move.getPlayerId().equals(playerId)) {
+                movesByPlayer.add(0, move);
+            } else {
+                break;
+            }
+        }
+
+        return movesByPlayer;
+    }
+
+    // ------------- Private --------------
     private MoveModel getMoveFromResult(ResultSet result) throws SQLException {
         return new MoveModel(result.getInt("game_id"),
                 result.getInt("player_id"),

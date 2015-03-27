@@ -11,7 +11,7 @@ public class ErrorOrResult<T> {
     private ErrorModel error;
     private T result;
 
-    private ErrorOrResult(ErrorModel error, T reuslt) {
+    private ErrorOrResult(ErrorModel error, T result) {
         this.error = error;
         this.result = result;
     }
