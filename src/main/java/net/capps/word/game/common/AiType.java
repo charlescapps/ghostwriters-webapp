@@ -1,8 +1,10 @@
 package net.capps.word.game.common;
 
 import net.capps.word.constants.WordConstants;
-import net.capps.word.game.ai.GameAi;
-import net.capps.word.game.ai.RandomAi;
+import net.capps.word.game.ai.BookwormAI;
+import net.capps.word.game.ai.GameAI;
+import net.capps.word.game.ai.ProfessorAI;
+import net.capps.word.game.ai.RandomAI;
 
 /**
  * Created by charlescapps on 2/21/15.
@@ -22,9 +24,11 @@ public enum AiType {
         return systemUsername;
     }
 
-    public GameAi getGameAiInstance() {
+    public GameAI getGameAiInstance() {
         switch (this) {
-            case RANDOM_AI: return RandomAi.getInstance();
+            case RANDOM_AI: return RandomAI.getInstance();
+            case BOOKWORM_AI: return BookwormAI.getInstance();
+            case PROFESSOR_AI: return ProfessorAI.getInstance();
         }
         throw new IllegalStateException();
     }

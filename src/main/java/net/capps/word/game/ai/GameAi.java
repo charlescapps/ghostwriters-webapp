@@ -6,6 +6,6 @@ import net.capps.word.game.move.Move;
 /**
  * Created by charlescapps on 2/22/15.
  */
-public interface GameAi {
+public interface GameAI {
     public Move getNextMove(GameState gameState);
 }

@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by charlescapps on 2/22/15.
  */
-public class RandomAiTest {
+public class RandomAITest {
     private static final GameGenerator GG = new DefaultGameGenerator();
     private static final SquareSetGenerator LG = new DefaultSquareSetGenerator();
-    private static final RandomAi RA = RandomAi.getInstance();
+    private static final RandomAI RA = RandomAI.getInstance();
 
-    private static final Logger LOG = LoggerFactory.getLogger(RandomAiTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RandomAITest.class);
 
     @BeforeClass
     public static void initDataStructures() throws Exception {

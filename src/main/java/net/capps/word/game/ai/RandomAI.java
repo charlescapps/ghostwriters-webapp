@@ -26,35 +26,74 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 2/22/15.
+ *
+ * This AI does the following each turn:
+ *
+ * At random, either try to grab tiles, or try to play tiles.
+ *
+ * If grabbing tiles:
+ *
+ * Iterate through grabbable tiles on board in a random order, then grab all tiles
+ * in one direction.
+ *
+ * If playing tiles:
+ *
+ * This AI will generate the first MAX_MOVES_TO_TRY moves by iterating through empty start positions on the board
+ * in a random order, and starting with placing fewer tiles to placing more tiles.
+ *
+ * Then it will return a random choice from the at most MAX_MOVES_TO_TRY moves that are generated.
+ *
+ * This prefers shorter words, making this an EASY AI.
  */
-public class RandomAi implements GameAi {
+public class RandomAI implements GameAI {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
     private static final DictionarySet SET = Dictionaries.getAllWordsSet();
     private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
-    private static final RandomAi INSTANCE = new RandomAi();
+    private static final RandomAI INSTANCE = new RandomAI();
 
-    public static RandomAi getInstance() {
+    // Nerf this AI so it's not too good, apparently even random is pretty good against us humans since there are many long words.
+    private static final int MAX_MOVES_TO_TRY = 5;
+
+    public static RandomAI getInstance() {
         return INSTANCE;
     }
 
-    private RandomAi() { } // Singleton pattern.
+    private RandomAI() { } // Singleton pattern.
 
     @Override
     public Move getNextMove(GameState gameState) {
 
-        Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
-        if (playMove.isPresent()) {
-            return playMove.get();
-        }
+        boolean tryPlayFirst = ThreadLocalRandom.current().nextBoolean();
 
-        Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
-        if (grabMove.isPresent()) {
-            return grabMove.get();
+        if (tryPlayFirst) {
+            // Try a play move first, then if no move is found, try grabbing
+            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
+            if (playMove.isPresent()) {
+                return playMove.get();
+            }
+
+            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
+            if (grabMove.isPresent()) {
+                return grabMove.get();
+            }
+        } else {
+            // Try a grab move first, then if no move is found, try playing
+            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
+            if (grabMove.isPresent()) {
+                return grabMove.get();
+            }
+
+            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
+            if (playMove.isPresent()) {
+                return playMove.get();
+            }
         }
 
         return Move.passMove(gameState.getGameId());
     }
+
+    // --------------- Private ----------------
 
     private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
         if (rack.isEmpty()) {
@@ -84,9 +123,10 @@ public class RandomAi implements GameAi {
 
     private Optional<Move> getRandomGrabMove(GameState gameState, TileSet tileSet) {
         final int gameId = gameState.getGameId();
-        final int maxToGrab = gameState.isPlayer1Turn() ?
+        int maxToGrab = gameState.isPlayer1Turn() ?
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
+        maxToGrab = Math.min(maxToGrab, tileSet.N);
 
         if (maxToGrab <= 0) {
             return Optional.absent();
@@ -190,10 +230,14 @@ public class RandomAi implements GameAi {
             return;
         }
 
+        if (moves.size() > MAX_MOVES_TO_TRY) {
+            return;
+        }
+
         if (placements.size() >= minPlacements && SET.contains(prefix)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.isValidPlayWordMove(move).isPresent()) {
+            if (!tileSet.getPlayWordMoveError(move).isPresent()) {
                 moves.add(move);
             }
         }

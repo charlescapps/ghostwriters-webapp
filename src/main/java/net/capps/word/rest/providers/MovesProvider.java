@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
-import net.capps.word.game.ai.GameAi;
+import net.capps.word.game.ai.GameAI;
 import net.capps.word.game.board.GameState;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
@@ -136,11 +136,11 @@ public class MovesProvider {
 
     private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 
-        GameAi gameAi = aiType.getGameAiInstance();
+        GameAI gameAI = aiType.getGameAiInstance();
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
         MoveModel lastMove = aiMoves.isEmpty() ? lastHumanMove : aiMoves.get(aiMoves.size() - 1);
         GameState gameState = new GameState(gameModel, Optional.of(new Move(lastMove)));
-        Move aiMove = gameAi.getNextMove(gameState);
+        Move aiMove = gameAI.getNextMove(gameState);
 
         int numPoints = gameState.playMove(aiMove);
 

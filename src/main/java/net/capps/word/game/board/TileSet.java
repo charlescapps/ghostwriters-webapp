@@ -236,7 +236,7 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public Optional<String> isValidPlayWordMove(Move move) {
+    public Optional<String> getPlayWordMoveError(Move move) {
         // Check if the tiles played from the player's Rack match what's on the board
         Optional<String> errorOpt = lettersMatchTilesPlayed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles());
         if (errorOpt.isPresent()) {
@@ -479,6 +479,14 @@ public class TileSet implements Iterable<Pos> {
     public Pos getEndOfOccupied(Pos start, Dir dir) {
         Pos p = start;
         while (isOccupied(p)) {
+            p = p.go(dir);
+        }
+        return p.go(dir, -1);
+    }
+
+    public Pos getEndOfStartTiles(Pos start, Dir dir) {
+        Pos p = start;
+        while (isOccupied(p) && get(p).isStartTile()) {
             p = p.go(dir);
         }
         return p.go(dir, -1);

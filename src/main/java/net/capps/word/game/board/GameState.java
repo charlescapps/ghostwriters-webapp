@@ -300,7 +300,7 @@ public class GameState {
             return Optional.of(format("Player 2 doesn't have required tiles: \"%s\"", move.getTilesAsString()));
         }
         // Check that the play is valid
-        return tileSet.isValidPlayWordMove(move);
+        return tileSet.getPlayWordMoveError(move);
     }
 
     private Optional<String> isValidGrabTilesMove(Move move) {
