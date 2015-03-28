@@ -165,7 +165,7 @@ public class BookwormAI implements GameAI {
         }
 
         String letters = sb.toString();
-        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, start, dir, grabbedTiles);
+        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
         return Optional.of(move);
     }
 
@@ -175,7 +175,7 @@ public class BookwormAI implements GameAI {
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
-            return Optional.absent();
+            firstOccupiedOrAdjacent = Optional.of(start); // Try playing a word off in space
         }
 
         Pos occOrAdj = firstOccupiedOrAdjacent.get();
