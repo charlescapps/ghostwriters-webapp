@@ -63,7 +63,7 @@ public class DictionarySet {
                     continue;
                 }
                 if (bannedWords.isPresent() && bannedWords.get().contains(word)) {
-                    LOG.error("Not including banned word '{}'", word);
+                    LOG.trace("Not including banned word '{}'", word);
                     continue;
                 }
                 builder.add(word);

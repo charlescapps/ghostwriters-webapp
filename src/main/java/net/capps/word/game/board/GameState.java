@@ -264,8 +264,7 @@ public class GameState {
             case PLAY_WORD:
                 // End game if both player's racks are empty and all tiles are played
                 if (player1Rack.isEmpty() && player2Rack.isEmpty()) {
-                    boolean allTilesArePlayed = tileSet.areAllTilesPlayed();
-                    if (allTilesArePlayed) {
+                    if (tileSet.areAllTilesPlayed()) {
                         return computeGameResultFromFinalPoints();
                     }
                 }
@@ -273,9 +272,18 @@ public class GameState {
             case PASS:
                 if (previousMoveOpt.isPresent()) {
                     Move previousMove = previousMoveOpt.get();
+                    // If 2 passes happen in a row, then the game is over.
                     if (previousMove.getMoveType() == MoveType.PASS) {
                         return computeGameResultFromFinalPoints();
                     }
+                }
+                // If the current player is passing,
+                // and the board has no more grabbable tiles
+                // opponent's rack is empty
+                // then the game is over
+                if (isPlayer1Turn() && player2Rack.isEmpty() && tileSet.areAllTilesPlayed() ||
+                   !isPlayer1Turn() && player1Rack.isEmpty() && tileSet.areAllTilesPlayed()) {
+                    return computeGameResultFromFinalPoints();
                 }
                 return GameResult.IN_PROGRESS;
             default:
