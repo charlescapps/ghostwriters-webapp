@@ -7,7 +7,7 @@ import java.io.InputStream;
  */
 public enum DictType {
 
-    ALL_WORDS("English dictionary", "scowl.words.80.lowercase"),
+    ALL_WORDS("English dictionary", "main_dict.txt"),
     BANNED("Banned words", "banned.txt"),
     ADJECTIVES("Adjectives", "adjectives.txt"),
     NOUNS("Nouns", "nouns.txt"),
