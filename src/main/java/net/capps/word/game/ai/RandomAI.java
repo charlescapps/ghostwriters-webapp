@@ -185,7 +185,7 @@ public class RandomAI implements GameAI {
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
-            return Optional.absent();
+            firstOccupiedOrAdjacent = Optional.of(originalStart); // Try placing tiles off in space, not connected.
         }
 
         Pos occOrAdj = firstOccupiedOrAdjacent.get();

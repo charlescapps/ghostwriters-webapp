@@ -26,10 +26,12 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by charlescapps on 2/22/15.
  *
- * Similar to MonkeyAI, but
- * 1) Grab moves try to get as many tiles as possible considering all start positions.
+ * Similar to BookwormAI, but
+ * 1) Always try to Grab tiles first, if possible
  *
- * 2) Play moves only return a move from the top 50% of words, by length.
+ * 2) Grab moves try to get as many tiles as possible considering all start positions.
+ *
+ * 3) Play moves only return a move from the top 50% of words, by length.
  *
  */
 public class ProfessorAI implements GameAI {
@@ -50,29 +52,15 @@ public class ProfessorAI implements GameAI {
     @Override
     public Move getNextMove(GameState gameState) {
 
-        boolean tryPlayFirst = ThreadLocalRandom.current().nextBoolean();
-        if (tryPlayFirst) {
-            // Try a play move first, then if no move is found, try grabbing
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
-            if (playMove.isPresent()) {
-                return playMove.get();
-            }
+        // Try a grab move first, then if no move is found, try playing
+        Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
+        if (grabMove.isPresent()) {
+            return grabMove.get();
+        }
 
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
-            if (grabMove.isPresent()) {
-                return grabMove.get();
-            }
-        } else {
-            // Try a grab move first, then if no move is found, try playing
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
-            if (grabMove.isPresent()) {
-                return grabMove.get();
-            }
-
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
-            if (playMove.isPresent()) {
-                return playMove.get();
-            }
+        Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
+        if (playMove.isPresent()) {
+            return playMove.get();
         }
 
         return Move.passMove(gameState.getGameId());
@@ -80,13 +68,12 @@ public class ProfessorAI implements GameAI {
 
     // --------------- Private ----------------
 
-    private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
+    private Optional<Move> getRandomPlayMove(final int gameId, final Rack rack, final TileSet tileSet) {
         if (rack.isEmpty()) {
             return Optional.absent();
         }
-        final int N = tileSet.N;
 
-        List<Pos> positions = POSITION_LISTS.getPositionList(N);
+        List<Pos> positions = POSITION_LISTS.getPositionList(tileSet.N);
 
         // Search the possible start positions in a random order.
         List<Pos> randomOrderPositions = RandomUtil.shuffleList(positions);
