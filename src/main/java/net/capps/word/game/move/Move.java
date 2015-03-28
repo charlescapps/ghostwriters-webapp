@@ -7,6 +7,7 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
+import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
@@ -17,12 +18,15 @@ import java.util.List;
  * Created by charlescapps on 1/16/15.
  */
 public class Move {
+    private static final LetterPoints LETTER_POINTS = LetterPoints.getInstance();
+
     private final Integer gameId;
     private final String letters;
     private final Pos start;
     private final Dir dir;
     private final List<RackTile> tiles;
     private final MoveType moveType;
+    private int points;
 
     public static Move passMove(int gameId) {
         return new Move(gameId, MoveType.PASS, "", Pos.of(0, 0), Dir.E, Lists.<RackTile>newArrayList());
@@ -101,6 +105,22 @@ public class Move {
                              getTilesAsString(),
                              points,
                              null);
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public int computeSumOfTilePoints() {
+        int pointValue = 0;
+        for (RackTile rackTile: tiles) {
+            pointValue += rackTile.getLetterPointValue();
+        }
+        return pointValue;
     }
 
     @Override

@@ -12,7 +12,6 @@ import net.capps.word.game.common.Rack;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.DictionaryTrie;
-import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
@@ -20,7 +19,6 @@ import net.capps.word.game.tile.Tile;
 import net.capps.word.util.RandomUtil;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,81 +32,108 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class BookwormAI implements GameAI {
-    private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
     private static final DictionarySet SET = Dictionaries.getAllWordsSet();
     private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
 
     private static final BookwormAI INSTANCE = new BookwormAI();
 
-    private static final double MOVE_PERCENTILE = 0.25d; // Pick words to play above the lower 25% of words found, by length
+    private static final float FRACTION_OF_POSITIONS_TO_CHECK = 0.1f;
+    private static final float PROBABILITY_TO_GRAB = 0.75f;
 
     public static BookwormAI getInstance() {
         return INSTANCE;
     }
 
-    private BookwormAI() { } // Singleton pattern.
+    protected BookwormAI() { } // Singleton pattern.
 
     @Override
     public Move getNextMove(GameState gameState) {
 
-        boolean tryPlayFirst = ThreadLocalRandom.current().nextBoolean();
-        if (tryPlayFirst) {
-            // Try a play move first, then if no move is found, try grabbing
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
-            if (playMove.isPresent()) {
-                return playMove.get();
-            }
+        // If rack is smaller than largest possible word (N), attempt a grab tiles move first 75% of the time
+        if (gameState.getCurrentPlayerRack().size() < gameState.getN()) {
+            final float rand = ThreadLocalRandom.current().nextFloat();
+            if (rand < getProbabilityToGrab()) {
+                // Try a grab move first, then if no move is found, try playing
+                Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(gameState);
+                if (grabMove.isPresent()) {
+                    return grabMove.get();
+                }
 
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
-            if (grabMove.isPresent()) {
-                return grabMove.get();
-            }
-        } else {
-            // Try a grab move first, then if no move is found, try playing
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
-            if (grabMove.isPresent()) {
-                return grabMove.get();
-            }
+                Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(gameState, gameState.getCurrentPlayerRack(), gameState.getTileSet());
+                if (playMove.isPresent()) {
+                    return playMove.get();
+                }
 
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
-            if (playMove.isPresent()) {
-                return playMove.get();
+                return Move.passMove(gameState.getGameId());
             }
+        }
+
+        // Otherwise...
+        // Try a play move first, then if no move is found, try grabbing
+        Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(gameState, gameState.getCurrentPlayerRack(), gameState.getTileSet());
+        if (playMove.isPresent()) {
+            return playMove.get();
+        }
+
+        Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(gameState);
+        if (grabMove.isPresent()) {
+            return grabMove.get();
         }
 
         return Move.passMove(gameState.getGameId());
     }
 
+    @Override
+    public float getFractionOfPositionsToSearch() {
+        return FRACTION_OF_POSITIONS_TO_CHECK;
+    }
+
+    @Override
+    public float getProbabilityToGrab() {
+        return PROBABILITY_TO_GRAB;
+    }
+
     // --------------- Private ----------------
 
-    private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
+    private Optional<Move> getBestMoveFromRandomSubsetOfPositions(GameState gameState, Rack rack, TileSet tileSet) {
         if (rack.isEmpty()) {
             return Optional.absent();
         }
-        final int N = tileSet.N;
 
-        List<Pos> positions = POSITION_LISTS.getPositionList(N);
+        List<Pos> unoccupiedPositions = tileSet.getAllUnoccupiedPositions();
+        if (unoccupiedPositions.isEmpty()) {
+            return Optional.absent();
+        }
 
         // Search the possible start positions in a random order.
-        List<Pos> randomOrderPositions = RandomUtil.shuffleList(positions);
+        final List<Pos> randomOrderPositions = RandomUtil.shuffleList(unoccupiedPositions);
+        final int numPositionsToCheck = (int)Math.ceil(getFractionOfPositionsToSearch() * randomOrderPositions.size());
+
+        Move bestMove = null;
+        int numChecked = 0;
 
         for (Pos p: randomOrderPositions) {
-            if (!tileSet.isOccupied(p)) {
-                Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
-                for (Dir dir: randomOrderDirs) {
-                    Optional<Move> optValidMove = getFirstValidMoveFromUnoccupiedStartTile(gameId, tileSet, rack, p, dir);
-                    if (optValidMove.isPresent()) {
-                        return optValidMove;
+            if (numChecked > numPositionsToCheck && bestMove != null) {
+                break;
+            }
+            Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
+            for (Dir dir: randomOrderDirs) {
+                Optional<Move> bestMoveForPositionOpt = getBestMoveFromStartPos(gameState, tileSet, rack, p, dir);
+                if (bestMoveForPositionOpt.isPresent()) {
+                    if (bestMove == null || bestMoveForPositionOpt.get().getPoints() > bestMove.getPoints()) {
+                        bestMove = bestMoveForPositionOpt.get();
                     }
                 }
             }
+            ++numChecked;
         }
 
-        return Optional.absent();
+        return Optional.fromNullable(bestMove);
     }
 
-    private Optional<Move> getRandomGrabMove(GameState gameState, TileSet tileSet) {
-        final int gameId = gameState.getGameId();
+    private Optional<Move> getBestGrabMoveFromSubsetOfPositions(GameState gameState) {
+        final TileSet tileSet = gameState.getTileSet();
+
         int maxToGrab = gameState.isPlayer1Turn() ?
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
@@ -123,11 +148,29 @@ public class BookwormAI implements GameAI {
         if (startPosList.isEmpty()) {
             return Optional.absent();
         }
-        final Random random = ThreadLocalRandom.current();
-        int index = random.nextInt(startPosList.size());
-        final Pos start = startPosList.get(index);
 
+        List<Pos> startPosListRandom = RandomUtil.shuffleList(startPosList);
+        final int numToCheck = (int)Math.ceil(getFractionOfPositionsToSearch() * startPosListRandom.size());
+
+        int bestPointValue = 0;
+        Move bestMove = null;
+
+        for (int i = 0; i < numToCheck; i++) {
+            Pos start = startPosListRandom.get(i);
+            Move grabMove = getGrabMoveFromStartPos(start, gameState, maxToGrab);
+            int pointValueOfLetters = grabMove.computeSumOfTilePoints();
+            if (bestMove == null || pointValueOfLetters > bestPointValue) {
+                bestMove = grabMove;
+                bestPointValue = pointValueOfLetters;
+            }
+        }
+
+        return Optional.of(bestMove); // Should be impossible for bestMove to be null.
+    }
+
+    private Move getGrabMoveFromStartPos(Pos start, GameState gameState, int maxToGrab) {
         List<Dir> occupiedDirs = Lists.newArrayList();
+        final TileSet tileSet = gameState.getTileSet();
 
         // Find the directions that have occupied tiles
         for (Pos p: start.adjacents()) {
@@ -140,12 +183,11 @@ public class BookwormAI implements GameAI {
         if (occupiedDirs.isEmpty()) {
             char letter = tileSet.getLetterAt(start);
             String letters = Character.toString(letter);
-            Move move = new Move(gameId, MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
-            return Optional.of(move);
+            return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
         }
 
         // Else grab all tiles in BOTH directions
-        int dirIndex = random.nextInt(occupiedDirs.size());
+        int dirIndex = ThreadLocalRandom.current().nextInt(occupiedDirs.size());
         final Dir dir = occupiedDirs.get(dirIndex);
 
         // Get the grab start position by finding the first occupied tile
@@ -165,11 +207,10 @@ public class BookwormAI implements GameAI {
         }
 
         String letters = sb.toString();
-        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
-        return Optional.of(move);
+        return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
     }
 
-    private Optional<Move> getFirstValidMoveFromUnoccupiedStartTile(int gameId, TileSet tileSet, Rack rack, Pos start, Dir dir) {
+    private Optional<Move> getBestMoveFromStartPos(GameState gameState, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
@@ -201,18 +242,25 @@ public class BookwormAI implements GameAI {
 
         final int diff = occOrAdj.minus(start);
 
-        generateMoves(gameId, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
+        generateMoves(gameState.getGameId(), prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 
         // If no moves are found, return Optional.absent()
         if (foundMoves.isEmpty()) {
             return Optional.absent();
         }
-        // If we find moves, return a random move starting at this position
-        int minIndex = (int) Math.ceil(foundMoves.size() * MOVE_PERCENTILE) - 1;
 
-        int choice = RandomUtil.randomInt(minIndex, foundMoves.size() - 1);
-        return Optional.of(foundMoves.get(choice));
+        int bestScore = 0;
+        Move bestMove = null;
+        for (Move move: foundMoves) {
+            int score = gameState.computePoints(move);
+            move.setPoints(score);
+            if (score > bestScore || bestMove == null) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
 
+        return Optional.of(bestMove);
     }
 
     private void generateMoves(int gameId, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves) {

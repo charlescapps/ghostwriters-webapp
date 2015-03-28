@@ -93,6 +93,16 @@ public class RandomAI implements GameAI {
         return Move.passMove(gameState.getGameId());
     }
 
+    @Override
+    public float getFractionOfPositionsToSearch() {
+        return 0;
+    }
+
+    @Override
+    public float getProbabilityToGrab() {
+        return 0.5f;
+    }
+
     // --------------- Private ----------------
 
     private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
@@ -162,10 +172,13 @@ public class RandomAI implements GameAI {
         int dirIndex = random.nextInt(occupiedDirs.size());
         final Dir dir = occupiedDirs.get(dirIndex);
 
+        final Dir reverseDir = dir.negate();
+        final Pos grabStart = tileSet.getEndOfStartTiles(start.go(reverseDir), reverseDir);
+
         StringBuilder sb = new StringBuilder();
         List<RackTile> grabbedTiles = Lists.newArrayList();
 
-        for (Pos p = start; tileSet.isOccupied(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
+        for (Pos p = grabStart; tileSet.isOccupied(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
             Tile tile = tileSet.get(p);
             sb.append(tile.getLetter());
             grabbedTiles.add(tile.toRackTile());
@@ -175,7 +188,7 @@ public class RandomAI implements GameAI {
         }
 
         String letters = sb.toString();
-        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, start, dir, grabbedTiles);
+        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
         return Optional.of(move);
     }
 

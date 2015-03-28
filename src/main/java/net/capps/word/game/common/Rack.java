@@ -43,7 +43,7 @@ public class Rack implements Iterable<RackTile> {
     public int getSumOfPoints() {
         int points = 0;
         for (RackTile rackTile: tiles) {
-            points += rackTile.getPointValueForEndGame();
+            points += rackTile.getLetterPointValue();
         }
         return points;
     }

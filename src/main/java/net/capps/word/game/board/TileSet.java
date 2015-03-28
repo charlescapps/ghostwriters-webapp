@@ -69,6 +69,17 @@ public class TileSet implements Iterable<Pos> {
         return posList;
     }
 
+    public List<Pos> getAllUnoccupiedPositions() {
+        List<Pos> posList = Lists.newArrayList();
+        for (Pos p: this) {
+            Tile tile = get(p);
+            if (tile.isAbsent()) {
+                posList.add(p);
+            }
+        }
+        return posList;
+    }
+
     public boolean areAllTilesPlayed() {
         for (Pos p: this) {
             Tile tile = get(p);

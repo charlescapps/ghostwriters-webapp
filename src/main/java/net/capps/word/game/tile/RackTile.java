@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 
 public class RackTile {
     public static final char WILD_RACK_TILE = '*'; // letter takes on this value for "Wildcard" RackTiles
+    private static final LetterPoints LETTER_POINTS = LetterPoints.getInstance();
 
     private final char letter;
 
@@ -58,11 +59,11 @@ public class RackTile {
         return Tile.playedTile(c);
     }
 
-    public int getPointValueForEndGame() {
+    public int getLetterPointValue() {
         if (isWild()) {
             return 1;
         }
-        return LetterPoints.getInstance().getPointValue(letter);
+        return LETTER_POINTS.getPointValue(letter);
     }
 
     @Override
