@@ -164,7 +164,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         // Find the directions that have occupied tiles
         for (Pos p: start.adjacents()) {
-            if (tileSet.isOccupied(p) && tileSet.get(p).isStartTile()) {
+            if (tileSet.isValid(p) && tileSet.get(p).isStartTile()) {
                 occupiedDirs.add(start.getDirTo(p));
             }
         }
@@ -187,7 +187,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         StringBuilder sb = new StringBuilder();
         List<RackTile> grabbedTiles = Lists.newArrayList();
 
-        for (Pos p = grabStart; tileSet.isOccupied(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
+        for (Pos p = grabStart; tileSet.isValid(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
             Tile tile = tileSet.get(p);
             sb.append(tile.getLetter());
             grabbedTiles.add(tile.toRackTile());

@@ -34,7 +34,7 @@ public class GrabTileHelper {
 
         // Find the directions that have occupied tiles
         for (Pos p: start.adjacents()) {
-            if (tileSet.isOccupied(p) && tileSet.get(p).isStartTile()) {
+            if (tileSet.isValid(p) && tileSet.get(p).isStartTile()) {
                 occupiedDirs.add(start.getDirTo(p));
             }
         }

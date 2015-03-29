@@ -44,7 +44,7 @@ public class Tile {
     }
 
     public static Tile absentTile() {
-        return new Tile(ABSENT_TILE, true, false);
+        return new Tile(ABSENT_TILE, false, false);
     }
 
     public static Tile fromSerializedForm(char c, boolean wild) {

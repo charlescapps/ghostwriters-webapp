@@ -62,7 +62,7 @@ public class TileSet implements Iterable<Pos> {
         List<Pos> posList = Lists.newArrayList();
         for (Pos p: this) {
             Tile tile = get(p);
-            if (!tile.isAbsent() && tile.isStartTile()) {
+            if (tile.isStartTile()) {
                 posList.add(p);
             }
         }
@@ -83,9 +83,6 @@ public class TileSet implements Iterable<Pos> {
     public boolean areAllTilesPlayed() {
         for (Pos p: this) {
             Tile tile = get(p);
-            if (tile.isAbsent()) {
-                continue;
-            }
             if (tile.isStartTile()) {
                 return false;
             }
@@ -326,13 +323,9 @@ public class TileSet implements Iterable<Pos> {
             Pos p = start.go(dir, i);
             Tile tile = get(p);
             RackTile rackTile = tiles.get(i);
-            // Can't grab an absent tile
-            if (tile.isAbsent()) {
-                return Optional.of("Cannot grab an empty space!");
-            }
             // Can't grab a tile that was played by a player
             if (!tile.isStartTile()) {
-                return Optional.of("Cannot grab a played tile!");
+                return Optional.of("Can only grab letters that started on the board!");
             }
             // A grabbed wildcard tile becomes a wildcard tile in the player's rack
             if (tile.isWild() != rackTile.isWild()) {
@@ -497,7 +490,7 @@ public class TileSet implements Iterable<Pos> {
 
     public Pos getEndOfStartTiles(Pos start, Dir dir) {
         Pos p = start;
-        while (isOccupied(p) && get(p).isStartTile()) {
+        while (isValid(p) && get(p).isStartTile()) {
             p = p.go(dir);
         }
         return p.go(dir, -1);
