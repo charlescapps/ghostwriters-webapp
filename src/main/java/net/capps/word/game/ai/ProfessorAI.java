@@ -1,38 +1,28 @@
 package net.capps.word.game.ai;
 
+import net.capps.word.game.board.GameState;
+import net.capps.word.game.move.Move;
+
 /**
  * Created by charlescapps on 2/22/15.
- *
- * Similar to BookwormAI, but
- * 1) Always try to Grab tiles first, if possible
- *
- * 2) Grab moves try to get as many tiles as possible considering all start positions.
- *
- * 3) Play moves only return a move from the top 50% of words, by length.
- *
+ * <p/>
+ * Similar to MonkeyAI, but
+ * 1) Grab moves try to get as many tiles as possible in both directions from the randomly chosen start tile
+ * <p/>
+ * 2) Play moves only return a move from the top 75% of words, by length.
  */
-public class ProfessorAI extends BookwormAI {
+public class ProfessorAI implements GameAI {
     private static final ProfessorAI INSTANCE = new ProfessorAI();
-
-    private static final float PROBABILITY_TO_GRAB = 0.9f;
-    private static final float FRACTION_OF_POSITIONS_TO_CHECK = 0.5f;
-
-    // Singleton pattern
-    private ProfessorAI() {
-        super();
-    }
+    private ProfessorAI() { }
 
     public static ProfessorAI getInstance() {
         return INSTANCE;
     }
 
-    @Override
-    public float getFractionOfPositionsToSearch() {
-        return FRACTION_OF_POSITIONS_TO_CHECK;
-    }
+    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.5f, 0.8f);
 
     @Override
-    public float getProbabilityToGrab() {
-        return PROBABILITY_TO_GRAB;
+    public Move getNextMove(GameState gameState) {
+        return delegateAI.getNextMove(gameState);
     }
 }

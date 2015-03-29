@@ -16,7 +16,6 @@ import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
-import net.capps.word.game.tile.Tile;
 import net.capps.word.util.RandomUtil;
 
 import java.util.List;
@@ -49,6 +48,7 @@ public class RandomAI implements GameAI {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
     private static final DictionarySet SET = Dictionaries.getAllWordsSet();
     private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
+    private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
 
     private static final RandomAI INSTANCE = new RandomAI();
 
@@ -93,16 +93,6 @@ public class RandomAI implements GameAI {
         return Move.passMove(gameState.getGameId());
     }
 
-    @Override
-    public float getFractionOfPositionsToSearch() {
-        return 0;
-    }
-
-    @Override
-    public float getProbabilityToGrab() {
-        return 0.5f;
-    }
-
     // --------------- Private ----------------
 
     private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
@@ -132,7 +122,6 @@ public class RandomAI implements GameAI {
     }
 
     private Optional<Move> getRandomGrabMove(GameState gameState, TileSet tileSet) {
-        final int gameId = gameState.getGameId();
         int maxToGrab = gameState.isPlayer1Turn() ?
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
                 Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
@@ -151,44 +140,8 @@ public class RandomAI implements GameAI {
         int index = random.nextInt(startPosList.size());
         final Pos start = startPosList.get(index);
 
-        List<Dir> occupiedDirs = Lists.newArrayList();
+        Move move = GRAB_TILE_HELPER.getLongestGrabMove(gameState, start, maxToGrab);
 
-        // Find the directions that have occupied tiles
-        for (Pos p: start.adjacents()) {
-            if (tileSet.isOccupied(p) && tileSet.get(p).isStartTile()) {
-                occupiedDirs.add(start.getDirTo(p));
-            }
-        }
-
-        // If no adjacent tiles are occupied, just grab a single tile
-        if (occupiedDirs.isEmpty()) {
-            char letter = tileSet.getLetterAt(start);
-            String letters = Character.toString(letter);
-            Move move = new Move(gameId, MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
-            return Optional.of(move);
-        }
-
-        // Else grab all tiles in one direction
-        int dirIndex = random.nextInt(occupiedDirs.size());
-        final Dir dir = occupiedDirs.get(dirIndex);
-
-        final Dir reverseDir = dir.negate();
-        final Pos grabStart = tileSet.getEndOfStartTiles(start.go(reverseDir), reverseDir);
-
-        StringBuilder sb = new StringBuilder();
-        List<RackTile> grabbedTiles = Lists.newArrayList();
-
-        for (Pos p = grabStart; tileSet.isOccupied(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
-            Tile tile = tileSet.get(p);
-            sb.append(tile.getLetter());
-            grabbedTiles.add(tile.toRackTile());
-            if (sb.length() >= maxToGrab) {
-                break;
-            }
-        }
-
-        String letters = sb.toString();
-        Move move = new Move(gameId, MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
         return Optional.of(move);
     }
 

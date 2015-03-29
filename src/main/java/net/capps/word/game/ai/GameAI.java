@@ -8,6 +8,4 @@ import net.capps.word.game.move.Move;
  */
 public interface GameAI {
     Move getNextMove(GameState gameState);
-    float getFractionOfPositionsToSearch();
-    float getProbabilityToGrab();
 }
