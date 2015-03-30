@@ -43,7 +43,7 @@ public class MovesService {
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        ErrorOrResult<GameModel> errorOrResult = MovesProvider.getInstance().validateMove(input, authUser);
+        ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
 
         Optional<ErrorModel> errorOpt = errorOrResult.getError();
         if (errorOpt.isPresent()) {

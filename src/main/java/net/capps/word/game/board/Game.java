@@ -134,9 +134,9 @@ public class Game {
         }
         switch (move.getMoveType()) {
             case PLAY_WORD:
-                return isValidPlayWordMove(move);
+                return getPlayWordError(move);
             case GRAB_TILES:
-                return isValidGrabTilesMove(move);
+                return getGrabTilesError(move);
             case PASS:
                 return Optional.absent();
         }
@@ -300,7 +300,7 @@ public class Game {
         return GameResult.TIE;
     }
 
-    private Optional<String> isValidPlayWordMove(Move move) {
+    private Optional<String> getPlayWordError(Move move) {
         // Check that the player has the requisite tiles in their rack.
         if (player1Turn && !player1Rack.hasTiles(move.getTiles())) {
             return Optional.of(format("Player 1 doesn't have required tiles: \"%s\"", move.getTilesAsString()));
@@ -311,7 +311,7 @@ public class Game {
         return tileSet.getPlayWordMoveError(move);
     }
 
-    private Optional<String> isValidGrabTilesMove(Move move) {
+    private Optional<String> getGrabTilesError(Move move) {
         // Check that the player's tiles won't exceed the maximum number of tiles in hand.
         if (player1Turn && !player1Rack.canAddTiles(move.getTiles())) {
             return Optional.of(format("You can't grab the tiles, \"%s\". You can only hold %d tiles!",
