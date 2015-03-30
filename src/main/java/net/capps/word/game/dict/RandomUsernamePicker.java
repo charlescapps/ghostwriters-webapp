@@ -27,7 +27,7 @@ public class RandomUsernamePicker {
         for (int i = 0; i < MAX_TRIES; i++ ) {
             String adjective = adjectivePicker.getRandomWordEqualProbabilityByLength(3, 12);
             int remainingLen = UsersProvider.MAX_USERNAME_LEN - adjective.length();
-            String noun = nounPicker.getRandomWordEqualProbabilityByLength(remainingLen);
+            String noun = nounPicker.getRandomWordEqualProbabilityByLength(3, remainingLen);
             username = uppercase(adjective) + uppercase(noun);
             conflictUser = UsersDAO.getInstance().getUserByUsername(username, false);
             if (!conflictUser.isPresent()) {
