@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class DictionaryTrieTest {
     @Test
     public void testEnumerateWordsInRandomOrder() {
         final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
-        Set<String> foundWords = Sets.newHashSet();
+        Set<String> foundWords = new HashSet<>();
 
         long START = System.currentTimeMillis();
         for (int len = 2; len <= 15; len++) {
@@ -109,7 +110,7 @@ public class DictionaryTrieTest {
     @Test
     public void testEnumerateWordsWithOneConstraint() {
         final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
-        Set<String> foundWords = Sets.newHashSet();
+        Set<String> foundWords = new HashSet<>();
 
         WordConstraint constraint = new WordConstraint(2, 'C');
 

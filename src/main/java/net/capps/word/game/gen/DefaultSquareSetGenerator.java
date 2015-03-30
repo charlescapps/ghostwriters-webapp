@@ -7,6 +7,7 @@ import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.Pos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,7 +40,7 @@ public class DefaultSquareSetGenerator implements SquareSetGenerator {
 
     private void addOneRandomBonus(Square type, SquareSet squareSet, List<Pos> emptyPositions) {
         final Random RANDOM = ThreadLocalRandom.current();
-        final List<Integer> relativeProbs = Lists.newArrayList();
+        final List<Integer> relativeProbs = new ArrayList<>(emptyPositions.size());
         int total = 0;
         for (Pos p: emptyPositions) {
             int numAdjs = squareSet.getNumAdjacentBonuses(p);

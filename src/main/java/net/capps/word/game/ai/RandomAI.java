@@ -18,6 +18,7 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.util.RandomUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -171,9 +172,9 @@ public class RandomAI implements GameAI {
             prefix = sb.toString();
         }
 
-        List<RackTile> rackCopy = rack.getRackCopy();
-        List<RackTile> placements = Lists.newArrayList();
-        List<Move> foundMoves = Lists.newArrayList();
+        final List<RackTile> rackCopy = rack.getRackCopy();
+        final List<RackTile> placements = new ArrayList<>();
+        final List<Move> foundMoves = new ArrayList<>();
 
         final int diff = occOrAdj.minus(start);
 

@@ -2,7 +2,7 @@ package net.capps.word.game.move;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
@@ -29,7 +29,7 @@ public class Move {
     private int points;
 
     public static Move passMove(int gameId) {
-        return new Move(gameId, MoveType.PASS, "", Pos.of(0, 0), Dir.E, Lists.<RackTile>newArrayList());
+        return new Move(gameId, MoveType.PASS, "", Pos.of(0, 0), Dir.E, ImmutableList.<RackTile>of());
     }
 
     public Move(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, List<RackTile> tiles) {

@@ -5,8 +5,10 @@ import com.google.common.base.Strings;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.game.dict.RandomUsernamePicker;
+import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.*;
+import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.rest.providers.SessionProvider;
 import net.capps.word.rest.providers.UsersProvider;
 
@@ -32,6 +34,9 @@ public class UsersService {
     public static final String USERS_PATH = "users";
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
     private static final SessionProvider sessionProvider = SessionProvider.getInstance();
+    private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
+
+    private static final int MAX_COUNT = 200;
 
     @Context
     private UriInfo uriInfo;
@@ -120,12 +125,30 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"q\" to search for users."))
                     .build();
         }
-        if (maxResults <= 0) {
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
             return Response.status(BAD_REQUEST)
-                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0"))
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
         List<UserModel> results = usersProvider.searchUsers(q, maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
+    @Path("/similarRating")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getUsersWithSimilarRating(@Context HttpServletRequest request, @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = ratingsProvider.getUsersWithRatingsAroundMe(authUser, maxResults);
         return Response.ok(new UserListModel(results)).build();
     }
 

@@ -3,7 +3,6 @@ package net.capps.word.game.gen;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
@@ -15,6 +14,7 @@ import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -134,7 +134,7 @@ public class DefaultGameGenerator implements GameGenerator {
         int maxSearched = -1;
 
         // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
-        List<Integer> diffsToTry = Lists.newArrayList();
+        List<Integer> diffsToTry = new ArrayList<>();
 
         for (int i = diff; i < maxWordSize; i++) {
             if (i <= maxSearched) {
@@ -157,7 +157,7 @@ public class DefaultGameGenerator implements GameGenerator {
 
         for (int totalDiff : diffsToTry) {
 
-            List<WordConstraint> wcs = Lists.newArrayList();
+            List<WordConstraint> wcs = new ArrayList<>();
 
             // Get all constraints from existing tiles.
             for (int j = 0; j <= totalDiff; j++) {

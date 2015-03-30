@@ -1,17 +1,12 @@
 package net.capps.word.game.dict;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -27,9 +22,8 @@ public class DictionaryPicker {
 
     // ---------------- Private fields ---------------
     private ImmutableList<String> words;
-    private final Map<Integer, List<String>> wordsByLen = Maps.newHashMap();
+    private final Map<Integer, List<String>> wordsByLen = new HashMap<>(12); // 12 possible word lengths, 2-13
     private int longestWord;
-    private List<Integer> lengths;
 
     // ---------------- Public ----------------
     /**
@@ -117,7 +111,7 @@ public class DictionaryPicker {
         for (String word: validDictionary) {
             int len = word.length();
             if (!wordsByLen.containsKey(len)) {
-                wordsByLen.put(len, Lists.<String>newArrayList());
+                wordsByLen.put(len, new ArrayList<String>());
             }
             wordsByLen.get(len).add(word);
         }
@@ -126,9 +120,5 @@ public class DictionaryPicker {
         for (int len: wordsByLen.keySet()) {
             longestWord = Math.max(len, longestWord);
         }
-
-        // Store the array of different lengths
-        lengths = Lists.newArrayList(wordsByLen.keySet());
-        Collections.sort(lengths);
     }
 }

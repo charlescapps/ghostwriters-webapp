@@ -12,6 +12,7 @@ import java.util.Date;
  */
 public class SessionsDAO {
     private static final SessionsDAO INSTANCE = new SessionsDAO();
+    private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
 
     private static final String INSERT_SESSION_QUERY =
             "INSERT INTO word_sessions (user_id, session_id, date_created) VALUES (?, ?, ?);";
@@ -32,7 +33,7 @@ public class SessionsDAO {
     private SessionsDAO() { } // Singleton pattern
 
     public SessionModel insertSession(int userId, String sessionId) throws SQLException {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_SESSION_QUERY, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, userId);
             stmt.setString(2, sessionId);
@@ -50,7 +51,7 @@ public class SessionsDAO {
     }
 
     public Optional<SessionModel> getSessionForUserId(int userId) throws SQLException {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_SESSION_FOR_USER);
             stmt.setInt(1, userId);
             ResultSet resultSet = stmt.executeQuery();
@@ -62,7 +63,7 @@ public class SessionsDAO {
     }
 
     public Optional<SessionModel> getSessionForSessionId(String sessionId) throws SQLException {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_SESSION_FOR_SESSION_ID);
             stmt.setString(1, sessionId);
             ResultSet resultSet = stmt.executeQuery();
@@ -74,7 +75,7 @@ public class SessionsDAO {
     }
 
     public int deleteSessionForUser(int userId) throws SQLException {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(DELETE_SESSION_FOR_USER);
             stmt.setInt(1, userId);
             return stmt.executeUpdate();

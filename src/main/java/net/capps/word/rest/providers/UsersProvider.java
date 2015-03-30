@@ -2,7 +2,6 @@ package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.ErrorModel;
@@ -13,6 +12,7 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
@@ -108,7 +108,7 @@ public class UsersProvider {
     }
 
     public List<UserModel> searchUsers(String q, int maxResults) throws Exception {
-        List<UserModel> results = Lists.newArrayList();
+        List<UserModel> results = new ArrayList<>();
         // First add the exact match (case insensitive) to the beginning of the list.
         Optional<UserModel> exactMatch = usersDao.getUserByUsername(q, false);
         if (exactMatch.isPresent()) {

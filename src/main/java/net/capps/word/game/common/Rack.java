@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import net.capps.word.game.tile.RackTile;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class Rack implements Iterable<RackTile> {
 
     public static List<RackTile> lettersToTiles(String letters) {
         Preconditions.checkNotNull(letters);
-        List<RackTile> tiles = Lists.newArrayList();
+        List<RackTile> tiles = new ArrayList<>(letters.length());
         for (int i = 0; i < letters.length(); i++) {
             char c = letters.charAt(i);
             RackTile tile = RackTile.of(c);

@@ -2,7 +2,6 @@ package net.capps.word.game.board;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
@@ -20,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public List<Pos> getAllStartTilePositions() {
-        List<Pos> posList = Lists.newArrayList();
+        List<Pos> posList = new ArrayList<>();
         for (Pos p: this) {
             Tile tile = get(p);
             if (tile.isStartTile()) {
@@ -70,7 +70,7 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public List<Pos> getAllUnoccupiedPositions() {
-        List<Pos> posList = Lists.newArrayList();
+        List<Pos> posList = new ArrayList<>();
         for (Pos p: this) {
             Tile tile = get(p);
             if (tile.isAbsent()) {

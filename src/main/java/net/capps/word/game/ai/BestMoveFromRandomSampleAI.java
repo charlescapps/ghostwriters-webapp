@@ -19,6 +19,7 @@ import net.capps.word.game.tile.RackTile;
 import net.capps.word.game.tile.Tile;
 import net.capps.word.util.RandomUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -159,7 +160,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     }
 
     private Move getGrabMoveFromStartPos(Pos start, Game game, int maxToGrab) {
-        List<Dir> occupiedDirs = Lists.newArrayList();
+        List<Dir> occupiedDirs = new ArrayList<>();
         final TileSet tileSet = game.getTileSet();
 
         // Find the directions that have occupied tiles
@@ -185,7 +186,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         final Pos grabStart = tileSet.getEndOfStartTiles(start.go(reverseDir), reverseDir);
 
         StringBuilder sb = new StringBuilder();
-        List<RackTile> grabbedTiles = Lists.newArrayList();
+        List<RackTile> grabbedTiles = new ArrayList<>();
 
         for (Pos p = grabStart; tileSet.isValid(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
             Tile tile = tileSet.get(p);
@@ -227,8 +228,8 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         }
 
         List<RackTile> rackCopy = rack.getRackCopy();
-        List<RackTile> placements = Lists.newArrayList();
-        List<Move> foundMoves = Lists.newArrayList();
+        List<RackTile> placements = new ArrayList<>();
+        List<Move> foundMoves = new ArrayList<>();
 
         final int diff = occOrAdj.minus(start);
 

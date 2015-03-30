@@ -3,7 +3,7 @@ package net.capps.word.rest.providers;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
 import net.capps.word.game.ai.GameAI;
@@ -20,6 +20,7 @@ import net.capps.word.rest.models.UserModel;
 import net.capps.word.util.ErrorOrResult;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -119,7 +120,7 @@ public class MovesProvider {
 
     public GameModel playAIMoves(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
         boolean isPlayer1Turn = gameModel.getPlayer1Turn();
-        List<MoveModel> aiMoves = Lists.newArrayList();
+        List<MoveModel> aiMoves = new ArrayList<>();
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
         while (gameModel.getPlayer1Turn() == isPlayer1Turn && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
             gameModel = playeOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
@@ -133,7 +134,7 @@ public class MovesProvider {
     public void populateLastMoves(GameModel newGame, GameModel originalGame, MoveModel playedMove, Connection dbConn) throws Exception {
         // If the turn didn't change, then the lastMoves is an empty list
         if (originalGame.getPlayer1Turn() == newGame.getPlayer1Turn()) {
-            newGame.setLastMoves(Lists.<MoveModel>newArrayList());
+            newGame.setLastMoves(ImmutableList.<MoveModel>of());
             return;
         }
         // Otherwise, query the database for the previous consecutive moves by the current player

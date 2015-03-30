@@ -2,7 +2,6 @@ package net.capps.word.db.dao;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
@@ -13,6 +12,7 @@ import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
+    private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
 
     private static final String INSERT_GAME_QUERY =
             "INSERT INTO word_games (game_type, ai_type, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
@@ -61,7 +62,7 @@ public class GamesDAO {
     public GameModel createNewGame(GameModel validatedInputGame, TileSet tileSet, SquareSet squareSet) throws Exception {
         final String squares = squareSet.toCompactString();
         final String tiles = tileSet.toCompactString();
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, validatedInputGame.getGameType().ordinal());
             final AiType aiType = validatedInputGame.getAiType();
@@ -100,7 +101,7 @@ public class GamesDAO {
     }
 
     public Optional<GameModel> getGameById(int gameId) throws Exception {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             return getGameById(gameId, dbConn);
         }
     }
@@ -117,7 +118,7 @@ public class GamesDAO {
     }
 
     public Optional<GameModel> getGameWithPlayerModelsById(int gameId) throws Exception {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             return getGameWithPlayerModelsById(gameId, dbConn);
         }
     }
@@ -168,7 +169,7 @@ public class GamesDAO {
     }
 
     public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try(Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC);
             stmt.setInt(1, userId);
             stmt.setInt(2, userId);
@@ -177,7 +178,7 @@ public class GamesDAO {
 
             ResultSet resultSet = stmt.executeQuery();
 
-            List<GameModel> games = Lists.newArrayList();
+            List<GameModel> games = new ArrayList<>();
             while (resultSet.next()) {
                 games.add(getGameWithPlayersByResultSetRow(resultSet));
             }
@@ -187,7 +188,7 @@ public class GamesDAO {
     }
 
     public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try(Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_DATE_CREATED_DESC);
             stmt.setInt(1, userId);
             stmt.setInt(2, userId);
@@ -196,7 +197,7 @@ public class GamesDAO {
 
             ResultSet resultSet = stmt.executeQuery();
 
-            List<GameModel> games = Lists.newArrayList();
+            List<GameModel> games = new ArrayList<>(count);
             while (resultSet.next()) {
                 games.add(getGameWithPlayersByResultSetRow(resultSet));
             }

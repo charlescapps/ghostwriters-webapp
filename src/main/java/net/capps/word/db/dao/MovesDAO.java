@@ -1,6 +1,5 @@
 package net.capps.word.db.dao;
 
-import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Rack;
@@ -9,6 +8,7 @@ import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class MovesDAO {
     private static final MovesDAO INSTANCE = new MovesDAO();
+    private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
 
     public static MovesDAO getInstance() {
         return INSTANCE;
@@ -37,7 +38,7 @@ public class MovesDAO {
         stmt.setInt(1, gameId);
         stmt.setInt(2, limit);
         ResultSet resultSet = stmt.executeQuery();
-        List<MoveModel> moves = Lists.newArrayList();
+        List<MoveModel> moves = new ArrayList<>(limit);
         while (resultSet.next()) {
             moves.add(getMoveFromResult(resultSet));
         }
@@ -45,7 +46,7 @@ public class MovesDAO {
     }
 
     public MoveModel insertMove(MoveModel inputMove, int numPoints) throws SQLException {
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             return insertMove(inputMove, numPoints, dbConn);
         }
     }
@@ -78,7 +79,7 @@ public class MovesDAO {
 
     public List<MoveModel> getLastMovesByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
         List<MoveModel> recentMoves = getMostRecentMoves(gameId, Rack.MAX_TILES_IN_RACK, dbConn);
-        List<MoveModel> movesByPlayer = Lists.newArrayList();
+        List<MoveModel> movesByPlayer = new ArrayList<>();
         for (MoveModel move: recentMoves) {
             if (move.getPlayerId().equals(playerId)) {
                 movesByPlayer.add(0, move);

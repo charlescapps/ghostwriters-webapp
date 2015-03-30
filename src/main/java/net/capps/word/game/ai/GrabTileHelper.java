@@ -10,6 +10,7 @@ import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -70,7 +71,7 @@ public class GrabTileHelper {
         grabStart = grabStart.go(dir);
 
         StringBuilder sb = new StringBuilder();
-        List<RackTile> grabbedTiles = Lists.newArrayList();
+        List<RackTile> grabbedTiles = new ArrayList<>();
         final Pos afterEnd = grabEnd.go(dir);
         for (Pos p = grabStart; !p.equals(afterEnd); p = p.go(dir)) {
             final char c = tileSet.getLetterAt(p);

@@ -2,9 +2,9 @@ package net.capps.word.game.dict;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +29,7 @@ public class TrieNode {
 
     public TrieNode addChild(Character c) {
         if (branches == null) {
-            branches = Maps.newHashMap();
+            branches = new HashMap<>();
         }
         TrieNode child = branches.get(c);
         if (child == null) {
@@ -60,7 +60,7 @@ public class TrieNode {
         if (isLeaf()) {
             return;
         }
-        levels = Maps.newHashMap();
+        levels = new HashMap<>();
         for (Character c: branches.keySet()) {
             buildLevels(levels, branches.get(c), 0, c);
         }

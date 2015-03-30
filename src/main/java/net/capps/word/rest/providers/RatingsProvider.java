@@ -7,6 +7,8 @@ import net.capps.word.rest.models.UserModel;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by charlescapps on 3/29/15.
@@ -44,5 +46,15 @@ public class RatingsProvider {
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating);
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating);
         }
+    }
+
+    public List<UserModel> getUsersWithRatingsAroundMe(UserModel user, int count) throws SQLException {
+        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getDbRating(), count);
+        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getDbRating(), count);
+        List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size() + 1);
+        resultUsers.addAll(ratingGEQ);
+        resultUsers.add(user);
+        resultUsers.addAll(ratingLT);
+        return resultUsers;
     }
 }
