@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.*;
@@ -133,7 +133,7 @@ public class GamesDAO {
         return Optional.of(getGameWithPlayersByResultSetRow(result));
     }
 
-    public GameModel updateGame(GameState updatedGame, MoveModel validatedMove, int numPoints, Connection dbConn) throws Exception {
+    public GameModel updateGame(Game updatedGame, MoveModel validatedMove, int numPoints, Connection dbConn) throws Exception {
         try {
             PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
             updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());

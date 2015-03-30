@@ -2,7 +2,7 @@ package net.capps.word.game.ai;
 
 import com.google.common.base.Optional;
 import net.capps.word.game.board.FixedLayouts;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.BoardSize;
@@ -53,33 +53,33 @@ public class RandomAITest {
                 LG.generateRandomBonusLayout(bs) :
                 FixedLayouts.getInstance().getFixedLayout(bs);
 
-        GameState gameState = new GameState(0, GameResult.IN_PROGRESS, tileSet, squareSet, "", "", 0, 0, true, Optional.<Move>absent());
+        Game game = new Game(0, GameResult.IN_PROGRESS, tileSet, squareSet, "", "", 0, 0, true, Optional.<Move>absent());
 
-        while (gameState.getGameResult() == GameResult.IN_PROGRESS) {
-            LOG.info("Game state:\n{}", gameState);
-            Move move = RA.getNextMove(gameState);
+        while (game.getGameResult() == GameResult.IN_PROGRESS) {
+            LOG.info("Game state:\n{}", game);
+            Move move = RA.getNextMove(game);
 
             LOG.info("Generated move: {}", move);
 
-            Optional<String> moveError = gameState.getMoveError(move);
+            Optional<String> moveError = game.getMoveError(move);
             if (moveError.isPresent()) {
                 LOG.error("Invalid move generated: {}", moveError.get());
             }
             Assert.assertTrue("Expected move to be valid", !moveError.isPresent());
-            gameState.playMove(move);
+            game.playMove(move);
         }
 
-        LOG.info("Final game state:\n{}", gameState);
-        int player1Points = gameState.getPlayer1Points();
-        int player2Points = gameState.getPlayer2Points();
+        LOG.info("Final game state:\n{}", game);
+        int player1Points = game.getPlayer1Points();
+        int player2Points = game.getPlayer2Points();
         if (player1Points > player2Points) {
-            Assert.assertTrue("Player1 should win since they have more points", gameState.getGameResult() == GameResult.PLAYER1_WIN);
+            Assert.assertTrue("Player1 should win since they have more points", game.getGameResult() == GameResult.PLAYER1_WIN);
         }
         else if (player1Points < player2Points) {
-            Assert.assertTrue("Player2 should win since they have more points", gameState.getGameResult() == GameResult.PLAYER2_WIN);
+            Assert.assertTrue("Player2 should win since they have more points", game.getGameResult() == GameResult.PLAYER2_WIN);
         }
         else {
-            Assert.assertTrue("Draw since players have equal points", gameState.getGameResult() == GameResult.TIE);
+            Assert.assertTrue("Draw since players have equal points", game.getGameResult() == GameResult.TIE);
         }
 
     }

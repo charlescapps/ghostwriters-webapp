@@ -13,7 +13,8 @@ public class TableDefinitions {
             "hashpass VARCHAR(64)," +
             "salt VARCHAR(16)," +
             "date_joined TIMESTAMP WITH TIME ZONE NOT NULL, " +
-            "is_system_user BOOLEAN NOT NULL" +
+            "is_system_user BOOLEAN NOT NULL," +
+            "rating INTEGER NOT NULL" +
             ");";
 
     public static final String CREATE_LOWERCASE_USER_IDX =

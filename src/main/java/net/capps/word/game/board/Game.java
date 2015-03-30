@@ -23,7 +23,7 @@ import static java.lang.String.format;
 /**
  * Created by charlescapps on 1/12/15.
  */
-public class GameState {
+public class Game {
     private static final LetterPoints letterPoints = LetterPoints.getInstance();
 
     private final int gameId;
@@ -39,7 +39,7 @@ public class GameState {
     private Optional<Move> previousMoveOpt;
 
 
-    public GameState(GameModel gameModel, Optional<Move> previousMoveOpt) throws Exception {
+    public Game(GameModel gameModel, Optional<Move> previousMoveOpt) throws Exception {
         Preconditions.checkNotNull(gameModel);
         Preconditions.checkNotNull(gameModel.getBoardSize());
         Preconditions.checkNotNull(gameModel.getTiles());
@@ -60,8 +60,8 @@ public class GameState {
         this.previousMoveOpt = previousMoveOpt;
     }
 
-    public GameState(int gameId, GameResult gameResult, TileSet tileSet, SquareSet squareSet, String player1Rack, String player2Rack,
-                     int player1Points, int player2Points, boolean player1Turn, Optional<Move> previousMoveOpt) {
+    public Game(int gameId, GameResult gameResult, TileSet tileSet, SquareSet squareSet, String player1Rack, String player2Rack,
+                int player1Points, int player2Points, boolean player1Turn, Optional<Move> previousMoveOpt) {
         this.gameId = gameId;
         this.squareSet = Preconditions.checkNotNull(squareSet);
         this.tileSet = Preconditions.checkNotNull(tileSet);

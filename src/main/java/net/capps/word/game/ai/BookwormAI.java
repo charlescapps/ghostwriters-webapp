@@ -1,6 +1,6 @@
 package net.capps.word.game.ai;
 
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.move.Move;
 
 /**
@@ -22,7 +22,7 @@ public class BookwormAI implements GameAI {
     private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.1f, 0.6f);
 
     @Override
-    public Move getNextMove(GameState gameState) {
-        return delegateAI.getNextMove(gameState);
+    public Move getNextMove(Game game) {
+        return delegateAI.getNextMove(game);
     }
 }

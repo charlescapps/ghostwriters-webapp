@@ -14,6 +14,7 @@ import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.MovesProvider;
+import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.util.ErrorOrResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import static javax.ws.rs.core.Response.Status;
 @Filters.RegularUserAuthRequired
 public class MovesService {
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
+    private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
 
     @POST
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
@@ -50,7 +52,7 @@ public class MovesService {
                     .build();
         }
 
-        GameModel originalGame = errorOrResult.getResult().get();
+        final GameModel originalGame = errorOrResult.getResult().get();
 
         // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
@@ -62,9 +64,13 @@ public class MovesService {
 
             // For single player games, play the AI's move if the turn changed
             if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {
-                updatedGame = movesProvider.playAIMove(updatedGame.getAiType(), updatedGame, input, dbConn);
+                updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
             } else {
                 movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
+            }
+
+            if (updatedGame.getGameType() == GameType.TWO_PLAYER) {
+                ratingsProvider.updatePlayerRatings(updatedGame.getPlayer1Model(), updatedGame.getPlayer2Model(), updatedGame.getGameResult(), dbConn);
             }
 
             dbConn.commit();

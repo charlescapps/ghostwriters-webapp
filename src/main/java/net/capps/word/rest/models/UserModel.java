@@ -1,6 +1,7 @@
 package net.capps.word.rest.models;
 
 import net.capps.word.db.dao.UserHashInfo;
+import net.capps.word.game.ranking.EloRankingComputer;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -18,7 +19,7 @@ public class UserModel {
     private String deviceId;
     private UserHashInfo userHashInfo; // Not serialized
     private Boolean systemUser; // Not serialized
-
+    private Integer dbRating; // elo rating * 1000.
 
     public UserModel() {
 
@@ -84,6 +85,19 @@ public class UserModel {
 
     public void setSystemUser(Boolean systemUser) {
         this.systemUser = systemUser;
+    }
+
+    @XmlTransient
+    public Integer getDbRating() {
+        return dbRating;
+    }
+
+    public void setDbRating(Integer dbRating) {
+        this.dbRating = dbRating;
+    }
+
+    public Integer getRating() {
+        return (int) ( dbRating / EloRankingComputer.DATABASE_FACTOR );
     }
 
     @XmlTransient

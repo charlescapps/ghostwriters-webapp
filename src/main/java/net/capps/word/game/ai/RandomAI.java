@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
@@ -62,35 +62,35 @@ public class RandomAI implements GameAI {
     private RandomAI() { } // Singleton pattern.
 
     @Override
-    public Move getNextMove(GameState gameState) {
+    public Move getNextMove(Game game) {
 
         boolean tryPlayFirst = ThreadLocalRandom.current().nextBoolean();
 
         if (tryPlayFirst) {
             // Try a play move first, then if no move is found, try grabbing
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
+            Optional<Move> playMove = getRandomPlayMove(game.getGameId(), game.getCurrentPlayerRack(), game.getTileSet());
             if (playMove.isPresent()) {
                 return playMove.get();
             }
 
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
+            Optional<Move> grabMove = getRandomGrabMove(game, game.getTileSet());
             if (grabMove.isPresent()) {
                 return grabMove.get();
             }
         } else {
             // Try a grab move first, then if no move is found, try playing
-            Optional<Move> grabMove = getRandomGrabMove(gameState, gameState.getTileSet());
+            Optional<Move> grabMove = getRandomGrabMove(game, game.getTileSet());
             if (grabMove.isPresent()) {
                 return grabMove.get();
             }
 
-            Optional<Move> playMove = getRandomPlayMove(gameState.getGameId(), gameState.getCurrentPlayerRack(), gameState.getTileSet());
+            Optional<Move> playMove = getRandomPlayMove(game.getGameId(), game.getCurrentPlayerRack(), game.getTileSet());
             if (playMove.isPresent()) {
                 return playMove.get();
             }
         }
 
-        return Move.passMove(gameState.getGameId());
+        return Move.passMove(game.getGameId());
     }
 
     // --------------- Private ----------------
@@ -121,10 +121,10 @@ public class RandomAI implements GameAI {
         return Optional.absent();
     }
 
-    private Optional<Move> getRandomGrabMove(GameState gameState, TileSet tileSet) {
-        int maxToGrab = gameState.isPlayer1Turn() ?
-                Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
-                Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
+    private Optional<Move> getRandomGrabMove(Game game, TileSet tileSet) {
+        int maxToGrab = game.isPlayer1Turn() ?
+                Rack.MAX_TILES_IN_RACK - game.getPlayer1Rack().size() :
+                Rack.MAX_TILES_IN_RACK - game.getPlayer2Rack().size();
         maxToGrab = Math.min(maxToGrab, tileSet.N);
 
         if (maxToGrab <= 0) {
@@ -140,7 +140,7 @@ public class RandomAI implements GameAI {
         int index = random.nextInt(startPosList.size());
         final Pos start = startPosList.get(index);
 
-        Move move = GRAB_TILE_HELPER.getLongestGrabMove(gameState, start, maxToGrab);
+        Move move = GRAB_TILE_HELPER.getLongestGrabMove(game, start, maxToGrab);
 
         return Optional.of(move);
     }

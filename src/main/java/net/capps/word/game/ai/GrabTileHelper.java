@@ -2,7 +2,7 @@ package net.capps.word.game.ai;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
@@ -26,9 +26,9 @@ public class GrabTileHelper {
     private GrabTileHelper() {
     }
 
-    public Move getLongestGrabMove(GameState gameState, Pos start, int maxToGrab) {
+    public Move getLongestGrabMove(Game game, Pos start, int maxToGrab) {
         Preconditions.checkArgument(maxToGrab > 0, "Can't get a grab move when maxToGrab isn't positive!");
-        final TileSet tileSet = gameState.getTileSet();
+        final TileSet tileSet = game.getTileSet();
 
         final List<Dir> occupiedDirs = Lists.newArrayListWithCapacity(4);
 
@@ -43,7 +43,7 @@ public class GrabTileHelper {
         if (occupiedDirs.isEmpty()) {
             char letter = tileSet.getLetterAt(start);
             String letters = Character.toString(letter);
-            return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
+            return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
         }
 
         // Else, try to grab as many tiles as possible starting from the start position, then expanding backwards
@@ -79,6 +79,6 @@ public class GrabTileHelper {
         }
 
         String letters = sb.toString();
-        return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
+        return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
     }
 }

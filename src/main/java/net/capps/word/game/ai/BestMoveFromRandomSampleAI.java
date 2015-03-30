@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
@@ -47,45 +47,45 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     }
 
     @Override
-    public Move getNextMove(GameState gameState) {
+    public Move getNextMove(Game game) {
 
         // If rack is smaller than largest possible word (N), attempt a grab tiles move first 75% of the time
-        if (gameState.getCurrentPlayerRack().size() < gameState.getN()) {
+        if (game.getCurrentPlayerRack().size() < game.getN()) {
             final float rand = ThreadLocalRandom.current().nextFloat();
             if (rand < probabilityToGrab) {
                 // Try a grab move first, then if no move is found, try playing
-                Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(gameState);
+                Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(game);
                 if (grabMove.isPresent()) {
                     return grabMove.get();
                 }
 
-                Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(gameState, gameState.getCurrentPlayerRack(), gameState.getTileSet());
+                Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(game, game.getCurrentPlayerRack(), game.getTileSet());
                 if (playMove.isPresent()) {
                     return playMove.get();
                 }
 
-                return Move.passMove(gameState.getGameId());
+                return Move.passMove(game.getGameId());
             }
         }
 
         // Otherwise...
         // Try a play move first, then if no move is found, try grabbing
-        Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(gameState, gameState.getCurrentPlayerRack(), gameState.getTileSet());
+        Optional<Move> playMove = getBestMoveFromRandomSubsetOfPositions(game, game.getCurrentPlayerRack(), game.getTileSet());
         if (playMove.isPresent()) {
             return playMove.get();
         }
 
-        Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(gameState);
+        Optional<Move> grabMove = getBestGrabMoveFromSubsetOfPositions(game);
         if (grabMove.isPresent()) {
             return grabMove.get();
         }
 
-        return Move.passMove(gameState.getGameId());
+        return Move.passMove(game.getGameId());
     }
 
     // --------------- Private ----------------
 
-    private Optional<Move> getBestMoveFromRandomSubsetOfPositions(GameState gameState, Rack rack, TileSet tileSet) {
+    private Optional<Move> getBestMoveFromRandomSubsetOfPositions(Game game, Rack rack, TileSet tileSet) {
         if (rack.isEmpty()) {
             return Optional.absent();
         }
@@ -108,7 +108,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             }
             Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
             for (Dir dir: randomOrderDirs) {
-                Optional<Move> bestMoveForPositionOpt = getBestMoveFromStartPos(gameState, tileSet, rack, p, dir);
+                Optional<Move> bestMoveForPositionOpt = getBestMoveFromStartPos(game, tileSet, rack, p, dir);
                 if (bestMoveForPositionOpt.isPresent()) {
                     if (bestMove == null || bestMoveForPositionOpt.get().getPoints() > bestMove.getPoints()) {
                         bestMove = bestMoveForPositionOpt.get();
@@ -121,12 +121,12 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         return Optional.fromNullable(bestMove);
     }
 
-    private Optional<Move> getBestGrabMoveFromSubsetOfPositions(GameState gameState) {
-        final TileSet tileSet = gameState.getTileSet();
+    private Optional<Move> getBestGrabMoveFromSubsetOfPositions(Game game) {
+        final TileSet tileSet = game.getTileSet();
 
-        int maxToGrab = gameState.isPlayer1Turn() ?
-                Rack.MAX_TILES_IN_RACK - gameState.getPlayer1Rack().size() :
-                Rack.MAX_TILES_IN_RACK - gameState.getPlayer2Rack().size();
+        int maxToGrab = game.isPlayer1Turn() ?
+                Rack.MAX_TILES_IN_RACK - game.getPlayer1Rack().size() :
+                Rack.MAX_TILES_IN_RACK - game.getPlayer2Rack().size();
         maxToGrab = Math.min(maxToGrab, tileSet.N);
 
         if (maxToGrab <= 0) {
@@ -147,7 +147,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         for (int i = 0; i < numToCheck; i++) {
             Pos start = startPosListRandom.get(i);
-            Move grabMove = GRAB_TILE_HELPER.getLongestGrabMove(gameState, start, maxToGrab);
+            Move grabMove = GRAB_TILE_HELPER.getLongestGrabMove(game, start, maxToGrab);
             int pointValueOfLetters = grabMove.computeSumOfTilePoints();
             if (bestMove == null || pointValueOfLetters > bestPointValue) {
                 bestMove = grabMove;
@@ -158,9 +158,9 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         return Optional.of(bestMove); // Should be impossible for bestMove to be null.
     }
 
-    private Move getGrabMoveFromStartPos(Pos start, GameState gameState, int maxToGrab) {
+    private Move getGrabMoveFromStartPos(Pos start, Game game, int maxToGrab) {
         List<Dir> occupiedDirs = Lists.newArrayList();
-        final TileSet tileSet = gameState.getTileSet();
+        final TileSet tileSet = game.getTileSet();
 
         // Find the directions that have occupied tiles
         for (Pos p: start.adjacents()) {
@@ -173,7 +173,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         if (occupiedDirs.isEmpty()) {
             char letter = tileSet.getLetterAt(start);
             String letters = Character.toString(letter);
-            return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
+            return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
         }
 
         // Else grab all tiles in BOTH directions
@@ -197,10 +197,10 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         }
 
         String letters = sb.toString();
-        return new Move(gameState.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
+        return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
     }
 
-    private Optional<Move> getBestMoveFromStartPos(GameState gameState, TileSet tileSet, Rack rack, Pos start, Dir dir) {
+    private Optional<Move> getBestMoveFromStartPos(Game game, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
@@ -232,7 +232,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         final int diff = occOrAdj.minus(start);
 
-        generateMoves(gameState.getGameId(), prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
+        generateMoves(game.getGameId(), prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 
         // If no moves are found, return Optional.absent()
         if (foundMoves.isEmpty()) {
@@ -242,7 +242,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         int bestScore = 0;
         Move bestMove = null;
         for (Move move: foundMoves) {
-            int score = gameState.computePoints(move);
+            int score = game.computePoints(move);
             move.setPoints(score);
             if (score > bestScore || bestMove == null) {
                 bestScore = score;

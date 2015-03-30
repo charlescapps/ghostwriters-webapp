@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
 import net.capps.word.game.ai.GameAI;
-import net.capps.word.game.board.GameState;
+import net.capps.word.game.board.Game;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.move.Move;
@@ -31,6 +31,10 @@ public class MovesProvider {
     private static final MovesProvider INSTANCE = new MovesProvider();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final MovesDAO movesDAO = MovesDAO.getInstance();
+
+    // --------- Errors ---------
+    private static final ErrorModel ERROR_NOT_YOUR_TURN = new ErrorModel("It's not your turn!");
+    private static final ErrorModel ERROR_GAME_NOT_IN_PROGRESS = new ErrorModel("The game is already finished.");
 
     public static MovesProvider getInstance() {
         return INSTANCE;
@@ -59,20 +63,24 @@ public class MovesProvider {
         }
         GameModel game = gameOpt.get();
 
+        if (game.getGameResult() != GameResult.IN_PROGRESS) {
+            return ErrorOrResult.ofError(ERROR_GAME_NOT_IN_PROGRESS);
+        }
+
         // Verify that the authenticated user is the player whose turn it is for this game.
         boolean isPlayer1Turn = game.getPlayer1Turn();
         if (isPlayer1Turn) {
             if (!authUser.getId().equals(game.getPlayer1())) {
-                return ErrorOrResult.ofError(new ErrorModel("It's not your turn!"));
+                return ErrorOrResult.ofError(ERROR_NOT_YOUR_TURN);
             }
         } else {
             if (!authUser.getId().equals(game.getPlayer2())) {
-                return ErrorOrResult.ofError(new ErrorModel("It's not your turn!"));
+                return ErrorOrResult.ofError(ERROR_NOT_YOUR_TURN);
             }
         }
 
         // Create a Board object
-        GameState gameState = new GameState(game, Optional.<Move>absent());
+        Game gameState = new Game(game, Optional.<Move>absent());
         Move move = new Move(inputMoveModel);
 
         // Check if it's a valid move.
@@ -90,26 +98,26 @@ public class MovesProvider {
     public GameModel playMove(MoveModel validatedMove, GameModel gameModel, Connection dbConn) throws Exception {
         Preconditions.checkArgument(validatedMove.getGameId() != null &&
                                     validatedMove.getGameId().equals(gameModel.getId()),
-                "The game ID on the move must match the original game's ID");
+                                    "The game ID on the move must match the original game's ID");
 
         List<MoveModel> prevMove = MovesDAO.getInstance().getMostRecentMoves(validatedMove.getGameId(), 1, dbConn);
         Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
                 Optional.of(new Move(prevMove.get(0))) :
                 Optional.<Move>absent();
 
-        GameState gameState = new GameState(gameModel, previousMoveOpt);
+        Game game = new Game(gameModel, previousMoveOpt);
         Move move = new Move(validatedMove);
 
-        int numPoints = gameState.playMove(move); // Play the move, updating the game state.
+        int numPoints = game.playMove(move); // Play the move, updating the game state.
 
-        GameModel updatedGame = gamesDAO.updateGame(gameState, validatedMove, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(game, validatedMove, numPoints, dbConn);
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
         return updatedGame;
     }
 
-    public GameModel playAIMove(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
+    public GameModel playAIMoves(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
         boolean isPlayer1Turn = gameModel.getPlayer1Turn();
         List<MoveModel> aiMoves = Lists.newArrayList();
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
@@ -139,14 +147,14 @@ public class MovesProvider {
         GameAI gameAI = aiType.getGameAiInstance();
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
         MoveModel lastMove = aiMoves.isEmpty() ? lastHumanMove : aiMoves.get(aiMoves.size() - 1);
-        GameState gameState = new GameState(gameModel, Optional.of(new Move(lastMove)));
-        Move aiMove = gameAI.getNextMove(gameState);
+        Game game = new Game(gameModel, Optional.of(new Move(lastMove)));
+        Move aiMove = gameAI.getNextMove(game);
 
-        int numPoints = gameState.playMove(aiMove);
+        int numPoints = game.playMove(aiMove);
 
         MoveModel aiMoveModel = aiMove.toMoveModel(gameAiId, numPoints);
 
-        GameModel updatedGame = gamesDAO.updateGame(gameState, aiMoveModel, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(game, aiMoveModel, numPoints, dbConn);
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 

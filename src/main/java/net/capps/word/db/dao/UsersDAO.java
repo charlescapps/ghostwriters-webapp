@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
+import net.capps.word.game.ranking.EloRankingComputer;
 import net.capps.word.rest.models.UserModel;
 
 import java.net.URISyntaxException;
@@ -17,11 +18,14 @@ import java.util.List;
  */
 public class UsersDAO {
     private static final String INSERT_USER_QUERY =
-            "INSERT INTO word_users (username, email, device_id, date_joined, is_system_user) " +
-            "VALUES (?, ?, ?, ?, ?);";
+            "INSERT INTO word_users (username, email, device_id, date_joined, is_system_user, rating) " +
+            "VALUES (?, ?, ?, ?, ?, ?);";
 
     private static final String UPDATE_USER_PASSWORD =
             "UPDATE word_users SET (hashpass, salt) = (?, ?) WHERE id = ?";
+
+    private static final String UPDATE_USER_RATING =
+            "UPDATE word_users SET rating = ? WHERE id = ?";
 
     private static final String GET_USER_BY_ID_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
@@ -46,7 +50,7 @@ public class UsersDAO {
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
-    public static final UsersDAO getInstance() {
+    public static UsersDAO getInstance() {
         return INSTANCE;
     }
 
@@ -121,6 +125,7 @@ public class UsersDAO {
             // Set whether it's a system user.
             boolean isSystemUser = validatedUserInput.getSystemUser() != null && validatedUserInput.getSystemUser();
             stmt.setBoolean(5, isSystemUser);
+            stmt.setInt(6, EloRankingComputer.AVERAGE_RATING_DB); // Users start with default rating of 1500
             stmt.executeUpdate();
 
             // Populate the returned user from the result
@@ -150,6 +155,17 @@ public class UsersDAO {
             resultSet.next();
 
             return getUserFromResultSet(resultSet);
+        }
+    }
+
+    public void updateUserRating(Connection dbConn, int userId, int newRating) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_USER_RATING);
+        stmt.setInt(1, newRating);
+        stmt.setInt(2, userId);
+
+        int numUpdated = stmt.executeUpdate();
+        if (numUpdated != 1) {
+            throw new SQLException("Error - expected 1 user's rating to be updated, but numUpdated = " + numUpdated);
         }
     }
 
@@ -210,8 +226,10 @@ public class UsersDAO {
         String salt = result.getString("salt");
         Timestamp dateJoined = result.getTimestamp("date_joined");
         boolean systemUser = result.getBoolean("is_system_user");
+        int rating = result.getInt("rating");
         UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
+        user.setDbRating(rating);
         return user;
     }
 }

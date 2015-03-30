@@ -39,7 +39,7 @@ public class DefaultSquareSetGenerator implements SquareSetGenerator {
 
     private void addOneRandomBonus(Square type, SquareSet squareSet, List<Pos> emptyPositions) {
         final Random RANDOM = ThreadLocalRandom.current();
-        List<Integer> relativeProbs = Lists.newArrayList();
+        final List<Integer> relativeProbs = Lists.newArrayList();
         int total = 0;
         for (Pos p: emptyPositions) {
             int numAdjs = squareSet.getNumAdjacentBonuses(p);
