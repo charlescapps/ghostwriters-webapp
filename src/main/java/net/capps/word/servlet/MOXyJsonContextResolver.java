@@ -12,7 +12,7 @@ public class MOXyJsonContextResolver implements ContextResolver<MoxyJsonConfig> 
 
     public MOXyJsonContextResolver() {
         config = new MoxyJsonConfig()
-                .setIncludeRoot(true);
+                .setIncludeRoot(false);
     }
 
     @Override
