@@ -1,4 +1,4 @@
-package net.capps.word.rest.providers;
+package net.capps.word.servlet;
 
 import net.capps.word.rest.models.ErrorModel;
 
