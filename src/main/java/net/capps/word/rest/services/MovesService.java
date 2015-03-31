@@ -83,12 +83,12 @@ public class MovesService {
 
                 dbConn.commit();
                 return Response.ok(updatedGame).build();
-            } catch (Exception e) {
-                LOG.info("EXCEPTION FROM MOVES SERVICE:" + e.getMessage(), e);
-                return Response.status(Status.INTERNAL_SERVER_ERROR)
-                        .entity(new ErrorModel(e.getMessage()))
-                        .build();
             }
+        } catch (Exception e) {
+            LOG.info("EXCEPTION FROM MOVES SERVICE:" + e.getMessage(), e);
+            return Response.status(Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorModel(e.getMessage()))
+                    .build();
         }
     }
 }
