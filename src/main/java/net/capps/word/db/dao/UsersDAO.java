@@ -271,7 +271,7 @@ public class UsersDAO {
         int rating = resultSet.getInt("rating");
         UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
-        user.setDbRating(rating);
+        user.setRating(rating);
         return user;
     }
 }

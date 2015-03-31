@@ -1,16 +1,13 @@
 package net.capps.word.rest.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.capps.word.db.dao.UserHashInfo;
-import net.capps.word.game.ranking.EloRankingComputer;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.Objects;
 
 /**
  * Created by charlescapps on 12/26/14.
  */
-@XmlRootElement
 public class UserModel {
     private Integer id;
     private String username;
@@ -19,7 +16,7 @@ public class UserModel {
     private String deviceId;
     private UserHashInfo userHashInfo; // Not serialized
     private Boolean systemUser; // Not serialized
-    private Integer dbRating; // elo rating * 1000.
+    private Integer rating; // elo rating * 1000.
 
     public UserModel() {
 
@@ -78,7 +75,7 @@ public class UserModel {
         this.userHashInfo = userHashInfo;
     }
 
-    @XmlTransient
+    @JsonIgnore
     public Boolean getSystemUser() {
         return systemUser;
     }
@@ -87,20 +84,15 @@ public class UserModel {
         this.systemUser = systemUser;
     }
 
-    @XmlTransient
-    public Integer getDbRating() {
-        return dbRating;
-    }
-
-    public void setDbRating(Integer dbRating) {
-        this.dbRating = dbRating;
-    }
-
     public Integer getRating() {
-        return (int) ( dbRating / EloRankingComputer.DATABASE_FACTOR );
+        return rating;
     }
 
-    @XmlTransient
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    @JsonIgnore
     public UserHashInfo getUserHashInfo() {
         return userHashInfo;
     }

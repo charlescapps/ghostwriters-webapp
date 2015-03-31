@@ -3,13 +3,11 @@ package net.capps.word.rest.models;
 import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.*;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
  * Created by charlescapps on 1/18/15.
  */
-@XmlRootElement
 public class GameModel {
     private Integer id;
     private GameType gameType;

@@ -35,8 +35,8 @@ public class RatingsProvider {
             case PLAYER1_WIN:
             case PLAYER2_WIN:
             case TIE:
-                final int player1Rating = player1.getDbRating();
-                final int player2Rating = player2.getDbRating();
+                final int player1Rating = player1.getRating();
+                final int player2Rating = player2.getRating();
                 final int player1RatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult);
                 if (player1RatingChange == 0) {
                     return;
@@ -49,8 +49,8 @@ public class RatingsProvider {
     }
 
     public List<UserModel> getUsersWithRatingsAroundMe(UserModel user, int count) throws SQLException {
-        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getDbRating(), count);
-        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getDbRating(), count);
+        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getRating(), count);
+        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getRating(), count);
         List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size() + 1);
         resultUsers.addAll(ratingGEQ);
         resultUsers.add(user);
