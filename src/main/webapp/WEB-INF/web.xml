@@ -10,10 +10,10 @@
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>net.capps.word</param-value>
         </init-param>
-        <init-param>
+<!--        <init-param>
             <param-name>jersey.config.server.provider.classnames</param-name>
             <param-value>net.capps.word.servlet.ErrorHandlingProvider</param-value>
-        </init-param>
+        </init-param>-->
 <!--        <init-param>
             <param-name>jersey.config.server.exception.processResponseErrors</param-name>
             <param-value>true</param-value>

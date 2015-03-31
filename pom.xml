@@ -167,7 +167,7 @@
     </build>
 
     <properties>
-        <jersey.version>2.15</jersey.version>
+        <jersey.version>2.17</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.0.6.v20130930</jetty.version>
     </properties>
