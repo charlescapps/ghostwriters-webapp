@@ -16,6 +16,8 @@ import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.MovesProvider;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.util.ErrorOrResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -36,12 +38,16 @@ import static javax.ws.rs.core.Response.Status;
 public class MovesService {
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
+    private static final Logger LOG = LoggerFactory.getLogger(MovesService.class);
 
     @POST
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
+        LOG.info("MOVES SERVICE: PLAY MOVE. PLAY MOVE. FOO FOO FOO");
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
-            return Response.status(Status.UNAUTHORIZED).build();
+            return Response.status(Status.UNAUTHORIZED)
+                    .entity(new ErrorModel("You must login to send a move."))
+                    .build();
         }
         ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
 
