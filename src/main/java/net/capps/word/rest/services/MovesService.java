@@ -59,7 +59,7 @@ public class MovesService {
 
             Optional<ErrorModel> errorOpt = errorOrResult.getError();
             if (errorOpt.isPresent()) {
-                LOG.info("MOVES SERVICE: Error Opt is present: {}", errorOpt.get());
+                LOG.info("MOVES SERVICE: Error Opt is present: '{}'", errorOpt.get().getErrorMessage());
                 return Response.status(Status.BAD_REQUEST)
                         .entity(errorOpt.get())
                         .build();
