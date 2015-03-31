@@ -10,18 +10,26 @@
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>net.capps.word</param-value>
         </init-param>
+        <init-param>
+            <param-name>jersey.config.server.tracing.type</param-name>
+            <param-value>ALL</param-value>
+        </init-param>
+        <init-param>
+            <param-name>jersey.config.server.tracing.threshold</param-name>
+            <param-value>VERBOSE</param-value>
+        </init-param>
 <!--        <init-param>
             <param-name>jersey.config.server.provider.classnames</param-name>
             <param-value>net.capps.word.servlet.ErrorHandlingProvider</param-value>
         </init-param>-->
-<!--        <init-param>
+        <init-param>
             <param-name>jersey.config.server.exception.processResponseErrors</param-name>
             <param-value>true</param-value>
         </init-param>
         <init-param>
             <param-name>jersey.config.beanValidation.enableOutputValidationErrorEntity.server</param-name>
             <param-value>true</param-value>
-        </init-param>-->
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
