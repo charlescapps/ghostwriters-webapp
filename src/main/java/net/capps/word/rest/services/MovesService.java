@@ -5,6 +5,7 @@ package net.capps.word.rest.services;
  */
 
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.auth.AuthHelper;
@@ -42,45 +43,52 @@ public class MovesService {
 
     @POST
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
-        LOG.info("MOVES SERVICE: PLAY MOVE. PLAY MOVE. FOO FOO FOO");
-        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
-        if (authUser == null) {
-            return Response.status(Status.UNAUTHORIZED)
-                    .entity(new ErrorModel("You must login to send a move."))
-                    .build();
-        }
-        ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
+        try {
+            LOG.info("MOVES SERVICE: PLAY MOVE. PLAY MOVE. FOO FOO FOO");
+            UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+            if (authUser == null) {
+                return Response.status(Status.UNAUTHORIZED)
+                        .entity(new ErrorModel("You must login to send a move."))
+                        .build();
+            }
+            ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
 
-        Optional<ErrorModel> errorOpt = errorOrResult.getError();
-        if (errorOpt.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOpt.get())
-                    .build();
-        }
-
-        final GameModel originalGame = errorOrResult.getResult().get();
-
-        // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            dbConn.setAutoCommit(false);
-
-            GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
-            boolean isAiTurn = updatedGame.getPlayer1().equals(authUser.getId()) && !updatedGame.getPlayer1Turn() ||
-                               updatedGame.getPlayer2().equals(authUser.getId()) && updatedGame.getPlayer1Turn();
-
-            // For single player games, play the AI's move if the turn changed
-            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {
-                updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
-            } else {
-                movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
+            Optional<ErrorModel> errorOpt = errorOrResult.getError();
+            if (errorOpt.isPresent()) {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(errorOpt.get())
+                        .build();
             }
 
-            if (updatedGame.getGameType() == GameType.TWO_PLAYER) {
-                ratingsProvider.updatePlayerRatings(updatedGame.getPlayer1Model(), updatedGame.getPlayer2Model(), updatedGame.getGameResult(), dbConn);
-            }
+            final GameModel originalGame = errorOrResult.getResult().get();
 
-            dbConn.commit();
-            return Response.ok(updatedGame).build();
+            // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
+            try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+                dbConn.setAutoCommit(false);
+
+                GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
+                boolean isAiTurn = updatedGame.getPlayer1().equals(authUser.getId()) && !updatedGame.getPlayer1Turn() ||
+                        updatedGame.getPlayer2().equals(authUser.getId()) && updatedGame.getPlayer1Turn();
+
+                // For single player games, play the AI's move if the turn changed
+                if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {
+                    updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
+                } else {
+                    movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
+                }
+
+                if (updatedGame.getGameType() == GameType.TWO_PLAYER) {
+                    ratingsProvider.updatePlayerRatings(updatedGame.getPlayer1Model(), updatedGame.getPlayer2Model(), updatedGame.getGameResult(), dbConn);
+                }
+
+                dbConn.commit();
+                return Response.ok(updatedGame).build();
+            } catch (Exception e) {
+                LOG.info("EXCEPTION FROM MOVES SERVICE:" + e.getMessage(), e);
+                return Response.status(Status.INTERNAL_SERVER_ERROR)
+                        .entity(new ErrorModel(e.getMessage()))
+                        .build();
+            }
         }
     }
 }
