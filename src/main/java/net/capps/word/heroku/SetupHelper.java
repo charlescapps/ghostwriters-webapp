@@ -99,7 +99,6 @@ public class SetupHelper {
             webPort = "8080";
         }
 
-
         final Server server = new Server(Integer.valueOf(webPort));
         final WebAppContext root = new WebAppContext();
 
