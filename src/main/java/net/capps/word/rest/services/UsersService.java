@@ -33,6 +33,7 @@ import static javax.ws.rs.core.Response.Status.*;
 public class UsersService {
     public static final String USERS_PATH = "users";
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
+    private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final SessionProvider sessionProvider = SessionProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
 
@@ -47,7 +48,7 @@ public class UsersService {
 
         // Check if the device is already registered, then just login as this user.
         if (!Strings.isNullOrEmpty(inputUser.getDeviceId())) {
-            Optional<UserModel> existingUser = UsersDAO.getInstance().getUserByDeviceId(inputUser.getDeviceId());
+            Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(inputUser.getDeviceId());
             if (existingUser.isPresent()) {
                 if ( existingUser.get().getUsername().equals(inputUser.getUsername())) {
                     SessionModel session = sessionProvider.createNewSession(existingUser.get());
@@ -90,7 +91,7 @@ public class UsersService {
     @GET
     @Filters.RegularUserAuthRequired
     public Response getUser(@PathParam("id") int id) throws Exception {
-        Optional<UserModel> result = usersProvider.getUserById(id);
+        Optional<UserModel> result = usersDAO.getUserById(id);
         if (!result.isPresent()) {
             return Response.status(NOT_FOUND)
                     .entity(new ErrorModel("No user exists with id " + id))
@@ -105,7 +106,7 @@ public class UsersService {
     @Filters.InitialUserAuthRequired
     public Response getNextUsername(@QueryParam("deviceId") String deviceId) throws SQLException {
         if (!Strings.isNullOrEmpty(deviceId)) {
-            Optional<UserModel> existingUser = UsersDAO.getInstance().getUserByDeviceId(deviceId);
+            Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(deviceId);
             if (existingUser.isPresent()) {
                 return Response.ok(new NextUsernameModel(existingUser.get().getUsername(), true))
                         .build();

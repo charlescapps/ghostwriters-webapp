@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
+import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
@@ -25,6 +26,7 @@ public class SetupHelper {
 
     private static final SetupHelper INSTANCE = new SetupHelper();
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
+    private static final UsersDAO usersDAO = UsersDAO.getInstance();
 
     private SetupHelper() {}
 
@@ -79,6 +81,15 @@ public class SetupHelper {
         usersProvider.createNewUserIfNotExists(randomUser);
         usersProvider.createNewUserIfNotExists(bookwormUser);
         usersProvider.createNewUserIfNotExists(professorUser);
+
+        Optional<UserModel> createdRandomUser = usersDAO.getUserByUsername(WordConstants.RANDOM_AI_USERNAME, true);
+        Optional<UserModel> createdBookwormUser = usersDAO.getUserByUsername(WordConstants.BOOKWORM_AI_USERNAME, true);
+        Optional<UserModel> createdProfessorUser = usersDAO.getUserByUsername(WordConstants.PROFESSOR_AI_USERNAME, true);
+
+        // They must be present since we just inserted them into the Database!
+        WordConstants.RANDOM_AI_USER.set(createdRandomUser.get());
+        WordConstants.BOOKWORM_AI_USER.set(createdBookwormUser.get());
+        WordConstants.PROFESSOR_AI_USER.set(createdProfessorUser.get());
     }
 
     public void initGameDataStructures() throws Exception {

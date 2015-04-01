@@ -1,15 +1,13 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.BonusesType;
-import net.capps.word.game.common.GameDensity;
-import net.capps.word.game.common.GameType;
+import net.capps.word.game.common.*;
 import net.capps.word.game.gen.DefaultGameGenerator;
 import net.capps.word.game.gen.DefaultSquareSetGenerator;
 import net.capps.word.game.gen.GameGenerator;
@@ -50,6 +48,10 @@ public class GamesProvider {
         if (input.getGameType() == null) {
             return Optional.of(new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\""));
         }
+        if (!authUser.getId().equals(input.getPlayer1())) {
+            return Optional.of(new ErrorModel("Player 1 must be the currently authenticated user."));
+        }
+
         // Verify two player fields
         if (input.getGameType() == GameType.TWO_PLAYER) {
             if (input.getPlayer2() == null) {
@@ -59,14 +61,12 @@ public class GamesProvider {
             if (!player2.isPresent()) {
                 return Optional.of(new ErrorModel(format("Player 2 id %d isn't a valid User id.", input.getPlayer2())));
             }
+
+            checkIfGameIsAgainstAI(input, authUser);
         }
         // Verify single player fields
         else if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
             return Optional.of(new ErrorModel("Missing aiType field for single player type game."));
-        }
-
-        if (input.getPlayer1() == null) {
-            return Optional.of(new ErrorModel("Missing player1 field!"));
         }
 
         if (input.getPlayer1().equals(input.getPlayer2())) {
@@ -80,9 +80,6 @@ public class GamesProvider {
         }
         if (input.getGameDensity() == null) {
             return Optional.of(new ErrorModel("Missing gameDensity field!"));
-        }
-        if (!input.getPlayer1().equals(authUser.getId())) {
-            return Optional.of(new ErrorModel("Player 1 must be the currently authenticated user."));
         }
 
         return Optional.absent();
@@ -134,4 +131,28 @@ public class GamesProvider {
 
     // --------------- Private --------------
 
+    /**
+     * This is a bit of a kludge.
+     * Want the "best match" button to possibly match you up against an AI, especially early on
+     * when there aren't many players.
+     *
+     * So...we need to detect if the best match endpoint returned one of the AI users.
+     * If so, then convert the game to a SINGLE_PLAYER game.
+     */
+    private void checkIfGameIsAgainstAI(GameModel gameModel, UserModel authUser) {
+        int opponentId = gameModel.getPlayer1().equals(authUser.getId()) ?
+                gameModel.getPlayer2() :
+                gameModel.getPlayer1();
+
+        if (opponentId == WordConstants.RANDOM_AI_USER.get().getId()) {
+            gameModel.setAiType(AiType.RANDOM_AI);
+            gameModel.setGameType(GameType.SINGLE_PLAYER);
+        } else if (opponentId == WordConstants.BOOKWORM_AI_USER.get().getId()) {
+            gameModel.setAiType(AiType.BOOKWORM_AI);
+            gameModel.setGameType(GameType.SINGLE_PLAYER);
+        } else if (opponentId == WordConstants.PROFESSOR_AI_USER.get().getId()) {
+            gameModel.setAiType(AiType.PROFESSOR_AI);
+            gameModel.setGameType(GameType.SINGLE_PLAYER);
+        }
+    }
 }

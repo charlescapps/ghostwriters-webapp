@@ -33,6 +33,7 @@ public class AuthHelper {
     private static final Pattern BASIC_AUTH = Pattern.compile("Basic ([a-zA-Z0-9=]+)");
     private static final SessionProvider sessionProvider = SessionProvider.getInstance();
     private static final SessionsDAO sessionsDao = SessionsDAO.getInstance();
+    private static final UsersDAO usersDAO = UsersDAO.getInstance();
 
     private static final String MISSING_AUTHZ_HEADER_MSG = "Missing Authorization header";
     private static final String INVALID_AUTHZ_HEADER_MSG = "Invalid Basic Auth header";
@@ -136,6 +137,6 @@ public class AuthHelper {
             return Optional.absent();
         }
         int userId = session.get().getUserId();
-        return UsersProvider.getInstance().getUserById(userId);
+        return usersDAO.getUserById(userId);
     }
 }

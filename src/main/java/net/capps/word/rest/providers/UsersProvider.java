@@ -103,10 +103,6 @@ public class UsersProvider {
         return Optional.of(createNewUser(validatedInput));
     }
 
-    public Optional<UserModel> getUserById(int id) throws Exception {
-        return usersDao.getUserById(id);
-    }
-
     public List<UserModel> searchUsers(String q, int maxResults) throws Exception {
         List<UserModel> results = new ArrayList<>();
         // First add the exact match (case insensitive) to the beginning of the list.
