@@ -152,6 +152,19 @@ public class UsersService {
         return Response.ok(new UserListModel(results)).build();
     }
 
+    @Path("/bestMatch")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getMyBestMatch(@Context HttpServletRequest request)
+            throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        UserModel bestMatch = ratingsProvider.getBestMatch(authUser);
+        return Response.ok(bestMatch).build();
+    }
+
 
     // ------ Helpers ----
     public URI getWordUserURI(int id) {

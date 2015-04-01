@@ -1,5 +1,6 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Optional;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 3/29/15.
@@ -56,5 +58,16 @@ public class RatingsProvider {
         resultUsers.add(user);
         resultUsers.addAll(ratingLT);
         return resultUsers;
+    }
+
+    public UserModel getBestMatch(UserModel user) throws SQLException {
+        final int numAdjacentUsers = 10;
+        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getRating(), numAdjacentUsers);
+        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getRating(), numAdjacentUsers);
+        List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size());
+        resultUsers.addAll(ratingGEQ);
+        resultUsers.addAll(ratingLT);
+        final int choice = ThreadLocalRandom.current().nextInt(resultUsers.size());
+        return  resultUsers.get(choice);
     }
 }
