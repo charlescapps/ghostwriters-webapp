@@ -1,5 +1,7 @@
 package net.capps.word.rest.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -7,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class ErrorModel {
+    @JsonProperty
     private String errorMessage;
 
     public ErrorModel() {
@@ -19,9 +22,5 @@ public class ErrorModel {
 
     public String getErrorMessage() {
         return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 }

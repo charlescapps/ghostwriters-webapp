@@ -20,8 +20,6 @@ import net.capps.word.rest.services.GamesService;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import static java.lang.String.format;
-
 /**
  * Created by charlescapps on 1/18/15.
  */
@@ -30,6 +28,20 @@ public class GamesProvider {
     private static final GamesProvider INSTANCE = new GamesProvider();
     private static final GameGenerator gameGenerator = new DefaultGameGenerator();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
+
+    // -------------- Errors ------------
+    private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The game id should not be specified.");
+    private static final ErrorModel ERR_MISSING_GAME_TYPE_FIELD = new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\"");
+    private static final ErrorModel ERR_PLAYER1_MUST_BE_AUTH_USER = new ErrorModel("Player 1 must be the logged in user.");
+    private static final ErrorModel ERR_MISSING_PLAYER2_ID = new ErrorModel("Missing player2 field for multi-player game.");
+    private static final ErrorModel ERR_INVALID_PLAYER2_ID = new ErrorModel("Player 2 id isn't a valid User id.");
+
+    private static final ErrorModel ERR_MISSING_AI_TYPE = new ErrorModel("Missing aiType field for single player type game.");
+    private static final ErrorModel ERR_CANNOT_START_GAME_WITH_SELF = new ErrorModel("Cannot start a game with yourself!");
+
+    private static final ErrorModel ERR_MISSING_BOARD_SIZE = new ErrorModel("Missing \"boardSize\" field.");
+    private static final ErrorModel ERR_MISSING_BONUSES_TYPE = new ErrorModel("Missing \"bonusesType\" field.");
+    private static final ErrorModel ERR_MISSING_GAME_DENSITY = new ErrorModel("Missing \"gameDensity\" field.");
 
     // -------------- Private fields ---------
 
@@ -43,43 +55,46 @@ public class GamesProvider {
     // --------------- Public --------------
     public Optional<ErrorModel> validateInputForCreateGame(GameModel input, UserModel authUser) throws Exception {
         if (input.getId() != null) {
-            return Optional.of(new ErrorModel("The game id should not be specified prior to creation."));
+            return Optional.of(ERR_GAME_ID_PRESENT);
         }
         if (input.getGameType() == null) {
-            return Optional.of(new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\""));
+            return Optional.of(ERR_MISSING_GAME_TYPE_FIELD);
         }
         if (!authUser.getId().equals(input.getPlayer1())) {
-            return Optional.of(new ErrorModel("Player 1 must be the currently authenticated user."));
+            return Optional.of(ERR_PLAYER1_MUST_BE_AUTH_USER);
+        }
+        if (WordConstants.INITIAL_USER.get().getId().equals(input.getPlayer2())) {
+            return Optional.of(ERR_INVALID_PLAYER2_ID);
         }
 
         // Verify two player fields
         if (input.getGameType() == GameType.TWO_PLAYER) {
             if (input.getPlayer2() == null) {
-                return Optional.of(new ErrorModel("Missing player2 field for multi-player game!"));
+                return Optional.of(ERR_MISSING_PLAYER2_ID);
             }
             Optional<UserModel> player2 = UsersDAO.getInstance().getUserById(input.getPlayer2());
             if (!player2.isPresent()) {
-                return Optional.of(new ErrorModel(format("Player 2 id %d isn't a valid User id.", input.getPlayer2())));
+                return Optional.of(ERR_INVALID_PLAYER2_ID);
             }
 
             checkIfGameIsAgainstAI(input, authUser);
         }
         // Verify single player fields
         else if (input.getGameType() == GameType.SINGLE_PLAYER && input.getAiType() == null) {
-            return Optional.of(new ErrorModel("Missing aiType field for single player type game."));
+            return Optional.of(ERR_MISSING_AI_TYPE);
         }
 
         if (input.getPlayer1().equals(input.getPlayer2())) {
-            return Optional.of(new ErrorModel("Cannot start a game with yourself!"));
+            return Optional.of(ERR_CANNOT_START_GAME_WITH_SELF);
         }
         if (input.getBoardSize() == null) {
-            return Optional.of(new ErrorModel("Missing boardSize field!"));
+            return Optional.of(ERR_MISSING_BOARD_SIZE);
         }
         if (input.getBonusesType() == null) {
-            return Optional.of(new ErrorModel("Missing bonusesType field!"));
+            return Optional.of(ERR_MISSING_BONUSES_TYPE);
         }
         if (input.getGameDensity() == null) {
-            return Optional.of(new ErrorModel("Missing gameDensity field!"));
+            return Optional.of(ERR_MISSING_GAME_DENSITY);
         }
 
         return Optional.absent();
