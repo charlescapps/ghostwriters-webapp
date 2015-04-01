@@ -2,6 +2,7 @@ package net.capps.word.db.dao;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
@@ -45,17 +46,17 @@ public class UsersDAO {
             "SELECT * FROM word_users WHERE lower(username) = lower(?);";
 
     private static final String PREFIX_SEARCH_QUERY =
-            "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') AND is_system_user = FALSE ORDER BY username ASC LIMIT ?";
+            "SELECT * FROM word_users WHERE lower(username) LIKE (lower(?) || '%') AND id != ? ORDER BY username ASC LIMIT ?";
 
     private static final String SUBSTRING_SEARCH_QUERY =
-            "SELECT * FROM word_users WHERE strpos(lower(username), lower(?)) > 0 AND is_system_user = FALSE ORDER BY username ASC LIMIT ?";
+            "SELECT * FROM word_users WHERE strpos(lower(username), lower(?)) > 0 AND id != ? ORDER BY username ASC LIMIT ?";
 
     // Get users by ratings
     private static final String GET_USERS_WITH_RATING_GEQ =
-            "SELECT * FROM word_users WHERE rating >= ? AND id != ? ORDER BY rating DESC LIMIT ?";
+            "SELECT * FROM word_users WHERE rating >= ? AND id != ? AND id != ? ORDER BY rating DESC LIMIT ?";
 
     private static final String GET_USERS_WITH_RATING_LT =
-            "SELECT * FROM word_users WHERE rating < ? ORDER BY rating DESC LIMIT ?";
+            "SELECT * FROM word_users WHERE rating < ? AND id != ? ORDER BY rating DESC LIMIT ?";
     
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -81,7 +82,8 @@ public class UsersDAO {
             String sql = searchType.getSql();
             PreparedStatement stmt = dbConn.prepareStatement(sql);
             stmt.setString(1, q);
-            stmt.setInt(2, maxResults);
+            stmt.setInt(2, WordConstants.INITIAL_USER.get().getId());
+            stmt.setInt(3, maxResults);
 
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> users = new ArrayList<>();
@@ -232,7 +234,8 @@ public class UsersDAO {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_GEQ);
             stmt.setInt(1, dbRating);
             stmt.setInt(2, userId);
-            stmt.setInt(3, limit);
+            stmt.setInt(3, WordConstants.INITIAL_USER.get().getId());
+            stmt.setInt(4, limit);
 
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);
@@ -247,7 +250,8 @@ public class UsersDAO {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_LT);
             stmt.setInt(1, dbRating);
-            stmt.setInt(2, limit);
+            stmt.setInt(2, WordConstants.INITIAL_USER.get().getId());
+            stmt.setInt(3, limit);
 
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);

@@ -71,6 +71,9 @@ public class SetupHelper {
                 throw new IllegalStateException("Error updating password for the initial user: " + errorOpt.get().getErrorMessage());
             }
         }
+
+        Optional<UserModel> initialUserFull = usersDAO.getUserByUsername(WordConstants.INITIAL_USER_USERNAME, true);
+        WordConstants.INITIAL_USER.set(initialUserFull.get()); // This must be present.
     }
 
     public void createAiUsers() throws Exception {
