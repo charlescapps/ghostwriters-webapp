@@ -1,5 +1,6 @@
 package net.capps.word.game.ranking;
 
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
 
 /**
@@ -9,7 +10,6 @@ public class EloRankingComputer {
     public static final int AVERAGE_RATING_DB = 1500000; // 1500 rating
     public static final double DATABASE_FACTOR = 1000.d;
     private static final EloRankingComputer INSTANCE = new EloRankingComputer();
-    private static final double K = 32.d;
 
     public static EloRankingComputer getInstance() {
         return INSTANCE;
@@ -17,12 +17,12 @@ public class EloRankingComputer {
 
     private EloRankingComputer() { } // Singleton pattern
 
-    public int computeRatingChangeForPlayerA(int dbRatingA, int dbRatingB, GameResult result) {
+    public int computeRatingChangeForPlayerA(int dbRatingA, int dbRatingB, GameResult result, BoardSize boardSize) {
         final double ratingA = (double) dbRatingA / DATABASE_FACTOR;
         final double ratingB = (double) dbRatingB / DATABASE_FACTOR;
         final double actualScoreA = computeActualScore(result);
         final double expectedScoreA = computeExpectedScore(ratingA, ratingB);
-        double ratingChangeA = K * (actualScoreA - expectedScoreA);
+        double ratingChangeA = boardSize.getRatingK() * (actualScoreA - expectedScoreA);
         return (int) (ratingChangeA * DATABASE_FACTOR);
     }
 

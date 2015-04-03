@@ -1,6 +1,7 @@
 package net.capps.word.rest.providers;
 
 import net.capps.word.db.dao.UsersDAO;
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
 import net.capps.word.rest.models.UserModel;
@@ -25,7 +26,7 @@ public class RatingsProvider {
 
     private RatingsProvider() { }
 
-    public void updatePlayerRatings(UserModel player1, UserModel player2, GameResult gameResult, Connection dbConn)
+    public void updatePlayerRatings(UserModel player1, UserModel player2, GameResult gameResult, BoardSize boardSize, Connection dbConn)
             throws SQLException {
         switch (gameResult) {
             case IN_PROGRESS:
@@ -38,7 +39,7 @@ public class RatingsProvider {
             case TIE:
                 final int player1Rating = player1.getRating();
                 final int player2Rating = player2.getRating();
-                final int player1RatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult);
+                final int player1RatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
                 if (player1RatingChange == 0) {
                     return;
                 }
