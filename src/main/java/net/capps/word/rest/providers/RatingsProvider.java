@@ -45,8 +45,8 @@ public class RatingsProvider {
                 }
                 final int player1NewRating = player1Rating + player1RatingChange;
                 final int player2NewRating = player2Rating - player1RatingChange;
-                usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating);
-                usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating);
+                usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
+                usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
         }
     }
 

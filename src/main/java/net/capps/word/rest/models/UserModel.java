@@ -17,6 +17,9 @@ public class UserModel {
     private UserHashInfo userHashInfo; // Not serialized
     private Boolean systemUser; // Not serialized
     private Integer rating; // elo rating * 1000.
+    private Integer wins;
+    private Integer losses;
+    private Integer ties;
 
     public UserModel() {
 
@@ -90,6 +93,30 @@ public class UserModel {
 
     public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    public Integer getWins() {
+        return wins;
+    }
+
+    public void setWins(Integer wins) {
+        this.wins = wins;
+    }
+
+    public Integer getLosses() {
+        return losses;
+    }
+
+    public void setLosses(Integer losses) {
+        this.losses = losses;
+    }
+
+    public Integer getTies() {
+        return ties;
+    }
+
+    public void setTies(Integer ties) {
+        this.ties = ties;
     }
 
     @JsonIgnore

@@ -8,6 +8,9 @@ import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
 import net.capps.word.game.ranking.EloRankingComputer;
 import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.providers.UserRecordChange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
 import java.sql.*;
@@ -18,6 +21,7 @@ import java.util.List;
  * Created by charlescapps on 12/26/14.
  */
 public class UsersDAO {
+    private static final Logger LOG = LoggerFactory.getLogger(UsersDAO.class);
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
     
     private static final String INSERT_USER_QUERY =
@@ -27,8 +31,14 @@ public class UsersDAO {
     private static final String UPDATE_USER_PASSWORD =
             "UPDATE word_users SET (hashpass, salt) = (?, ?) WHERE id = ?";
 
-    private static final String UPDATE_USER_RATING =
-            "UPDATE word_users SET rating = ? WHERE id = ?";
+    private static final String UPDATE_USER_RATING_WIN =
+            "UPDATE word_users SET (rating, wins) = (?, wins + 1) WHERE id = ?";
+
+    private static final String UPDATE_USER_RATING_LOSE =
+            "UPDATE word_users SET (rating, losses) = (?, losses + 1) WHERE id = ?";
+
+    private static final String UPDATE_USER_RATING_TIE =
+            "UPDATE word_users SET (rating, ties) = (?, ties + 1) WHERE id = ?";
 
     private static final String GET_USER_BY_ID_QUERY =
             "SELECT * FROM word_users WHERE id = ?;";
@@ -169,14 +179,31 @@ public class UsersDAO {
         }
     }
 
-    public void updateUserRating(Connection dbConn, int userId, int newRating) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_USER_RATING);
+    public void updateUserRating(Connection dbConn, int userId, int newRating, UserRecordChange userRecordChange) throws SQLException {
+        String sql;
+        switch (userRecordChange) {
+            case INCREASE_WINS:
+                sql = UPDATE_USER_RATING_WIN;
+                break;
+            case INCREASE_LOSSES:
+                sql = UPDATE_USER_RATING_LOSE;
+                break;
+            case INCREASE_TIES:
+                sql = UPDATE_USER_RATING_TIE;
+                break;
+            default:
+                LOG.error("Error - attempt to update user rating for userId {} and UserRecordChange = {}", userId, userRecordChange);
+                return;
+        }
+        PreparedStatement stmt = dbConn.prepareStatement(sql);
         stmt.setInt(1, newRating);
         stmt.setInt(2, userId);
 
         int numUpdated = stmt.executeUpdate();
         if (numUpdated != 1) {
-            throw new SQLException("Error - expected 1 user's rating to be updated, but numUpdated = " + numUpdated);
+            throw new SQLException(
+                    String.format("Error - expected 1 user's rating to be updated for userId = %d, but numUpdated = %d ",
+                            userId, numUpdated));
         }
     }
 
@@ -273,9 +300,15 @@ public class UsersDAO {
         Timestamp dateJoined = resultSet.getTimestamp("date_joined");
         boolean systemUser = resultSet.getBoolean("is_system_user");
         int rating = resultSet.getInt("rating");
+        int wins = resultSet.getInt("wins");
+        int losses = resultSet.getInt("losses");
+        int ties = resultSet.getInt("ties");
         UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
         user.setRating(rating);
+        user.setWins(wins);
+        user.setLosses(losses);
+        user.setTies(ties);
         return user;
     }
 }

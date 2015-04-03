@@ -14,7 +14,10 @@ public class TableDefinitions {
             "salt VARCHAR(16)," +
             "date_joined TIMESTAMP WITH TIME ZONE NOT NULL, " +
             "is_system_user BOOLEAN NOT NULL," +
-            "rating INTEGER NOT NULL" +
+            "rating INTEGER NOT NULL," +
+            "wins INTEGER NOT NULL DEFAULT 0," +
+            "losses INTEGER NOT NULL DEFAULT 0," +
+            "ties INTEGER NOT NULL DEFAULT 0," +
             ");";
 
     public static final String CREATE_LOWERCASE_USER_IDX =
