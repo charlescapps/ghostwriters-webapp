@@ -30,13 +30,13 @@ public class GamesProvider {
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
 
     // -------------- Errors ------------
-    private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The game id should not be specified.");
-    private static final ErrorModel ERR_MISSING_GAME_TYPE_FIELD = new ErrorModel("Missing gameType field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\"");
+    private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The \"gameId\" field should not be specified.");
+    private static final ErrorModel ERR_MISSING_GAME_TYPE_FIELD = new ErrorModel("Missing \"gameType\" field. Must be \"SINGLE_PLAYER\" or \"TWO_PLAYER\"");
     private static final ErrorModel ERR_PLAYER1_MUST_BE_AUTH_USER = new ErrorModel("Player 1 must be the logged in user.");
-    private static final ErrorModel ERR_MISSING_PLAYER2_ID = new ErrorModel("Missing player2 field for multi-player game.");
+    private static final ErrorModel ERR_MISSING_PLAYER2_ID = new ErrorModel("Missing \"player2\" field for multi player game.");
     private static final ErrorModel ERR_INVALID_PLAYER2_ID = new ErrorModel("Player 2 id isn't a valid User id.");
 
-    private static final ErrorModel ERR_MISSING_AI_TYPE = new ErrorModel("Missing aiType field for single player type game.");
+    private static final ErrorModel ERR_MISSING_AI_TYPE = new ErrorModel("Missing \"aiType\" field for single player game.");
     private static final ErrorModel ERR_CANNOT_START_GAME_WITH_SELF = new ErrorModel("Cannot start a game with yourself!");
 
     private static final ErrorModel ERR_MISSING_BOARD_SIZE = new ErrorModel("Missing \"boardSize\" field.");
