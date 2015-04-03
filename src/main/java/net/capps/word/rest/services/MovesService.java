@@ -66,7 +66,7 @@ public class MovesService {
 
             GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
             boolean isAiTurn = updatedGame.getPlayer1().equals(authUser.getId()) && !updatedGame.getPlayer1Turn() ||
-                    updatedGame.getPlayer2().equals(authUser.getId()) && updatedGame.getPlayer1Turn();
+                               updatedGame.getPlayer2().equals(authUser.getId()) && updatedGame.getPlayer1Turn();
 
             // For single player games, play the AI's move if the turn changed
             if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && isAiTurn) {

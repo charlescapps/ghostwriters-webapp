@@ -38,8 +38,8 @@ public class GamesDAO {
 
     private static final String SELECT_FROM_WITH_JOIN_ON_PLAYERS =
             "SELECT word_games.*, " +
-                    "p1.username AS p1_username, p1.email AS p1_email, p1.is_system_user AS p1_is_system_user, p1.date_joined AS p1_date_joined, " +
-                    "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined " +
+                    "p1.username AS p1_username, p1.email AS p1_email, p1.is_system_user AS p1_is_system_user, p1.date_joined AS p1_date_joined, p1.rating AS p1_rating, " +
+                    "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined, p2.rating AS p2_rating " +
                     "FROM word_games JOIN word_users AS p1 ON (player1 = p1.id) " +
                                     "JOIN word_users AS p2 ON (player2 = p2.id) ";
 
@@ -241,18 +241,22 @@ public class GamesDAO {
         String p1Email = result.getString("p1_email");
         Timestamp p1DateJoined = result.getTimestamp("p1_date_joined");
         boolean p1IsSystemUser = result.getBoolean("p1_is_system_user");
+        int p1Rating = result.getInt("p1_rating");
 
         int p2Id = result.getInt("player2");
         String p2Username = result.getString("p2_username");
         String p2Email = result.getString("p2_email");
         Timestamp p2DateJoined = result.getTimestamp("p2_date_joined");
         boolean p2IsSystemUser = result.getBoolean("p2_is_system_user");
+        int p2Rating = result.getInt("p2_rating");
 
         UserModel player1Model = new UserModel(p1Id, p1Username, p1Email, null, null, p1IsSystemUser);
         player1Model.setDateJoined(p1DateJoined.getTime());
+        player1Model.setRating(p1Rating);
 
         UserModel player2Model = new UserModel(p2Id, p2Username, p2Email, null, null, p2IsSystemUser);
         player2Model.setDateJoined(p2DateJoined.getTime());
+        player2Model.setRating(p2Rating);
 
         game.setPlayer1Model(player1Model);
         game.setPlayer2Model(player2Model);
