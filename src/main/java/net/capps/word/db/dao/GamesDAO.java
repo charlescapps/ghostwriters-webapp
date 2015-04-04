@@ -39,9 +39,9 @@ public class GamesDAO {
     private static final String SELECT_FROM_WITH_JOIN_ON_PLAYERS =
             "SELECT word_games.*, " +
                     "p1.username AS p1_username, p1.email AS p1_email, p1.is_system_user AS p1_is_system_user, p1.date_joined AS p1_date_joined, p1.rating AS p1_rating, " +
-                    "pl.wins AS p1_wins, p1.losses AS p1_losses, p1.ties AS p1_ties, " +
+                    "pl.wins AS p1_wins, p1.losses AS p1_losses, p1.ties AS p1_ties " +
                     "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined, p2.rating AS p2_rating, " +
-                    "p2.wins AS p2_wins, p2.losses AS p2_losses, p2.ties AS p2_ties, " +
+                    "p2.wins AS p2_wins, p2.losses AS p2_losses, p2.ties AS p2_ties " +
                     "FROM word_games JOIN word_users AS p1 ON (player1 = p1.id) " +
                                     "JOIN word_users AS p2 ON (player2 = p2.id) ";
 
