@@ -96,7 +96,8 @@ public class GamesService {
     @GET
     public Response getMyGames(@Context HttpServletRequest request,
                                @QueryParam("count") Integer count,
-                               @QueryParam("inProgress") Boolean inProgress) throws SQLException {
+                               @QueryParam("inProgress") Boolean inProgress,
+                               @QueryParam("includeMoves") Boolean includeMoves) throws SQLException {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
@@ -107,8 +108,10 @@ public class GamesService {
                     .entity(error.get())
                     .build();
         }
-
-        List<GameModel> games = gamesSearchProvider.getGamesForUser(authUser, count, inProgress);
-        return Response.ok(new GameListModel(games)).build();
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            boolean doIncludeMoves = Boolean.TRUE.equals(includeMoves);
+            List<GameModel> games = gamesSearchProvider.getGamesForUser(authUser, count, inProgress, doIncludeMoves, dbConn);
+            return Response.ok(new GameListModel(games)).build();
+        }
     }
 }

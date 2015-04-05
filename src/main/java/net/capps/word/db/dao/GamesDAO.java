@@ -43,7 +43,7 @@ public class GamesDAO {
                     "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined, p2.rating AS p2_rating, " +
                     "p2.wins AS p2_wins, p2.losses AS p2_losses, p2.ties AS p2_ties " +
                     "FROM word_games JOIN word_users AS p1 ON (player1 = p1.id) " +
-                                    "JOIN word_users AS p2 ON (player2 = p2.id) ";
+                    "JOIN word_users AS p2 ON (player2 = p2.id) ";
 
     private static final String QUERY_GAME_BY_ID_WITH_PLAYERS =
             SELECT_FROM_WITH_JOIN_ON_PLAYERS +
@@ -171,26 +171,35 @@ public class GamesDAO {
     }
 
     public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try(Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC);
-            stmt.setInt(1, userId);
-            stmt.setInt(2, userId);
-            stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
-            stmt.setInt(4, count);
-
-            ResultSet resultSet = stmt.executeQuery();
-
-            List<GameModel> games = new ArrayList<>();
-            while (resultSet.next()) {
-                games.add(getGameWithPlayersByResultSetRow(resultSet));
-            }
-
-            return games;
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            return getInProgressGamesForUserDateStartedDesc(userId, count, dbConn);
         }
     }
 
+    public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC);
+        stmt.setInt(1, userId);
+        stmt.setInt(2, userId);
+        stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
+        stmt.setInt(4, count);
+
+        ResultSet resultSet = stmt.executeQuery();
+
+        List<GameModel> games = new ArrayList<>();
+        while (resultSet.next()) {
+            games.add(getGameWithPlayersByResultSetRow(resultSet));
+        }
+
+        return games;
+    }
+
     public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try(Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            return getFinishedGamesForUserDateStartedDesc(userId, count, dbConn);
+        }
+    }
+
+    public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count, Connection dbConn) throws SQLException {
             PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_DATE_CREATED_DESC);
             stmt.setInt(1, userId);
             stmt.setInt(2, userId);
@@ -205,7 +214,6 @@ public class GamesDAO {
             }
 
             return games;
-        }
     }
 
     // ---------------- Private ----------------

@@ -6,6 +6,7 @@ import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public class GamesSearchProvider {
     private static final GamesSearchProvider INSTANCE = new GamesSearchProvider();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
+    private static final MovesProvider movesProvider = MovesProvider.getInstance();
 
     private static final int MAX_COUNT = 50;
 
@@ -35,12 +37,18 @@ public class GamesSearchProvider {
         return Optional.absent();
     }
 
-    public List<GameModel> getGamesForUser(UserModel authUser, int count, boolean inProgress) throws SQLException {
+    public List<GameModel> getGamesForUser(UserModel authUser, int count, boolean inProgress, boolean includeMoves, Connection dbConn) throws SQLException {
         List<GameModel> gameModels;
+
         if (inProgress) {
-            gameModels = gamesDAO.getInProgressGamesForUserDateStartedDesc(authUser.getId(), count);
+            gameModels = gamesDAO.getInProgressGamesForUserDateStartedDesc(authUser.getId(), count, dbConn);
         } else {
-            gameModels = gamesDAO.getFinishedGamesForUserDateStartedDesc(authUser.getId(), count);
+            gameModels = gamesDAO.getFinishedGamesForUserDateStartedDesc(authUser.getId(), count, dbConn);
+        }
+        if (includeMoves) {
+            for (GameModel gameModel: gameModels) {
+                movesProvider.populateLastMoves(gameModel, authUser, dbConn);
+            }
         }
         return gameModels;
     }
