@@ -20,6 +20,7 @@ import net.capps.word.rest.models.UserModel;
 import net.capps.word.util.ErrorOrResult;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,6 +143,21 @@ public class MovesProvider {
         List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(playerId, newGame.getId(), dbConn);
         newGame.setLastMoves(lastMoves);
     }
+
+    public void populateLastMoves(GameModel gameModel, UserModel authUser, Connection dbConn) throws SQLException {
+        // If it's the auth user's turn, then augment game model with move(s) played by opponent
+        if (gameModel.getPlayer1Turn() && gameModel.getPlayer1().equals(authUser.getId())) {
+            List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(gameModel.getPlayer2(), gameModel.getId(), dbConn);
+            gameModel.setLastMoves(lastMoves);
+        } else if (!gameModel.getPlayer1Turn() && gameModel.getPlayer2().equals(authUser.getId())) {
+            List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(gameModel.getPlayer1(), gameModel.getId(), dbConn);
+            gameModel.setLastMoves(lastMoves);
+        } else {
+            gameModel.setLastMoves(ImmutableList.<MoveModel>of());
+        }
+    }
+
+    // ------------ Private --------------
 
     private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 

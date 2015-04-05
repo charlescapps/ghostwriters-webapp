@@ -1,6 +1,7 @@
 package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
+import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
@@ -10,6 +11,7 @@ import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.GamesProvider;
 import net.capps.word.rest.providers.GamesSearchProvider;
+import net.capps.word.rest.providers.MovesProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -18,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -32,9 +35,11 @@ import static javax.ws.rs.core.Response.Status;
 @Filters.RegularUserAuthRequired
 public class GamesService {
     public static final String GAMES_PATH = "games";
-    private static final AuthHelper authHelper = AuthHelper.getInstance();
+    private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
+    private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final GamesProvider gamesProvider = GamesProvider.getInstance();
     private static final GamesSearchProvider gamesSearchProvider = GamesSearchProvider.getInstance();
+    private static final MovesProvider movesProvider = MovesProvider.getInstance();
 
     @Context
     private UriInfo uriInfo;
@@ -64,14 +69,28 @@ public class GamesService {
 
     @GET
     @Path("/{id}")
-    public Response getGameById(@PathParam("id") int id) throws Exception {
-        Optional<GameModel> game = GamesDAO.getInstance().getGameWithPlayerModelsById(id);
-        if (game.isPresent()) {
-            return Response.ok(game.get()).build();
+    public Response getGameById(@Context HttpServletRequest request, @PathParam("id") int id, @QueryParam("includeMoves") Boolean includeMoves) throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED)
+                    .entity(new ErrorModel("You must login to perform this action."))
+                    .build();
         }
-        return Response.status(Status.NOT_FOUND)
-                .entity(new ErrorModel(String.format("No game found with id %d", id)))
-                .build();
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            Optional<GameModel> gameOpt = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
+
+            if (!gameOpt.isPresent()) {
+                return Response.status(Status.NOT_FOUND)
+                        .entity(new ErrorModel(String.format("No game found with id %d", id)))
+                        .build();
+            }
+
+            GameModel gameModel = gameOpt.get();
+            if (Boolean.TRUE.equals(includeMoves)) {
+                movesProvider.populateLastMoves(gameModel, authUser, dbConn);
+            }
+            return Response.ok(gameModel).build();
+        }
     }
 
     @GET

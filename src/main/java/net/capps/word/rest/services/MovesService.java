@@ -44,7 +44,6 @@ public class MovesService {
     public Response playMove(@Context HttpServletRequest request, MoveModel input) throws Exception {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
-            LOG.info("MOVES SERVICE: auth user is null");
             return Response.status(Status.UNAUTHORIZED)
                     .entity(new ErrorModel("You must login to send a move."))
                     .build();
