@@ -14,6 +14,7 @@ import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.MovesProvider;
+import net.capps.word.rest.providers.OneSignalProvider;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.util.ErrorOrResult;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import static javax.ws.rs.core.Response.Status;
 public class MovesService {
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
+    private static final OneSignalProvider oneSignalProvider = OneSignalProvider.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(MovesService.class);
 
     @POST
@@ -78,6 +80,13 @@ public class MovesService {
             ratingsProvider.updatePlayerRatings(updatedGame.getPlayer1Model(), updatedGame.getPlayer2Model(), updatedGame.getGameResult(), updatedGame.getBoardSize(), dbConn);
 
             dbConn.commit();
+
+            try {
+                oneSignalProvider.sendPushNotificationForMove(originalGame, updatedGame);
+            } catch (Throwable t) {
+                LOG.warn("An error occurred trying to send a push notification to One Signal:", t);
+            }
+
             return Response.ok(updatedGame).build();
         }
 
