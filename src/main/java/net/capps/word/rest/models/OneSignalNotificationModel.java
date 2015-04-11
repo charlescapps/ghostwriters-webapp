@@ -9,7 +9,7 @@ public class OneSignalNotificationModel {
     private String app_id;
     private OneSignalContentModel contents;
     private OneSignalContentModel headings;
-    private List<?> data;
+    private Object data;
     private Boolean isAndroid;
     private Boolean isIos;
     private List<OneSignalTagModel> tags;
@@ -48,11 +48,11 @@ public class OneSignalNotificationModel {
         this.headings = headings;
     }
 
-    public List<?> getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(List<?> data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
