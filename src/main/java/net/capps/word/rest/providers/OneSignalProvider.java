@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.*;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.SslConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 
 /**
@@ -66,10 +68,22 @@ public class OneSignalProvider {
         notification.setIsAndroid(true);
         notification.setIsIos(true);
 
-        CLIENT.target(ONE_SIGNAL_NOTIFICATIONS_URI)
+        Response response = CLIENT.target(ONE_SIGNAL_NOTIFICATIONS_URI)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .header("Authorization", AUTHZ_HEADER)
                 .post(Entity.entity(notification, MediaType.APPLICATION_JSON_TYPE));
+
+        String responseBody = null;
+        if (response.hasEntity()) {
+            responseBody = response.readEntity(String.class);
+        }
+
+        if (response.getStatusInfo().getStatusCode() != HttpStatus.OK_200) {
+            LOG.error("FAIL - Received non-200 response from OneSignal: {}", response.getStatusInfo().getStatusCode());
+        } else {
+            LOG.info("SUCCESS - Received 200 response from sending push notification to player {} ({})", currentUser.getUsername(), currentUser.getId());
+        }
+        LOG.info("Response body: {}", responseBody);
     }
 
     // -------- Private ----------
