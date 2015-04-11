@@ -4,21 +4,21 @@ package net.capps.word.rest.models;
  * Created by charlescapps on 4/10/15.
  */
 public class OneSignalUpdatedGameData {
-    private int updatedGame;
+    private String updatedGame;
 
     public OneSignalUpdatedGameData() {
 
     }
 
-    public OneSignalUpdatedGameData(int updatedGame) {
+    public OneSignalUpdatedGameData(String updatedGame) {
         this.updatedGame = updatedGame;
     }
 
-    public int getUpdatedGame() {
+    public String getUpdatedGame() {
         return updatedGame;
     }
 
-    public void setUpdatedGame(int updatedGame) {
+    public void setUpdatedGame(String updatedGame) {
         this.updatedGame = updatedGame;
     }
 }

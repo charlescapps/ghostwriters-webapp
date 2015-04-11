@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.*;
@@ -65,7 +64,7 @@ public class OneSignalProvider {
                 null,
                 Lists.newArrayList(tag));
 
-        notification.setData(new OneSignalUpdatedGameData(updatedGame.getId()));
+        notification.setData(new OneSignalUpdatedGameData(Integer.toString(updatedGame.getId())));
         notification.setIsAndroid(true);
       //  notification.setIsIos(true);
 
