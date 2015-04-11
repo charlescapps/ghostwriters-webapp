@@ -65,7 +65,7 @@ public class OneSignalProvider {
                 null,
                 Lists.newArrayList(tag));
 
-        notification.setData(new OneSignalUpdatedGameData(updatedGame));
+        notification.setData(new OneSignalUpdatedGameData(updatedGame.getId()));
         notification.setIsAndroid(true);
       //  notification.setIsIos(true);
 
