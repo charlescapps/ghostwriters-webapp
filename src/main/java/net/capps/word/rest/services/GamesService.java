@@ -91,7 +91,7 @@ public class GamesService {
             GameModel gameModel = gameOpt.get();
             if (currentMove != null && currentMove >= gameModel.getMoveNum()) {
                 // Return an empty response if the current move the client has is just as recent as this move.
-                return Response.ok().build();
+                return Response.ok(GameModel.EMPTY_GAME).build();
             }
 
             if (Boolean.TRUE.equals(includeMoves)) {

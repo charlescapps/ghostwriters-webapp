@@ -9,6 +9,8 @@ import java.util.List;
  * Created by charlescapps on 1/18/15.
  */
 public class GameModel {
+    public static final GameModel EMPTY_GAME = new GameModel();
+
     private Integer id;
     private GameType gameType;
     private AiType aiType;
