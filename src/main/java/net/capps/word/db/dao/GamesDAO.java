@@ -13,7 +13,6 @@ import net.capps.word.rest.models.UserModel;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,12 +24,12 @@ public class GamesDAO {
 
     private static final String INSERT_GAME_QUERY =
             "INSERT INTO word_games (game_type, ai_type, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
-                    "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, date_started)" +
-                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "board_size, bonuses_type, game_density, squares, tiles, game_result, player1_turn, last_activity, date_started)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_GAME_QUERY =
-            "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn) " +
-                    " = (?, ?, ?, ?, ?, ?, ?, ?) " +
+            "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn, move_num, last_activity) " +
+                    " = (?, ?, ?, ?, ?, ?, ?, ?, move_num + 1, ?) " +
                     "WHERE id = ?;";
 
     private static final String QUERY_GAME_BY_ID =
@@ -49,13 +48,13 @@ public class GamesDAO {
             SELECT_FROM_WITH_JOIN_ON_PLAYERS +
                     "WHERE word_games.id = ?;";
 
-    private static final String QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC =
+    private static final String QUERY_IN_PROGRESS_GAMES_LAST_ACTIVITY_DESC =
             SELECT_FROM_WITH_JOIN_ON_PLAYERS +
-                    "WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY date_started DESC LIMIT ?;";
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
 
-    private static final String QUERY_FINISHED_GAMES_DATE_CREATED_DESC =
+    private static final String QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC =
             SELECT_FROM_WITH_JOIN_ON_PLAYERS +
-                    "WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY date_started DESC LIMIT ?;";
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY last_activity DESC LIMIT ?;";
 
     public static GamesDAO getInstance() {
         return INSTANCE;
@@ -87,8 +86,9 @@ public class GamesDAO {
             stmt.setShort(14, (short) GameResult.IN_PROGRESS.ordinal());
             stmt.setBoolean(15, true); // Always starts as player 1's turn.
 
-            Timestamp timestamp = new Timestamp(new Date().getTime());
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             stmt.setTimestamp(16, timestamp);
+            stmt.setTimestamp(17, timestamp);
 
             stmt.executeUpdate();
 
@@ -147,7 +147,8 @@ public class GamesDAO {
             updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
             updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
             updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
-            updateGameStmt.setInt(9, updatedGame.getGameId());
+            updateGameStmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+            updateGameStmt.setInt(10, updatedGame.getGameId());
 
             int rowCount = updateGameStmt.executeUpdate();
 
@@ -172,12 +173,12 @@ public class GamesDAO {
 
     public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getInProgressGamesForUserDateStartedDesc(userId, count, dbConn);
+            return getInProgressGamesForUserLastActivityDesc(userId, count, dbConn);
         }
     }
 
-    public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count, Connection dbConn) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_DATE_CREATED_DESC);
+    public List<GameModel> getInProgressGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_LAST_ACTIVITY_DESC);
         stmt.setInt(1, userId);
         stmt.setInt(2, userId);
         stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
@@ -195,12 +196,12 @@ public class GamesDAO {
 
     public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getFinishedGamesForUserDateStartedDesc(userId, count, dbConn);
+            return getFinishedGamesForUserLastActivityDesc(userId, count, dbConn);
         }
     }
 
-    public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count, Connection dbConn) throws SQLException {
-            PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_DATE_CREATED_DESC);
+    public List<GameModel> getFinishedGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+            PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
             stmt.setInt(1, userId);
             stmt.setInt(2, userId);
             stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
@@ -239,7 +240,10 @@ public class GamesDAO {
         game.setTiles(result.getString("tiles"));
         game.setGameResult(GameResult.values()[result.getShort("game_result")]);
         game.setPlayer1Turn(result.getBoolean("player1_turn"));
+        game.setMoveNum(result.getInt("move_num"));
+        Timestamp lastActivity = result.getTimestamp("last_activity");
         Timestamp dateStarted = result.getTimestamp("date_started");
+        game.setLastActivity(lastActivity.getTime());
         game.setDateCreated(dateStarted.getTime());
         return game;
     }

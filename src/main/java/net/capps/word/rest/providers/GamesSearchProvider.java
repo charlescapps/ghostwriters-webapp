@@ -37,13 +37,13 @@ public class GamesSearchProvider {
         return Optional.absent();
     }
 
-    public List<GameModel> getGamesForUser(UserModel authUser, int count, boolean inProgress, boolean includeMoves, Connection dbConn) throws SQLException {
+    public List<GameModel> getGamesForUserLastActivityDesc(UserModel authUser, int count, boolean inProgress, boolean includeMoves, Connection dbConn) throws SQLException {
         List<GameModel> gameModels;
 
         if (inProgress) {
-            gameModels = gamesDAO.getInProgressGamesForUserDateStartedDesc(authUser.getId(), count, dbConn);
+            gameModels = gamesDAO.getInProgressGamesForUserLastActivityDesc(authUser.getId(), count, dbConn);
         } else {
-            gameModels = gamesDAO.getFinishedGamesForUserDateStartedDesc(authUser.getId(), count, dbConn);
+            gameModels = gamesDAO.getFinishedGamesForUserLastActivityDesc(authUser.getId(), count, dbConn);
         }
         if (includeMoves) {
             for (GameModel gameModel: gameModels) {

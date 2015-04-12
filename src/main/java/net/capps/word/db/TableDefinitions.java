@@ -44,6 +44,8 @@ public class TableDefinitions {
                     "tiles VARCHAR(800) NOT NULL," +
                     "game_result SMALLINT NOT NULL," +
                     "player1_turn BOOLEAN NOT NULL," +
+                    "move_num INTEGER NOT NULL DEFAULT 1," +
+                    "last_activity TIMESTAMP WITH TIME ZONE NOT NULL," +
                     "date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
 
     public static final String CREATE_MOVES_TABLE =

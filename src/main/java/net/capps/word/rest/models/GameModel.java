@@ -28,6 +28,8 @@ public class GameModel {
     private String tiles;
     private GameResult gameResult;
     private Boolean player1Turn;
+    private Integer moveNum;
+    private Long lastActivity;
     private Long dateCreated;
     private List<MoveModel> lastMoves;
 
@@ -186,6 +188,22 @@ public class GameModel {
 
     public void setPlayer1Turn(Boolean player1Turn) {
         this.player1Turn = player1Turn;
+    }
+
+    public Integer getMoveNum() {
+        return moveNum;
+    }
+
+    public void setMoveNum(Integer moveNum) {
+        this.moveNum = moveNum;
+    }
+
+    public Long getLastActivity() {
+        return lastActivity;
+    }
+
+    public void setLastActivity(Long lastActivity) {
+        this.lastActivity = lastActivity;
     }
 
     public Long getDateCreated() {

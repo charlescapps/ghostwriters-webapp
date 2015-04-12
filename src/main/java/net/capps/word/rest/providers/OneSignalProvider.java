@@ -55,7 +55,7 @@ public class OneSignalProvider {
         }
 
         final OneSignalTagModel tag = new OneSignalTagModel("ghostwriters_id", Integer.toString(currentUser.getId()), "=");
-        final OneSignalContentModel contents = new OneSignalContentModel("It's your move in your game with " + opponentUser.getUsername() + ".");
+        final OneSignalContentModel contents = new OneSignalContentModel("It's your move vs. " + opponentUser.getUsername() + ".");
         final OneSignalContentModel headings = new OneSignalContentModel("It's your move!");
 
         OneSignalNotificationModel notification = new OneSignalNotificationModel(

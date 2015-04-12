@@ -217,7 +217,7 @@ public class Game {
         // If there are tiles left to grab, OR the other player's rack isn't empty, then swap whose turn it is
         // Otherwise, it remains the same player's turn.
         boolean areAllTilesPlayed = tileSet.areAllTilesPlayed();
-        return !areAllTilesPlayed || !getOpponentPlayerRack().isEmpty();
+        return !areAllTilesPlayed || !getOpponentPlayerRack().isEmpty() || gameResult != GameResult.IN_PROGRESS;
     }
 
 

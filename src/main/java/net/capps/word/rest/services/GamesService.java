@@ -69,7 +69,10 @@ public class GamesService {
 
     @GET
     @Path("/{id}")
-    public Response getGameById(@Context HttpServletRequest request, @PathParam("id") int id, @QueryParam("includeMoves") Boolean includeMoves) throws Exception {
+    public Response getGameById(@Context HttpServletRequest request,
+                                @PathParam("id") int id,
+                                @QueryParam("includeMoves") Boolean includeMoves,
+                                @QueryParam("currentMove") Integer currentMove) throws Exception {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED)
@@ -86,6 +89,11 @@ public class GamesService {
             }
 
             GameModel gameModel = gameOpt.get();
+            if (currentMove != null && currentMove >= gameModel.getMoveNum()) {
+                // Return an empty response if the current move the client has is just as recent as this move.
+                return Response.ok().build();
+            }
+
             if (Boolean.TRUE.equals(includeMoves)) {
                 movesProvider.populateLastMoves(gameModel, authUser, dbConn);
             }
@@ -110,7 +118,7 @@ public class GamesService {
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             boolean doIncludeMoves = Boolean.TRUE.equals(includeMoves);
-            List<GameModel> games = gamesSearchProvider.getGamesForUser(authUser, count, inProgress, doIncludeMoves, dbConn);
+            List<GameModel> games = gamesSearchProvider.getGamesForUserLastActivityDesc(authUser, count, inProgress, doIncludeMoves, dbConn);
             return Response.ok(new GameListModel(games)).build();
         }
     }
