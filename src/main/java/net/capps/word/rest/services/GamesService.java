@@ -124,6 +124,26 @@ public class GamesService {
         }
     }
 
+    @GET
+    @Path("offeredToMe")
+    public Response getGamesOfferedToMe(@Context HttpServletRequest request,
+                               @QueryParam("count") Integer count) throws SQLException {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        Optional<ErrorModel> error = gamesSearchProvider.validateCount(count);
+        if (error.isPresent()) {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(error.get())
+                    .build();
+        }
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            List<GameModel> games = gamesDAO.getGamesOfferedToUserLastActivityDesc(authUser.getId(), count, dbConn);
+            return Response.ok(new GameListModel(games)).build();
+        }
+    }
+
     @POST
     @Path("/{id}/accept")
     public Response acceptGameOffer(@Context HttpServletRequest request, @PathParam("id") int id) throws Exception {

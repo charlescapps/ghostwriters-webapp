@@ -20,19 +20,31 @@ public class GamesSearchProvider {
 
     private static final int MAX_COUNT = 50;
 
+    // --------- Errors -----------
+    private static final Optional<ErrorModel> ERR_MISSING_COUNT = Optional.of(new ErrorModel("Missing 'count' query param"));
+    private static final Optional<ErrorModel> ERR_INVALID_COUNT = Optional.of(new ErrorModel("The 'count' query param must be > 0 and <= " + MAX_COUNT));
+    private static final Optional<ErrorModel> ERR_MISSING_IN_PROGRESS = Optional.of(new ErrorModel("Missing 'inProgress' query param"));
+
     public static GamesSearchProvider getInstance() {
         return INSTANCE;
     }
 
     public Optional<ErrorModel> validateSearchParams(Integer count, Boolean inProgress) {
         if (count == null) {
-            return Optional.of(new ErrorModel("Must specifiy the 'count' query param, of type int"));
+            return ERR_MISSING_COUNT;
         }
         if (count <= 0 || count > MAX_COUNT) {
-            return Optional.of(new ErrorModel("The 'count' query param must be > 0 and <= " + MAX_COUNT));
+            return ERR_INVALID_COUNT;
         }
         if (inProgress == null) {
-            return Optional.of(new ErrorModel("Must specify the 'inProgress' query param, of type boolean."));
+            return ERR_MISSING_IN_PROGRESS;
+        }
+        return Optional.absent();
+    }
+
+    public Optional<ErrorModel> validateCount(int count) {
+        if (count <= 0 || count > MAX_COUNT) {
+            return ERR_MISSING_COUNT;
         }
         return Optional.absent();
     }
