@@ -63,6 +63,10 @@ public class GamesDAO {
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
                     "WHERE player2 = ? AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
 
+    private static final String QUERY_GAMES_OFFERED_BY_USER_LAST_ACTIVITY_DESC =
+            SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
+                    "WHERE player1 = ? AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
+
     public static GamesDAO getInstance() {
         return INSTANCE;
     }
@@ -232,6 +236,22 @@ public class GamesDAO {
 
     public List<GameModel> getGamesOfferedToUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAMES_OFFERED_TO_USER_LAST_ACTIVITY_DESC);
+        stmt.setInt(1, userId);
+        stmt.setInt(2, GameResult.OFFERED.ordinal());
+        stmt.setInt(3, count);
+
+        ResultSet resultSet = stmt.executeQuery();
+
+        List<GameModel> games = new ArrayList<>();
+        while (resultSet.next()) {
+            games.add(getGameWithPlayersByResultSetRow(resultSet));
+        }
+
+        return games;
+    }
+
+    public List<GameModel> getGamesOfferedByUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAMES_OFFERED_BY_USER_LAST_ACTIVITY_DESC);
         stmt.setInt(1, userId);
         stmt.setInt(2, GameResult.OFFERED.ordinal());
         stmt.setInt(3, count);
