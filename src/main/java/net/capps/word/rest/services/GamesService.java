@@ -5,10 +5,7 @@ import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
-import net.capps.word.rest.models.ErrorModel;
-import net.capps.word.rest.models.GameListModel;
-import net.capps.word.rest.models.GameModel;
-import net.capps.word.rest.models.UserModel;
+import net.capps.word.rest.models.*;
 import net.capps.word.rest.providers.GamesProvider;
 import net.capps.word.rest.providers.GamesSearchProvider;
 import net.capps.word.rest.providers.MovesProvider;
@@ -40,6 +37,10 @@ public class GamesService {
     private static final GamesProvider gamesProvider = GamesProvider.getInstance();
     private static final GamesSearchProvider gamesSearchProvider = GamesSearchProvider.getInstance();
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
+
+    // ------ OK results ------
+    private static final GenericOkModel OK_ACCEPTED_GAME = new GenericOkModel("Game accepted!");
+    private static final GenericOkModel OK_REJECTED_GAME = new GenericOkModel("Game rejected!");
 
     @Context
     private UriInfo uriInfo;
@@ -121,5 +122,47 @@ public class GamesService {
             List<GameModel> games = gamesSearchProvider.getGamesForUserLastActivityDesc(authUser, count, inProgress, doIncludeMoves, dbConn);
             return Response.ok(new GameListModel(games)).build();
         }
+    }
+
+    @POST
+    @Path("/{id}/accept")
+    public Response acceptGameOffer(@Context HttpServletRequest request, @PathParam("id") int id) throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            Optional<ErrorModel> validationErrorOpt = gamesProvider.validateAcceptOrRejectGameOffer(id, authUser, dbConn);
+            if (validationErrorOpt.isPresent()) {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(validationErrorOpt.get())
+                        .build();
+            }
+
+            gamesDAO.acceptGame(id, dbConn);
+        }
+        return Response.ok(OK_ACCEPTED_GAME).build();
+    }
+
+    @POST
+    @Path("/{id}/reject")
+    public Response rejectGameOffer(@Context HttpServletRequest request, @PathParam("id") int id) throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            Optional<ErrorModel> validationErrorOpt = gamesProvider.validateAcceptOrRejectGameOffer(id, authUser, dbConn);
+            if (validationErrorOpt.isPresent()) {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(validationErrorOpt.get())
+                        .build();
+            }
+
+            gamesDAO.rejectGame(id, dbConn);
+        }
+        return Response.ok(OK_REJECTED_GAME).build();
     }
 }

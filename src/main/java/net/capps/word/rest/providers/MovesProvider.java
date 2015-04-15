@@ -65,7 +65,10 @@ public class MovesProvider {
         }
         GameModel game = gameOpt.get();
 
-        if (game.getGameResult() != GameResult.IN_PROGRESS) {
+        // It must either be an IN_PROGRESS game
+        // OR - the game was offered and it's the offering user's turn.
+        if (game.getGameResult() != GameResult.IN_PROGRESS &&
+                !(game.getGameResult() == GameResult.OFFERED && game.getPlayer1().equals(authUser.getId()))) {
             return ErrorOrResult.ofError(ERROR_GAME_NOT_IN_PROGRESS);
         }
 

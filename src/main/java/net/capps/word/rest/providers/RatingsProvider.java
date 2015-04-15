@@ -29,11 +29,6 @@ public class RatingsProvider {
     public void updatePlayerRatings(UserModel player1, UserModel player2, GameResult gameResult, BoardSize boardSize, Connection dbConn)
             throws SQLException {
         switch (gameResult) {
-            case IN_PROGRESS:
-            case PLAYER1_TIMEOUT:
-            case PLAYER2_TIMEOUT:
-                // Do nothing if the game isn't over.
-                return;
             case PLAYER1_WIN:
             case PLAYER2_WIN:
             case TIE:
@@ -47,6 +42,9 @@ public class RatingsProvider {
                 final int player2NewRating = player2Rating - player1RatingChange;
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
+            default:
+                // Do nothing if the game isn't over due to a win or a tie.
+
         }
     }
 

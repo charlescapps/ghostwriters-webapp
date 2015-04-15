@@ -26,6 +26,9 @@ import static java.lang.String.format;
 public class Game {
     private static final LetterPoints letterPoints = LetterPoints.getInstance();
 
+    // --------- Errors ---------
+    private static final Optional<String> ERR_CANNOT_PLAY = Optional.of("Cannot play more moves, game is complete!");
+
     private final int gameId;
     private final int N;
     private final SquareSet squareSet;
@@ -129,8 +132,8 @@ public class Game {
     }
 
     public Optional<String> getMoveError(Move move) {
-        if (gameResult != GameResult.IN_PROGRESS) {
-            return Optional.of("Cannot play more moves, game is complete!");
+        if (gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
+            return ERR_CANNOT_PLAY;
         }
         switch (move.getMoveType()) {
             case PLAY_WORD:
@@ -144,7 +147,7 @@ public class Game {
     }
 
     public int playMove(Move validatedMove) {
-        if(gameResult != GameResult.IN_PROGRESS) {
+        if(gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
             throw new IllegalStateException("Can't play a move for a finished game!");
         }
         switch (validatedMove.getMoveType()) {
@@ -260,7 +263,7 @@ public class Game {
     private GameResult checkForGameEnd(Move validatedMove) {
         switch (validatedMove.getMoveType()) {
             case GRAB_TILES:
-                return GameResult.IN_PROGRESS; // Game cannot end immediately after grabbing tiles
+                return gameResult; // Game cannot end immediately after grabbing tiles
             case PLAY_WORD:
                 // End game if both player's racks are empty and all tiles are played
                 if (player1Rack.isEmpty() && player2Rack.isEmpty()) {
@@ -268,7 +271,7 @@ public class Game {
                         return computeGameResultFromFinalPoints();
                     }
                 }
-                return GameResult.IN_PROGRESS;
+                return gameResult;
             case PASS:
                 if (previousMoveOpt.isPresent()) {
                     Move previousMove = previousMoveOpt.get();
@@ -285,7 +288,7 @@ public class Game {
                    !isPlayer1Turn() && player1Rack.isEmpty() && tileSet.areAllTilesPlayed()) {
                     return computeGameResultFromFinalPoints();
                 }
-                return GameResult.IN_PROGRESS;
+                return gameResult;
             default:
                 throw new IllegalStateException("Impossible; all move types covered.");
         }

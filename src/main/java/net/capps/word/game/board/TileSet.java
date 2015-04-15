@@ -32,6 +32,12 @@ public class TileSet implements Iterable<Pos> {
     private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
     private static final DictionarySet DICTIONARY_SET = Dictionaries.getAllWordsSet();
 
+    // ----------- Errors ----------
+    private static final Optional<String> ERR_GRAB_TILES_ON_EMPTY = Optional.of("Grab tiles move must start on an occupied tile");
+    private static final Optional<String> ERR_START_POS_OFF_BOARD = Optional.of("Start position is off the board.");
+    private static final Optional<String> ERR_INVALID_MOVE_START = Optional.of("A move can't start in the middle of a word on the board!");
+    private static final Optional<String> ERR_MUST_PLAY_ALL_TILES = Optional.of("All tiles being played must be used in the word formed.");
+
     public final Tile[][] tiles;
     public final int N;
 
@@ -263,7 +269,7 @@ public class TileSet implements Iterable<Pos> {
     public Optional<String> isValidGrabTilesMove(Move move) {
         // Check if the move starts in a valid place.
         if (!isOccupied(move.getStart())) {
-            return Optional.of("Grab Tiles move must start on an occupied tile");
+            return ERR_GRAB_TILES_ON_EMPTY;
         }
 
         // Check if the tiles being added to the Rack match what's taken from the board.
@@ -277,12 +283,12 @@ public class TileSet implements Iterable<Pos> {
 
     private Optional<String> doesMoveStartInValidPosition(Pos start, Dir dir) {
         if (!isValid(start)) {
-            return Optional.of("Start position is off the board.");
+            return ERR_START_POS_OFF_BOARD;
         }
 
         Pos previous = start.go(dir.negate());
         if (isOccupied(previous)) {
-            return Optional.of("A move can't start in the middle of a word on the board!");
+            return ERR_INVALID_MOVE_START;
         }
         return Optional.absent();
     }
@@ -308,7 +314,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         if (rackIndex != tiles.size()) {
-            return Optional.of("All tiles being played must be consumed.");
+            return ERR_MUST_PLAY_ALL_TILES;
         }
 
         return Optional.absent();
@@ -351,7 +357,7 @@ public class TileSet implements Iterable<Pos> {
 
         // Must be a valid dictionary word
         if (!DICTIONARY_SET.contains(word)) {
-            return Optional.of(format("\"%s\" is not a valid dictionary word.", word));
+            return Optional.of(format("\"%s\" is not in our dictionary!", word));
         }
 
         // Can only play EAST or SOUTH

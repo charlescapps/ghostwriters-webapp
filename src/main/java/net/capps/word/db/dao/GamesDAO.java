@@ -32,6 +32,9 @@ public class GamesDAO {
                     " = (?, ?, ?, ?, ?, ?, ?, ?, move_num + 1, ?) " +
                     "WHERE id = ?;";
 
+    private static final String UPDATE_GAME_RESULT =
+            "UPDATE word_games SET game_result = ? WHERE id = ?;";
+
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
 
@@ -54,7 +57,7 @@ public class GamesDAO {
 
     private static final String QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC =
             SELECT_FROM_WITH_JOIN_ON_PLAYERS +
-                    "WHERE (player1 = ? OR player2 = ?) AND game_result != ? ORDER BY last_activity DESC LIMIT ?;";
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result > ? ORDER BY last_activity DESC LIMIT ?;";
 
     public static GamesDAO getInstance() {
         return INSTANCE;
@@ -83,7 +86,12 @@ public class GamesDAO {
             stmt.setShort(11, (short) validatedInputGame.getGameDensity().ordinal());
             stmt.setString(12, squares);
             stmt.setString(13, tiles);
-            stmt.setShort(14, (short) GameResult.IN_PROGRESS.ordinal());
+            // Single player --> Game is immediately IN_PROGRESS
+            // Two player --> Game starts in OFFERED state
+            GameResult initialGameResult = validatedInputGame.getGameType() == GameType.SINGLE_PLAYER ?
+                    GameResult.IN_PROGRESS :
+                    GameResult.OFFERED;
+            stmt.setShort(14, (short) initialGameResult.ordinal());
             stmt.setBoolean(15, true); // Always starts as player 1's turn.
 
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -102,13 +110,13 @@ public class GamesDAO {
         }
     }
 
-    public Optional<GameModel> getGameById(int gameId) throws Exception {
+    public Optional<GameModel> getGameById(int gameId) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             return getGameById(gameId, dbConn);
         }
     }
 
-    public Optional<GameModel> getGameById(int gameId, Connection dbConn) throws Exception {
+    public Optional<GameModel> getGameById(int gameId, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID);
         stmt.setInt(1, gameId);
 
@@ -171,6 +179,30 @@ public class GamesDAO {
         }
     }
 
+    public void acceptGame(int gameId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+        stmt.setShort(1, (short) GameResult.IN_PROGRESS.ordinal());
+        stmt.setInt(2, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException("Expected 1 row to be updated when accepting game, but the number updated = " + numUpdated);
+        }
+    }
+
+    public void rejectGame(int gameId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+        stmt.setShort(1, (short) GameResult.REJECTED.ordinal());
+        stmt.setInt(2, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException("Expected 1 row to be updated when rejecting game, but the number updated = " + numUpdated);
+        }
+    }
+
     public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             return getInProgressGamesForUserLastActivityDesc(userId, count, dbConn);
@@ -204,7 +236,7 @@ public class GamesDAO {
             PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
             stmt.setInt(1, userId);
             stmt.setInt(2, userId);
-            stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
+            stmt.setInt(3, GameResult.REJECTED.ordinal());
             stmt.setInt(4, count);
 
             ResultSet resultSet = stmt.executeQuery();

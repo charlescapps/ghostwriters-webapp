@@ -19,6 +19,8 @@ import net.capps.word.rest.services.GamesService;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Created by charlescapps on 1/18/15.
@@ -26,8 +28,9 @@ import java.net.URI;
 public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
-    private static final GameGenerator gameGenerator = new DefaultGameGenerator();
+    private static final GameGenerator GAME_GENERATOR = new DefaultGameGenerator();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
+    private static final GamesDAO gamesDAO = GamesDAO.getInstance();
 
     // -------------- Errors ------------
     private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The \"gameId\" field should not be specified.");
@@ -35,6 +38,7 @@ public class GamesProvider {
     private static final ErrorModel ERR_PLAYER1_MUST_BE_AUTH_USER = new ErrorModel("Player 1 must be the logged in user.");
     private static final ErrorModel ERR_MISSING_PLAYER2_ID = new ErrorModel("Missing \"player2\" field for multi player game.");
     private static final ErrorModel ERR_INVALID_PLAYER2_ID = new ErrorModel("Player 2 id isn't a valid User id.");
+    private static final ErrorModel ERR_INVALID_GAME_ID = new ErrorModel("Invalid game ID.");
 
     private static final ErrorModel ERR_MISSING_AI_TYPE = new ErrorModel("Missing \"aiType\" field for single player game.");
     private static final ErrorModel ERR_CANNOT_START_GAME_WITH_SELF = new ErrorModel("Cannot start a game with yourself!");
@@ -42,6 +46,8 @@ public class GamesProvider {
     private static final ErrorModel ERR_MISSING_BOARD_SIZE = new ErrorModel("Missing \"boardSize\" field.");
     private static final ErrorModel ERR_MISSING_BONUSES_TYPE = new ErrorModel("Missing \"bonusesType\" field.");
     private static final ErrorModel ERR_MISSING_GAME_DENSITY = new ErrorModel("Missing \"gameDensity\" field.");
+
+    private static final ErrorModel ERR_INVALID_ACCEPT_OR_REJECT_USER = new ErrorModel("You can't accept/reject this game.");
 
     // -------------- Private fields ---------
 
@@ -100,6 +106,20 @@ public class GamesProvider {
         return Optional.absent();
     }
 
+    public Optional<ErrorModel> validateAcceptOrRejectGameOffer(int gameId, UserModel authUser, Connection dbConn) throws SQLException {
+        Optional<GameModel> gameOpt = gamesDAO.getGameById(gameId, dbConn);
+        if (!gameOpt.isPresent()) {
+            return Optional.of(ERR_INVALID_GAME_ID);
+        }
+
+        GameModel game = gameOpt.get();
+        if (!game.getPlayer2().equals(authUser.getId()) || game.getGameResult() != GameResult.OFFERED) {
+            return Optional.of(ERR_INVALID_ACCEPT_OR_REJECT_USER);
+        }
+
+        return Optional.absent();
+    }
+
     public URI getGameURI(int gameId, UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(GamesService.GAMES_PATH)
@@ -112,7 +132,7 @@ public class GamesProvider {
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
 
-        TileSet tileSet = gameGenerator.generateRandomFinishedGame(bs.getN(), numWords, bs.getMaxInitialWordSize());
+        TileSet tileSet = GAME_GENERATOR.generateRandomFinishedGame(bs.getN(), numWords, bs.getMaxInitialWordSize());
 
         BonusesType bt = validatedInputGame.getBonusesType();
 
@@ -130,7 +150,7 @@ public class GamesProvider {
             validatedInputGame.setPlayer2(systemUser.get().getId());
         }
 
-        GameModel createdGame = GamesDAO.getInstance().createNewGame(validatedInputGame, tileSet, squareSet);
+        GameModel createdGame = gamesDAO.createNewGame(validatedInputGame, tileSet, squareSet);
         Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(createdGame.getPlayer2());
         if (!player2Model.isPresent()) {
             throw new Exception("Error - player2 was not found in the database. User ID is: " + createdGame.getPlayer2());
