@@ -5,7 +5,7 @@ package net.capps.word.rest.models;
  */
 public class PushData {
     private String updatedGame;
-    private Boolean isGameOffer;
+    private String isGameOffer;
 
     public PushData() {
 
@@ -23,11 +23,11 @@ public class PushData {
         this.updatedGame = updatedGame;
     }
 
-    public Boolean getIsGameOffer() {
+    public String getIsGameOffer() {
         return isGameOffer;
     }
 
-    public void setIsGameOffer(Boolean isGameOffer) {
+    public void setIsGameOffer(String isGameOffer) {
         this.isGameOffer = isGameOffer;
     }
 }

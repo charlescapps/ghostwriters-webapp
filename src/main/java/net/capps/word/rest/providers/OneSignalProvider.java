@@ -86,7 +86,7 @@ public class OneSignalProvider {
 
         PushData pushData = new PushData(Integer.toString(updatedGame.getId()));
         if (isGameOffer) {
-            pushData.setIsGameOffer(true);
+            pushData.setIsGameOffer(Boolean.TRUE.toString()); // Only strings are allowed for this additional data...
         }
 
         notification.setData(pushData);
