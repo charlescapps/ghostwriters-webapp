@@ -61,7 +61,7 @@ public class GamesDAO {
 
     private static final String QUERY_GAMES_OFFERED_TO_USER_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
-                    "WHERE player2 = ? AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
+                    "WHERE player2 = ? AND game_result = ? AND player1_turn = FALSE ORDER BY last_activity DESC LIMIT ?;";
 
     private static final String QUERY_GAMES_OFFERED_BY_USER_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
