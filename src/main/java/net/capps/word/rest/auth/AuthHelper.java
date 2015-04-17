@@ -122,6 +122,9 @@ public class AuthHelper {
 
     public Optional<UserModel> validateSession(HttpServletRequest request) throws Exception {
         Cookie wordsCookie = null;
+        if (request.getCookies() == null) {
+            return Optional.absent();
+        }
         for (Cookie cookie: request.getCookies()) {
             if (COOKIE_NAME.equals(cookie.getName())) {
                 wordsCookie = cookie;
