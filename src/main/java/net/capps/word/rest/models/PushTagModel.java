@@ -3,16 +3,16 @@ package net.capps.word.rest.models;
 /**
  * Created by charlescapps on 4/9/15.
  */
-public class OneSignalTagModel {
+public class PushTagModel {
     private String key;
     private String value;
     private String relation;
 
-    public OneSignalTagModel() {
+    public PushTagModel() {
 
     }
 
-    public OneSignalTagModel(String key, String value, String relation) {
+    public PushTagModel(String key, String value, String relation) {
         this.key = key;
         this. value = value;
         this.relation = relation;

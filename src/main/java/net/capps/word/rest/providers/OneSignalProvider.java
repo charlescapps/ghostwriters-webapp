@@ -2,6 +2,8 @@ package net.capps.word.rest.providers;
 
 import com.google.common.collect.Lists;
 import net.capps.word.db.dao.UsersDAO;
+import net.capps.word.game.common.GameResult;
+import net.capps.word.game.common.GameType;
 import net.capps.word.rest.models.*;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.SslConfigurator;
@@ -38,6 +40,10 @@ public class OneSignalProvider {
     }
 
     public void sendPushNotificationForMove(GameModel originalGame, GameModel updatedGame) throws SQLException {
+        if (originalGame.getGameType() != GameType.TWO_PLAYER) {
+            // Do nothing if it's a single-player game.
+            return;
+        }
         if (originalGame.getPlayer1Turn() == updatedGame.getPlayer1Turn()) {
             // Do nothing if the turn didn't change
             return;
@@ -50,13 +56,27 @@ public class OneSignalProvider {
             return;
         }
 
+        // Check for the first move being played on a newly created two-player game
+        if (originalGame.getGameResult() == GameResult.OFFERED && updatedGame.getGameResult() == GameResult.OFFERED) {
+            final String title = "A Challenger Awaits";
+            final String message = "You've been challenged to a game vs. " + opponentUser.getUsername();
+            sendPushNotification(currentUser, updatedGame, title, message, true);
+        } else {
+            final String title = "It's your move!";
+            final String message = "It's your move vs. " + opponentUser.getUsername();
+            sendPushNotification(currentUser, updatedGame, title, message, false);
+        }
+    }
+
+    // -------- Private ----------
+    private void sendPushNotification(UserModel currentUser, GameModel updatedGame, String title, String message, boolean isGameOffer) {
         if (CLIENT == null) {
             CLIENT = createOneSignalClient();
         }
 
-        final OneSignalTagModel tag = new OneSignalTagModel("ghostwriters_id", Integer.toString(currentUser.getId()), "=");
-        final OneSignalContentModel contents = new OneSignalContentModel("It's your move vs. " + opponentUser.getUsername() + ".");
-        final OneSignalContentModel headings = new OneSignalContentModel("It's your move!");
+        final PushTagModel tag = new PushTagModel("ghostwriters_id", Integer.toString(currentUser.getId()), "=");
+        final PushContentModel contents = new PushContentModel(message);
+        final PushContentModel headings = new PushContentModel(title);
 
         OneSignalNotificationModel notification = new OneSignalNotificationModel(
                 ONE_SIGNAL_APP_ID,
@@ -64,9 +84,14 @@ public class OneSignalProvider {
                 headings,
                 Lists.newArrayList(tag));
 
-        notification.setData(new OneSignalUpdatedGameData(Integer.toString(updatedGame.getId())));
+        PushData pushData = new PushData(Integer.toString(updatedGame.getId()));
+        if (isGameOffer) {
+            pushData.setIsGameOffer(true);
+        }
+
+        notification.setData(pushData);
         notification.setIsAndroid(true);
-      //  notification.setIsIos(true);
+        //  notification.setIsIos(true);
 
         Response response = CLIENT.target(ONE_SIGNAL_NOTIFICATIONS_URI)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -86,7 +111,6 @@ public class OneSignalProvider {
         LOG.info("Response body: {}", responseBody);
     }
 
-    // -------- Private ----------
     private static Client createOneSignalClient() {
         SslConfigurator sslConfigurator = SslConfigurator.newInstance()
                 .securityProtocol("SSL");

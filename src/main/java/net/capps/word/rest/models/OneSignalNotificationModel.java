@@ -7,17 +7,17 @@ import java.util.List;
  */
 public class OneSignalNotificationModel {
     private String app_id;
-    private OneSignalContentModel contents;
-    private OneSignalContentModel headings;
-    private OneSignalUpdatedGameData data;
+    private PushContentModel contents;
+    private PushContentModel headings;
+    private PushData data;
     private Boolean isAndroid;
     private Boolean isIos;
-    private List<OneSignalTagModel> tags;
+    private List<PushTagModel> tags;
 
     public OneSignalNotificationModel() {
     }
 
-    public OneSignalNotificationModel(String app_id, OneSignalContentModel contents, OneSignalContentModel headings, List<OneSignalTagModel> tags) {
+    public OneSignalNotificationModel(String app_id, PushContentModel contents, PushContentModel headings, List<PushTagModel> tags) {
         this.app_id = app_id;
         this.contents = contents;
         this.headings = headings;
@@ -32,27 +32,27 @@ public class OneSignalNotificationModel {
         this.app_id = app_id;
     }
 
-    public OneSignalContentModel getContents() {
+    public PushContentModel getContents() {
         return contents;
     }
 
-    public void setContents(OneSignalContentModel contents) {
+    public void setContents(PushContentModel contents) {
         this.contents = contents;
     }
 
-    public OneSignalContentModel getHeadings() {
+    public PushContentModel getHeadings() {
         return headings;
     }
 
-    public void setHeadings(OneSignalContentModel headings) {
+    public void setHeadings(PushContentModel headings) {
         this.headings = headings;
     }
 
-    public OneSignalUpdatedGameData getData() {
+    public PushData getData() {
         return data;
     }
 
-    public void setData(OneSignalUpdatedGameData data) {
+    public void setData(PushData data) {
         this.data = data;
     }
 
@@ -72,11 +72,11 @@ public class OneSignalNotificationModel {
         this.isIos = isIos;
     }
 
-    public List<OneSignalTagModel> getTags() {
+    public List<PushTagModel> getTags() {
         return tags;
     }
 
-    public void setTags(List<OneSignalTagModel> tags) {
+    public void setTags(List<PushTagModel> tags) {
         this.tags = tags;
     }
 }

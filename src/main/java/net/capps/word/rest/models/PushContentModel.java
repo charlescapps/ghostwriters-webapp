@@ -3,12 +3,12 @@ package net.capps.word.rest.models;
 /**
  * Created by charlescapps on 4/9/15.
  */
-public class OneSignalContentModel {
+public class PushContentModel {
     private String en;
 
-    public OneSignalContentModel() { }
+    public PushContentModel() { }
 
-    public OneSignalContentModel(String en) {
+    public PushContentModel(String en) {
         this.en = en;
     }
 

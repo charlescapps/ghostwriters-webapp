@@ -3,14 +3,15 @@ package net.capps.word.rest.models;
 /**
  * Created by charlescapps on 4/10/15.
  */
-public class OneSignalUpdatedGameData {
+public class PushData {
     private String updatedGame;
+    private Boolean isGameOffer;
 
-    public OneSignalUpdatedGameData() {
+    public PushData() {
 
     }
 
-    public OneSignalUpdatedGameData(String updatedGame) {
+    public PushData(String updatedGame) {
         this.updatedGame = updatedGame;
     }
 
@@ -20,5 +21,13 @@ public class OneSignalUpdatedGameData {
 
     public void setUpdatedGame(String updatedGame) {
         this.updatedGame = updatedGame;
+    }
+
+    public Boolean getIsGameOffer() {
+        return isGameOffer;
+    }
+
+    public void setIsGameOffer(Boolean isGameOffer) {
+        this.isGameOffer = isGameOffer;
     }
 }
