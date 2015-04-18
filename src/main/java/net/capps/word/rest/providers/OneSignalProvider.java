@@ -92,6 +92,7 @@ public class OneSignalProvider {
         notification.setData(pushData);
         notification.setIsAndroid(true);
         //  notification.setIsIos(true);
+        notification.setSmall_icon("Notification"); // wtf - does this work?
 
         Response response = CLIENT.target(ONE_SIGNAL_NOTIFICATIONS_URI)
                 .request(MediaType.APPLICATION_JSON_TYPE)

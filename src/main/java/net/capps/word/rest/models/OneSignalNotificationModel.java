@@ -12,6 +12,7 @@ public class OneSignalNotificationModel {
     private PushData data;
     private Boolean isAndroid;
     private Boolean isIos;
+    private String small_icon;
     private List<PushTagModel> tags;
 
     public OneSignalNotificationModel() {
@@ -70,6 +71,14 @@ public class OneSignalNotificationModel {
 
     public void setIsIos(Boolean isIos) {
         this.isIos = isIos;
+    }
+
+    public String getSmall_icon() {
+        return small_icon;
+    }
+
+    public void setSmall_icon(String small_icon) {
+        this.small_icon = small_icon;
     }
 
     public List<PushTagModel> getTags() {
