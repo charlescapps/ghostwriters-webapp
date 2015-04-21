@@ -70,7 +70,7 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating <= t2.rating " +
+                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating < t2.rating " +
                 "GROUP BY t1.id " +
                 "ORDER BY rank ASC;";
 
@@ -314,9 +314,7 @@ public class UsersDAO {
             if (!resultSet.next()) {
                 return Optional.absent();
             }
-            UserModel userModel = getUserFromResultSet(resultSet);
-            int rank = resultSet.getInt("rank");
-            userModel.setRank(rank);
+            UserModel userModel = getUserFromResultSetWithRank(resultSet);
             return Optional.of(userModel);
         }
     }
@@ -330,7 +328,7 @@ public class UsersDAO {
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);
             while (resultSet.next()) {
-                results.add(getUserFromResultSet(resultSet));
+                results.add(getUserFromResultSetWithRank(resultSet));
             }
             return results;
         }
@@ -346,7 +344,7 @@ public class UsersDAO {
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);
             while (resultSet.next()) {
-                results.add(getUserFromResultSet(resultSet));
+                results.add(getUserFromResultSetWithRank(resultSet));
             }
             return results;
         }
@@ -360,7 +358,7 @@ public class UsersDAO {
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);
             while (resultSet.next()) {
-                results.add(getUserFromResultSet(resultSet));
+                results.add(getUserFromResultSetWithRank(resultSet));
             }
             return results;
         }
@@ -387,5 +385,12 @@ public class UsersDAO {
         user.setLosses(losses);
         user.setTies(ties);
         return user;
+    }
+
+    private UserModel getUserFromResultSetWithRank(ResultSet resultSet) throws SQLException {
+        UserModel userModel = getUserFromResultSet(resultSet);
+        int rank = resultSet.getInt("rank") + 1;
+        userModel.setRank(rank);
+        return userModel;
     }
 }
