@@ -2,6 +2,9 @@ package net.capps.word.game.ranking;
 
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
+import net.capps.word.util.RandomUtil;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 3/29/15.
@@ -13,6 +16,10 @@ public class EloRankingComputer {
 
     public static EloRankingComputer getInstance() {
         return INSTANCE;
+    }
+
+    public static int getInitialUserRating() {
+        return AVERAGE_RATING_DB + ThreadLocalRandom.current().nextInt(1000);
     }
 
     private EloRankingComputer() { } // Singleton pattern

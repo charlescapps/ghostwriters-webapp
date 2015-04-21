@@ -167,7 +167,7 @@ public class UsersDAO {
             // Set whether it's a system user.
             boolean isSystemUser = validatedUserInput.getSystemUser() != null && validatedUserInput.getSystemUser();
             stmt.setBoolean(5, isSystemUser);
-            stmt.setInt(6, EloRankingComputer.AVERAGE_RATING_DB); // Users start with default rating of 1500
+            stmt.setInt(6, EloRankingComputer.getInitialUserRating()); // Users start with default rating of 1500 + a random value in [0, 1)
             stmt.executeUpdate();
 
             // Populate the returned user from the result
