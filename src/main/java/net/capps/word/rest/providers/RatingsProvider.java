@@ -69,7 +69,7 @@ public class RatingsProvider {
         return  resultUsers.get(choice);
     }
 
-    public List<UserModel> getUsersWithRankAroundMeHydratedWithRank(UserModel centerUser, int count) throws SQLException {
+    public List<UserModel> getUsersWithRankAroundMe(UserModel centerUser, int count) throws SQLException {
         List<UserModel> usersLT = usersDAO.getUsersWithRankLT(centerUser.getRating(), count);
         List<UserModel> usersGEQ = usersDAO.getUsersWithRankGEQ(centerUser.getId(), centerUser.getRating(), count);
         List<UserModel> results = new ArrayList<>(usersLT.size() + usersGEQ.size() + 1);

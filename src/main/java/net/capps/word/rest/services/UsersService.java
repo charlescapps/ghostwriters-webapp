@@ -2,6 +2,7 @@ package net.capps.word.rest.services;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.game.dict.RandomUsernamePicker;
@@ -169,7 +170,67 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMeHydratedWithRank(authUser, maxResults);
+        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(authUser, maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
+    @Path("/bestRanked")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getBestRankedUsers(@Context HttpServletRequest request,
+                                       @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = usersDAO.getUsersWithBestRanks(maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
+    @Path("/professorRank")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getRanksAroundProfessor(@Context HttpServletRequest request,
+                                            @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.PROFESSOR_AI_USER.get(), maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
+    @Path("/bookwormRank")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getRanksAroundBookworm(@Context HttpServletRequest request,
+                                            @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.BOOKWORM_AI_USER.get(), maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
+    @Path("/monkeyRank")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getRanksAroundMonkey(@Context HttpServletRequest request,
+                                           @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.RANDOM_AI_USER.get(), maxResults);
         return Response.ok(new UserListModel(results)).build();
     }
 

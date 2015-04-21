@@ -72,23 +72,20 @@ public class UsersDAO {
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
                 "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating <= t2.rating " +
                 "GROUP BY t1.id " +
-                "ORDER BY rank DESC;";
+                "ORDER BY rank ASC;";
 
     // Get users with ranking around a given user
     private static final String GET_USER_WITH_RANK =
             "SELECT * FROM word_user_ranks WHERE id = ?;";
 
     private static final String GET_USERS_WITH_RANK_LT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rating > ? ORDER BY rank DESC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE rating > ? ORDER BY rank ASC LIMIT ?";
 
     private static final String GET_USERS_WITH_RANK_GEQ_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rating <= ? AND id != ? ORDER BY rank DESC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE rating <= ? AND id != ? ORDER BY rank ASC LIMIT ?";
 
-    private static final String GET_USERS_WITH_RANK_LT =
-            "SELECT * FROM word_user_ranks WHERE rank < ? AND ORDER BY rank DESC LIMIT ?";
-
-    private static final String GET_USERS_WITH_RANK_GEQ =
-            "SELECT * FROM word_user_ranks WHERE rating <= ? AND id != ? AND id != ? ORDER BY rank DESC LIMIT ?";
+    private static final String GET_BEST_RANKED_USERS =
+            "SELECT * FROM word_user_ranks WHERE rank >= 1 ORDER BY rank ASC LIMIT ?";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -345,6 +342,20 @@ public class UsersDAO {
             stmt.setInt(1, rating);
             stmt.setInt(2, userId);
             stmt.setInt(3, limit);
+
+            ResultSet resultSet = stmt.executeQuery();
+            List<UserModel> results = new ArrayList<>(limit);
+            while (resultSet.next()) {
+                results.add(getUserFromResultSet(resultSet));
+            }
+            return results;
+        }
+    }
+
+    public List<UserModel> getUsersWithBestRanks(final int limit) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GET_BEST_RANKED_USERS);
+            stmt.setInt(1, limit);
 
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);
