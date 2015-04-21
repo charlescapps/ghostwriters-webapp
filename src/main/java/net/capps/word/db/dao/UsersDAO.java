@@ -71,6 +71,7 @@ public class UsersDAO {
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
                 "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating >= t2.rating " +
+                "GROUP BY t1.id " +
                 "ORDER BY rank DESC;";
 
     // Get users with ranking around a given user
