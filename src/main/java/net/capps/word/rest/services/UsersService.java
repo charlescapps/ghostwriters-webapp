@@ -153,6 +153,26 @@ public class UsersService {
         return Response.ok(new UserListModel(results)).build();
     }
 
+    @Path("/{id}/similarRank")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getUsersWithSimilarRank(@Context HttpServletRequest request,
+                                            @PathParam("id") int userId,
+                                            @QueryParam("maxResults") int maxResults)
+            throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        if (maxResults <= 0 || maxResults > MAX_COUNT) {
+            return Response.status(BAD_REQUEST)
+                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
+                    .build();
+        }
+        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMeHydratedWithRank(authUser, maxResults);
+        return Response.ok(new UserListModel(results)).build();
+    }
+
     @Path("/bestMatch")
     @GET
     @Filters.RegularUserAuthRequired

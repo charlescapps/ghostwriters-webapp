@@ -67,7 +67,23 @@ public class UsersDAO {
 
     private static final String GET_USERS_WITH_RATING_LT =
             "SELECT * FROM word_users WHERE rating < ? AND id != ? ORDER BY rating DESC LIMIT ?";
-    
+
+    // User ranking based on rating
+    public static final String CREATE_RANKING_VIEW =
+            "CREATE OR REPLACE VIEW word_user_ranks AS " +
+                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating >= t2.rating " +
+                "ORDER BY rank DESC;";
+
+    // Get users with ranking around a given user
+    private static final String GET_USER_WITH_RANK =
+            "SELECT * FROM word_user_ranks WHERE id = ?;";
+
+    private static final String GET_USERS_WITH_RANK_LT =
+            "SELECT * FROM word_user_ranks WHERE rating > ? AND id != ? ORDER BY rank DESC LIMIT ?";
+
+    private static final String GET_USERS_WITH_RANK_GEQ =
+            "SELECT * FROM word_user_ranks WHERE rating <= ? AND id != ? AND id != ? ORDER BY rank DESC LIMIT ?";
+
     private static final UsersDAO INSTANCE = new UsersDAO();
 
     public static UsersDAO getInstance() {
@@ -288,7 +304,56 @@ public class UsersDAO {
             return results;
         }
     }
-    
+
+    // ------- Rank queries -----
+    public Optional<UserModel> getUserWithRank(int userId) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_WITH_RANK);
+            stmt.setInt(1, userId);
+            ResultSet resultSet = stmt.executeQuery();
+            if (!resultSet.next()) {
+                return Optional.absent();
+            }
+            UserModel userModel = getUserFromResultSet(resultSet);
+            int rank = resultSet.getInt("rank");
+            userModel.setRank(rank);
+            return Optional.of(userModel);
+        }
+    }
+
+    public List<UserModel> getUsersWithRankLT(final int rating, final int limit) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_LT);
+            stmt.setInt(1, rating);
+            stmt.setInt(2, WordConstants.INITIAL_USER.get().getId());
+            stmt.setInt(3, limit);
+
+            ResultSet resultSet = stmt.executeQuery();
+            List<UserModel> results = new ArrayList<>(limit);
+            while (resultSet.next()) {
+                results.add(getUserFromResultSet(resultSet));
+            }
+            return results;
+        }
+    }
+
+    public List<UserModel> getUsersWithRankGEQ(final int userId, final int rating, final int limit) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GEQ);
+            stmt.setInt(1, rating);
+            stmt.setInt(2, userId);
+            stmt.setInt(3, WordConstants.INITIAL_USER.get().getId());
+            stmt.setInt(4, limit);
+
+            ResultSet resultSet = stmt.executeQuery();
+            List<UserModel> results = new ArrayList<>(limit);
+            while (resultSet.next()) {
+                results.add(getUserFromResultSet(resultSet));
+            }
+            return results;
+        }
+    }
+
     // ------------ Private ---------
 
     private UserModel getUserFromResultSet(ResultSet resultSet) throws SQLException {

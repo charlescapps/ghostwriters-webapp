@@ -38,9 +38,6 @@ public class SetupHelper {
         WordDbManager wordDbManager = WordDbManager.getInstance();
 
         try(Connection connection = wordDbManager.getConnection()) {
-          //  Statement stmt = connection.createStatement();
-          //  stmt.executeUpdate("DROP TABLE IF EXISTS word_users"); // For debugging, drop the table every time the server starts
-
             Statement stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
 
@@ -49,6 +46,16 @@ public class SetupHelper {
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_LOWERCASE_USER_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_USER_RATING_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_USER_RATING_IDX);
+
+            // Create user ranking view.
+            stmt = connection.createStatement();
+            stmt.executeUpdate(UsersDAO.CREATE_RANKING_VIEW);
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_GAMES_TABLE);

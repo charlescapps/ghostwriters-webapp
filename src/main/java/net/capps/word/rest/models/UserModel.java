@@ -20,6 +20,7 @@ public class UserModel {
     private Integer wins;
     private Integer losses;
     private Integer ties;
+    private Integer rank;
 
     public UserModel() {
 
@@ -117,6 +118,14 @@ public class UserModel {
 
     public void setTies(Integer ties) {
         this.ties = ties;
+    }
+
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
     }
 
     @JsonIgnore

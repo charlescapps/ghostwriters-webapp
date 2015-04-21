@@ -26,6 +26,12 @@ public class TableDefinitions {
     public static final String DROP_LOWERCASE_USER_IDX =
             "DROP INDEX IF EXISTS idx_username_lower;";
 
+    public static final String CREATE_USER_RATING_IDX =
+            "CREATE INDEX idx_rating ON word_users (rating);";
+
+    public static final String DROP_USER_RATING_IDX =
+            "DROP INDEX IF EXISTS idx_rating;";
+
     public static final String CREATE_GAMES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_games " +
                     "( id SERIAL PRIMARY KEY," +

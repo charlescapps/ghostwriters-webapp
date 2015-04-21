@@ -1,5 +1,6 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Optional;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
@@ -67,5 +68,15 @@ public class RatingsProvider {
         resultUsers.addAll(ratingLT);
         final int choice = ThreadLocalRandom.current().nextInt(resultUsers.size());
         return  resultUsers.get(choice);
+    }
+
+    public List<UserModel> getUsersWithRankAroundMeHydratedWithRank(UserModel centerUser, int count) throws SQLException {
+        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(centerUser.getRating(), count);
+        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGEQ(centerUser.getId(), centerUser.getRating(), count);
+        List<UserModel> results = new ArrayList<>(usersLT.size() + usersGEQ.size() + 1);
+        results.addAll(usersLT);
+        results.add(centerUser);
+        results.addAll(usersGEQ);
+        return results;
     }
 }
