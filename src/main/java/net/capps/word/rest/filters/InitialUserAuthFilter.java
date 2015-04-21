@@ -3,7 +3,7 @@ package net.capps.word.rest.filters;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.exceptions.WordAuthException;
 import net.capps.word.rest.auth.AuthHelper;
-import net.capps.word.rest.models.UserModel;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +38,11 @@ public class InitialUserAuthFilter implements ContainerRequestFilter {
         try {
             // For creating a new user, must be logged in as the Initial user using basic auth
             // We can't use sessions here...because the Initial User is shared among all clients.
-            UserModel authUser = authHelper.getUserForBasicAuth(webRequest);
+            Pair<String, String> usernamePass = authHelper.getUsernamePassFromAuthzHeader(webRequest);
 
-            if (!WordConstants.INITIAL_USER_USERNAME.equals(authUser.getUsername())) {
-                requestContext.abortWith(Response.status(Status.FORBIDDEN).build());
+            if (!WordConstants.INITIAL_USER_USERNAME.equals(usernamePass.getLeft()) ||
+                !WordConstants.INITIAL_USER_PASSWORD.equals(usernamePass.getRight())) {
+                requestContext.abortWith(Response.status(Status.UNAUTHORIZED).build());
             }
 
         } catch (WordAuthException e) {

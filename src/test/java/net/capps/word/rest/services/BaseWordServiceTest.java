@@ -38,7 +38,6 @@ public class BaseWordServiceTest extends JerseyTest {
         // Setup everything but Jetty.
         SetupHelper setupHelper = SetupHelper.getInstance();
         setupHelper.initDatabase();
-        setupHelper.createInitialUser();
         setupHelper.initDictionaryDataStructures();
         setupHelper.initGameDataStructures();
 

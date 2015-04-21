@@ -69,9 +69,6 @@ public class GamesProvider {
         if (!authUser.getId().equals(input.getPlayer1())) {
             return Optional.of(ERR_PLAYER1_MUST_BE_AUTH_USER);
         }
-        if (WordConstants.INITIAL_USER.get().getId().equals(input.getPlayer2())) {
-            return Optional.of(ERR_INVALID_PLAYER2_ID);
-        }
 
         // Verify two player fields
         if (input.getGameType() == GameType.TWO_PLAYER) {

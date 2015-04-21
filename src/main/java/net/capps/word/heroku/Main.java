@@ -10,7 +10,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         setupHelper.initDatabase();
-        setupHelper.createInitialUser();
         setupHelper.createAiUsers();
 
         setupHelper.initJetty();

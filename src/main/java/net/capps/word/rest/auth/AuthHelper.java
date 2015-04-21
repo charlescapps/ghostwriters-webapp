@@ -68,6 +68,12 @@ public class AuthHelper {
      */
     public UserModel getUserForBasicAuth(HttpServletRequest request) throws Exception {
 
+        Pair<String, String> usernamePass = getUsernamePassFromAuthzHeader(request);
+
+        return authenticate(usernamePass.getLeft(), usernamePass.getRight());
+    }
+
+    public Pair<String, String> getUsernamePassFromAuthzHeader(HttpServletRequest request) throws Exception {
         String basicAuthHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (basicAuthHeader == null) {
@@ -87,10 +93,8 @@ public class AuthHelper {
         if (tokens.length != 2) {
             throw new WordAuthException(INVALID_AUTHZ_HEADER_MSG, AuthError.INVALID_BASIC_AUTH);
         }
-        String username = tokens[0];
-        String password = tokens[1];
 
-        return authenticate(username, password);
+        return ImmutablePair.of(tokens[0], tokens[1]);
     }
 
     /**

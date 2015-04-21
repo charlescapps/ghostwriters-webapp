@@ -9,7 +9,6 @@ import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
-import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
@@ -66,21 +65,6 @@ public class SetupHelper {
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
         }
-    }
-
-    public void createInitialUser() throws Exception {
-        UserModel initialUser = new UserModel(null, WordConstants.INITIAL_USER_USERNAME, null, null, null, true);
-
-        Optional<UserModel> createdUser = usersProvider.createNewUserIfNotExists(initialUser);
-        if (createdUser.isPresent()) {
-            Optional<ErrorModel> errorOpt = usersProvider.updateUserPassword(createdUser.get().getId(), WordConstants.INITIAL_USER_PASSWORD);
-            if (errorOpt.isPresent()) {
-                throw new IllegalStateException("Error updating password for the initial user: " + errorOpt.get().getErrorMessage());
-            }
-        }
-
-        Optional<UserModel> initialUserFull = usersDAO.getUserByUsername(WordConstants.INITIAL_USER_USERNAME, true);
-        WordConstants.INITIAL_USER.set(initialUserFull.get()); // This must be present.
     }
 
     public void createAiUsers() throws Exception {
