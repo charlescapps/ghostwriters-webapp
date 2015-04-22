@@ -62,10 +62,10 @@ public class UsersDAO {
 
     // Get users by ratings
     private static final String GET_USERS_WITH_RATING_GEQ =
-            "SELECT * FROM word_users WHERE rating >= ? AND id != ? AND id != ? ORDER BY rating DESC LIMIT ?";
+            "SELECT * FROM word_users WHERE rating >= ? AND id != ? ORDER BY rating DESC LIMIT ?";
 
     private static final String GET_USERS_WITH_RATING_LT =
-            "SELECT * FROM word_users WHERE rating < ? AND id != ? ORDER BY rating DESC LIMIT ?";
+            "SELECT * FROM word_users WHERE rating < ? ORDER BY rating DESC LIMIT ?";
 
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
