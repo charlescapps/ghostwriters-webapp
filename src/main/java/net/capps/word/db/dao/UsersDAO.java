@@ -70,7 +70,8 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 ON t1.rating < t2.rating " +
+                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
+                    "ON t1.rating < t2.rating OR (t1.rating = t2.rating AND t2.id < t1.id) " +
                 "GROUP BY t1.id " +
                 "ORDER BY rank ASC;";
 
@@ -79,10 +80,10 @@ public class UsersDAO {
             "SELECT * FROM word_user_ranks WHERE id = ?;";
 
     private static final String GET_USERS_WITH_RANK_LT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rating > ? ORDER BY rank ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE rank < ? ORDER BY rank ASC LIMIT ?";
 
-    private static final String GET_USERS_WITH_RANK_GEQ_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rating <= ? AND id != ? ORDER BY rank ASC LIMIT ?";
+    private static final String GET_USERS_WITH_RANK_GT_BY_RATING =
+            "SELECT * FROM word_user_ranks WHERE rank > ? ORDER BY rank ASC LIMIT ?";
 
     private static final String GET_BEST_RANKED_USERS =
             "SELECT * FROM word_user_ranks WHERE rank >= 1 ORDER BY rank ASC LIMIT ?";
@@ -334,12 +335,11 @@ public class UsersDAO {
         }
     }
 
-    public List<UserModel> getUsersWithRankGEQ(final int userId, final int rating, final int limit) throws SQLException {
+    public List<UserModel> getUsersWithRankGT(final int rank, final int limit) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GEQ_BY_RATING);
-            stmt.setInt(1, rating);
-            stmt.setInt(2, userId);
-            stmt.setInt(3, limit);
+            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GT_BY_RATING);
+            stmt.setInt(1, rank);
+            stmt.setInt(2, limit);
 
             ResultSet resultSet = stmt.executeQuery();
             List<UserModel> results = new ArrayList<>(limit);

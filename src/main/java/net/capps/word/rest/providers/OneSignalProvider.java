@@ -59,7 +59,7 @@ public class OneSignalProvider {
         // Check for the first move being played on a newly created two-player game
         if (originalGame.getGameResult() == GameResult.OFFERED && updatedGame.getGameResult() == GameResult.OFFERED) {
             final String title = "A Challenger Awaits";
-            final String message = "You've been challenged to a game vs. " + opponentUser.getUsername();
+            final String message = "You've been challenged by " + opponentUser.getUsername();
             sendPushNotification(currentUser, updatedGame, title, message, true);
         } else {
             final String title = "It's your move!";

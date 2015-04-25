@@ -1,5 +1,6 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Optional;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
@@ -11,6 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.String.format;
 
 /**
  * Created by charlescapps on 3/29/15.
@@ -70,11 +73,16 @@ public class RatingsProvider {
     }
 
     public List<UserModel> getUsersWithRankAroundMe(UserModel centerUser, int count) throws SQLException {
-        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(centerUser.getRating(), count);
-        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGEQ(centerUser.getId(), centerUser.getRating(), count);
+        Optional<UserModel> userWithRankOpt = usersDAO.getUserWithRank(centerUser.getId());
+        if (!userWithRankOpt.isPresent()) {
+            throw new IllegalStateException(format("Error - user %s not found in the ranks view.", centerUser.toString()));
+        }
+        UserModel userWithRank = userWithRankOpt.get();
+        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(userWithRank.getRank(), count);
+        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGT(userWithRank.getRank(), count);
         List<UserModel> results = new ArrayList<>(usersLT.size() + usersGEQ.size() + 1);
         results.addAll(usersLT);
-        results.add(centerUser);
+        results.add(userWithRank);
         results.addAll(usersGEQ);
         return results;
     }
