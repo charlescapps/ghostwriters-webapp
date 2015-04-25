@@ -70,7 +70,7 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
+                "SELECT t1.*, (COUNT(t2.id) + 1) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
                     "ON t1.rating < t2.rating OR (t1.rating = t2.rating AND t2.id < t1.id) " +
                 "GROUP BY t1.id " +
                 "ORDER BY rank ASC;";
@@ -389,7 +389,7 @@ public class UsersDAO {
 
     private UserModel getUserFromResultSetWithRank(ResultSet resultSet) throws SQLException {
         UserModel userModel = getUserFromResultSet(resultSet);
-        int rank = resultSet.getInt("rank") + 1;
+        int rank = resultSet.getInt("rank");
         userModel.setRank(rank);
         return userModel;
     }

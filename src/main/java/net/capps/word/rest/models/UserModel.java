@@ -1,6 +1,7 @@
 package net.capps.word.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.MoreObjects;
 import net.capps.word.db.dao.UserHashInfo;
 
 import java.util.Objects;
@@ -146,5 +147,15 @@ public class UserModel {
     @Override
     public int hashCode() {
         return Objects.hashCode(id) ^ Objects.hashCode(username);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("username", username)
+                .add("rating", rating)
+                .add("rank", rank)
+                .toString();
     }
 }
