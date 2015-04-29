@@ -33,14 +33,20 @@ public class RatingsProvider {
             throws SQLException {
         switch (gameResult) {
             case PLAYER1_WIN:
-                player1.setWins(player1.getWins() + 1);
-                player2.setLosses(player2.getLosses() + 1);
+                if (gameResult == GameResult.PLAYER1_WIN) {
+                    player1.setWins(player1.getWins() + 1);
+                    player2.setLosses(player2.getLosses() + 1);
+                }
             case PLAYER2_WIN:
-                player2.setWins(player2.getWins() + 1);
-                player1.setLosses(player1.getLosses() + 1);
+                if (gameResult == GameResult.PLAYER2_WIN) {
+                    player2.setWins(player2.getWins() + 1);
+                    player1.setLosses(player1.getLosses() + 1);
+                }
             case TIE:
-                player1.setTies(player1.getTies() + 1);
-                player2.setTies(player2.getTies() + 1);
+                if (gameResult == GameResult.TIE) {
+                    player1.setTies(player1.getTies() + 1);
+                    player2.setTies(player2.getTies() + 1);
+                }
                 final int player1Rating = player1.getRating();
                 final int player2Rating = player2.getRating();
                 final int player1RatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
