@@ -51,6 +51,8 @@ public class TableDefinitions {
                     "game_result SMALLINT NOT NULL," +
                     "player1_turn BOOLEAN NOT NULL," +
                     "move_num INTEGER NOT NULL DEFAULT 1," +
+                    "player1_rating_increase INTEGER," +
+                    "player2_rating_increase INTEGER," +
                     "last_activity TIMESTAMP WITH TIME ZONE NOT NULL," +
                     "date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
 

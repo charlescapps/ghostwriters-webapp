@@ -1,6 +1,7 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.base.Optional;
+import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
@@ -23,6 +24,7 @@ public class RatingsProvider {
     private static final RatingsProvider INSTANCE = new RatingsProvider();
     private static final EloRankingComputer eloRankingComputer = EloRankingComputer.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
+    private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final int MAX_RATING_INCREASE = 1000;
 
     public static RatingsProvider getInstance() {
@@ -76,13 +78,13 @@ public class RatingsProvider {
                 // Update in the database
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
+                gamesDAO.updateGamePlayerRatingIncreases(gameModel.getId(), player1ActualRatingChange, player2ActualRatingChange, dbConn);
 
                 // Update models to be returned to the app
                 player1.setRating(player1NewRating);
                 player2.setRating(player2NewRating);
             default:
                 // Do nothing if the game isn't over due to a win or a tie.
-
         }
     }
 

@@ -35,6 +35,9 @@ public class GamesDAO {
     private static final String UPDATE_GAME_RESULT =
             "UPDATE word_games SET game_result = ? WHERE id = ?;";
 
+    private static final String UPDATE_PLAYER_RATING_INCREASES =
+            "UPDATE word_games SET (player1_rating_increase, player2_rating_increase) = (?, ?) WHERE id = ?;";
+
     private static final String QUERY_GAME_BY_ID =
             "SELECT * FROM word_games WHERE id = ?;";
 
@@ -208,6 +211,19 @@ public class GamesDAO {
 
         if (numUpdated != 1) {
             throw new SQLException("Expected 1 row to be updated when rejecting game, but the number updated = " + numUpdated);
+        }
+    }
+
+    public void updateGamePlayerRatingIncreases(int gameId, int player1RatingIncrease, int player2RatingIncrease, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_PLAYER_RATING_INCREASES);
+        stmt.setInt(1, player1RatingIncrease);
+        stmt.setInt(2, player2RatingIncrease);
+        stmt.setInt(3, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException("Expected 1 row to be updated when updating game, but the number updated = " + numUpdated);
         }
     }
 
