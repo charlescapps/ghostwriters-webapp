@@ -5,6 +5,7 @@ import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
+import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
 
 import java.sql.Connection;
@@ -30,8 +31,12 @@ public class RatingsProvider {
 
     private RatingsProvider() { }
 
-    public void updatePlayerRatings(UserModel player1, UserModel player2, GameResult gameResult, BoardSize boardSize, Connection dbConn)
+    public void updatePlayerRatings(GameModel gameModel, Connection dbConn)
             throws SQLException {
+        final GameResult gameResult = gameModel.getGameResult();
+        final UserModel player1 = gameModel.getPlayer1Model();
+        final UserModel player2 = gameModel.getPlayer2Model();
+        final BoardSize boardSize = gameModel.getBoardSize();
         switch (gameResult) {
             case PLAYER1_WIN:
                 if (gameResult == GameResult.PLAYER1_WIN) {
@@ -61,6 +66,9 @@ public class RatingsProvider {
                 // Don't let a player earn more than 1000 rating points in one game.
                 player1ActualRatingChange = Math.min(player1ActualRatingChange, MAX_RATING_INCREASE);
                 player2ActualRatingChange = Math.min(player2ActualRatingChange, MAX_RATING_INCREASE);
+
+                gameModel.setPlayer1RatingIncrease(player1ActualRatingChange);
+                gameModel.setPlayer2RatingIncrease(player2ActualRatingChange);
 
                 final int player1NewRating = player1Rating + player1ActualRatingChange;
                 final int player2NewRating = player2Rating + player2ActualRatingChange;

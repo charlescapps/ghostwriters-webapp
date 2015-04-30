@@ -34,6 +34,8 @@ public class GameModel {
     private Long lastActivity;
     private Long dateCreated;
     private List<MoveModel> lastMoves;
+    private Integer player1RatingIncrease;
+    private Integer player2RatingIncrease;
 
     public GameModel() {
 
@@ -222,6 +224,22 @@ public class GameModel {
 
     public void setLastMoves(List<MoveModel> lastMoves) {
         this.lastMoves = lastMoves;
+    }
+
+    public Integer getPlayer1RatingIncrease() {
+        return player1RatingIncrease;
+    }
+
+    public void setPlayer1RatingIncrease(Integer player1RatingIncrease) {
+        this.player1RatingIncrease = player1RatingIncrease;
+    }
+
+    public Integer getPlayer2RatingIncrease() {
+        return player2RatingIncrease;
+    }
+
+    public void setPlayer2RatingIncrease(Integer player2RatingIncrease) {
+        this.player2RatingIncrease = player2RatingIncrease;
     }
 
     @Override

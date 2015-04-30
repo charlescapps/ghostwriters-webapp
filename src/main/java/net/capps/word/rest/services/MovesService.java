@@ -77,7 +77,7 @@ public class MovesService {
                 movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
             }
 
-            ratingsProvider.updatePlayerRatings(updatedGame.getPlayer1Model(), updatedGame.getPlayer2Model(), updatedGame.getGameResult(), updatedGame.getBoardSize(), dbConn);
+            ratingsProvider.updatePlayerRatings(updatedGame, dbConn);
 
             dbConn.commit();
 
