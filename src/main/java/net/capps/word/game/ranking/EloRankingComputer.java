@@ -2,16 +2,12 @@ package net.capps.word.game.ranking;
 
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
-import net.capps.word.util.RandomUtil;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by charlescapps on 3/29/15.
  */
 public class EloRankingComputer {
-    public static final int AVERAGE_RATING_DB = 1500000; // 1500 rating
-    public static final double DATABASE_FACTOR = 1000.d;
+    public static final int INITIAL_USER_RATING = 1000; // 1000 rating
     private static final EloRankingComputer INSTANCE = new EloRankingComputer();
 
     public static EloRankingComputer getInstance() {
@@ -19,18 +15,18 @@ public class EloRankingComputer {
     }
 
     public static int getInitialUserRating() {
-        return AVERAGE_RATING_DB + ThreadLocalRandom.current().nextInt(1000);
+        return INITIAL_USER_RATING;
     }
 
     private EloRankingComputer() { } // Singleton pattern
 
     public int computeRatingChangeForPlayerA(int dbRatingA, int dbRatingB, GameResult result, BoardSize boardSize) {
-        final double ratingA = (double) dbRatingA / DATABASE_FACTOR;
-        final double ratingB = (double) dbRatingB / DATABASE_FACTOR;
+        final double ratingA = (double) dbRatingA;
+        final double ratingB = (double) dbRatingB;
         final double actualScoreA = computeActualScore(result);
         final double expectedScoreA = computeExpectedScore(ratingA, ratingB);
         double ratingChangeA = boardSize.getRatingK() * (actualScoreA - expectedScoreA);
-        return (int) (ratingChangeA * DATABASE_FACTOR);
+        return (int) Math.round(ratingChangeA);
     }
 
     // ----------- Private -------------

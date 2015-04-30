@@ -22,6 +22,7 @@ public class RatingsProvider {
     private static final RatingsProvider INSTANCE = new RatingsProvider();
     private static final EloRankingComputer eloRankingComputer = EloRankingComputer.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
+    private static final int MAX_RATING_INCREASE = 1000;
 
     public static RatingsProvider getInstance() {
         return INSTANCE;
@@ -49,14 +50,26 @@ public class RatingsProvider {
                 }
                 final int player1Rating = player1.getRating();
                 final int player2Rating = player2.getRating();
-                final int player1RatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
-                if (player1RatingChange == 0) {
-                    return;
-                }
-                final int player1NewRating = player1Rating + player1RatingChange;
-                final int player2NewRating = player2Rating - player1RatingChange;
+                
+                // Compute the idealized elo rating change if we were using Chess ratings
+                final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
+
+                // Modify rating change to always be positive, based on a minimum incease per-boardsize
+                int player1ActualRatingChange = Math.max(player1EloRatingChange, boardSize.getMinimumRatingIncrease());
+                int player2ActualRatingChange = Math.max(-player1EloRatingChange, boardSize.getMinimumRatingIncrease());
+
+                // Don't let a player earn more than 1000 rating points in one game.
+                player1ActualRatingChange = Math.min(player1ActualRatingChange, MAX_RATING_INCREASE);
+                player2ActualRatingChange = Math.min(player2ActualRatingChange, MAX_RATING_INCREASE);
+
+                final int player1NewRating = player1Rating + player1ActualRatingChange;
+                final int player2NewRating = player2Rating + player2ActualRatingChange;
+
+                // Update in the database
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
+
+                // Update models to be returned to the app
                 player1.setRating(player1NewRating);
                 player2.setRating(player2NewRating);
             default:
