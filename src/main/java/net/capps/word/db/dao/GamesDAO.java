@@ -333,6 +333,16 @@ public class GamesDAO {
         Timestamp dateStarted = result.getTimestamp("date_started");
         game.setLastActivity(lastActivity.getTime());
         game.setDateCreated(dateStarted.getTime());
+
+        Object player1RatingIncrease = result.getObject("player1_rating_increase");
+        Object player2RatingIncrease = result.getObject("player2_rating_increase");
+        if (player1RatingIncrease instanceof Integer) {
+            game.setPlayer1RatingIncrease((Integer)player1RatingIncrease);
+        }
+        if (player2RatingIncrease instanceof Integer) {
+            game.setPlayer2RatingIncrease((Integer)player2RatingIncrease);
+        }
+
         return game;
     }
 
@@ -357,6 +367,8 @@ public class GamesDAO {
         int p2Wins = result.getInt("p2_wins");
         int p2Losses = result.getInt("p2_losses");
         int p2Ties = result.getInt("p2_ties");
+        Object player1RatingIncrease = result.getObject("player1_rating_increase");
+        Object player2RatingIncrease = result.getObject("player2_rating_increase");
 
         UserModel player1Model = new UserModel(p1Id, p1Username, p1Email, null, null, p1IsSystemUser);
         player1Model.setDateJoined(p1DateJoined.getTime());
@@ -375,10 +387,13 @@ public class GamesDAO {
         game.setPlayer1Model(player1Model);
         game.setPlayer2Model(player2Model);
 
-        return game;
-    }
+        if (player1RatingIncrease instanceof Integer) {
+            game.setPlayer1RatingIncrease((Integer)player1RatingIncrease);
+        }
+        if (player2RatingIncrease instanceof Integer) {
+            game.setPlayer2RatingIncrease((Integer)player2RatingIncrease);
+        }
 
-    public static enum OrderGamesBy {
-        dateCreatedDesc, dateCreatedAsc, dateOfLastMoveDesc, dateOfLastMoveAsc
+        return game;
     }
 }
