@@ -50,7 +50,7 @@ public class RatingsProvider {
                 }
                 final int player1Rating = player1.getRating();
                 final int player2Rating = player2.getRating();
-                
+
                 // Compute the idealized elo rating change if we were using Chess ratings
                 final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
 
