@@ -386,6 +386,10 @@ public class UsersDAO {
         stmt.setShort(5, (short) GameResult.OFFERED.ordinal());
         ResultSet resultSet = stmt.executeQuery();
 
+        if (!resultSet.next()) {
+            throw new SQLException("Query to get number of games where it's the current user's turn failed and returned 0 results!");
+        }
+
         return resultSet.getInt("count");
     }
 
@@ -394,6 +398,10 @@ public class UsersDAO {
         stmt.setInt(1, userId);
         stmt.setShort(2, (short) GameResult.OFFERED.ordinal());
         ResultSet resultSet = stmt.executeQuery();
+
+        if (!resultSet.next()) {
+            throw new SQLException("Query to get number of games offered to current user failed and returned 0 results!");
+        }
 
         return resultSet.getInt("count");
     }
