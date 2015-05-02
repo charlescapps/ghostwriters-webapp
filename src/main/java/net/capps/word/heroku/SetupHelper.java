@@ -38,6 +38,8 @@ public class SetupHelper {
 
         try(Connection connection = wordDbManager.getConnection()) {
             Statement stmt = connection.createStatement();
+
+            // --------- word_users table ----------
             stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
 
             stmt = connection.createStatement();
@@ -56,9 +58,23 @@ public class SetupHelper {
             stmt = connection.createStatement();
             stmt.executeUpdate(UsersDAO.CREATE_RANKING_VIEW);
 
+            // -------- word_games table --------
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_GAMES_TABLE);
 
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_PLAYER1_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_PLAYER1_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_PLAYER2_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_PLAYER2_IDX);
+
+            // -------- word_moves table -------
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
 

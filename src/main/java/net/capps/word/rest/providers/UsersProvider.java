@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.UserGameSummaryModel;
 import net.capps.word.rest.models.UserModel;
 
 import javax.mail.internet.AddressException;
@@ -12,6 +13,8 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -132,6 +135,13 @@ public class UsersProvider {
         return results.subList(0, Math.min(maxResults, results.size()));
     }
 
+    public UserGameSummaryModel getUserSummaryInfoForMainMenu(int userId, Connection dbConn) throws SQLException {
+        final int numGamesMyTurn = usersDao.getNumGamesMyTurn(userId, dbConn);
+        final int numGamesOfferedToMe = usersDao.getNumGamesOfferedToMe(userId, dbConn);
+
+        return new UserGameSummaryModel(userId, numGamesMyTurn, numGamesOfferedToMe);
+    }
+
     //------------- Private ------------
 
     //------- Crypto helpers -----------
@@ -177,4 +187,6 @@ public class UsersProvider {
         }
         return Optional.absent();
     }
+
+
 }

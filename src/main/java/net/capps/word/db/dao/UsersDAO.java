@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.exceptions.WordDbException;
+import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UserRecordChange;
@@ -87,6 +88,18 @@ public class UsersDAO {
 
     private static final String GET_BEST_RANKED_USERS =
             "SELECT * FROM word_user_ranks WHERE rank >= 1 ORDER BY rank ASC LIMIT ?";
+
+    // Return games such that either
+    // (1) game is IN_PROGRESS and it's my turn, or
+    // (2) game is OFFERED and I'm the person who started the game and haven't played the first turn yet.
+    private static final String GET_NUM_GAMES_MY_TURN =
+            "SELECT COUNT(*) AS count FROM word_games " +
+                    "WHERE (player1 = ? AND player1_turn = TRUE OR player2 = ? AND player1_turn = FALSE) AND game_result = ? OR " +
+                           "player1 = ? AND player1_turn = TRUE AND game_result = ?";
+
+    private static final String GET_NUM_GAMES_OFFERED_TO_ME =
+            "SELECT COUNT(*) AS count FROM word_games " +
+                    "WHERE (player2 = ? AND player1_turn = FALSE) AND game_result = ?";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -362,6 +375,27 @@ public class UsersDAO {
             }
             return results;
         }
+    }
+
+    public int getNumGamesMyTurn(int userId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_GAMES_MY_TURN);
+        stmt.setInt(1, userId);
+        stmt.setInt(2, userId);
+        stmt.setShort(3, (short) GameResult.IN_PROGRESS.ordinal());
+        stmt.setInt(4, userId);
+        stmt.setShort(5, (short) GameResult.OFFERED.ordinal());
+        ResultSet resultSet = stmt.executeQuery();
+
+        return resultSet.getInt("count");
+    }
+
+    public int getNumGamesOfferedToMe(int userId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_GAMES_OFFERED_TO_ME);
+        stmt.setInt(1, userId);
+        stmt.setShort(2, (short) GameResult.OFFERED.ordinal());
+        ResultSet resultSet = stmt.executeQuery();
+
+        return resultSet.getInt("count");
     }
 
     // ------------ Private ---------

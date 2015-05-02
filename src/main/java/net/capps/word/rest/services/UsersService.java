@@ -3,6 +3,7 @@ package net.capps.word.rest.services;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.constants.WordConstants;
+import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.exceptions.ConflictException;
 import net.capps.word.game.dict.RandomUsernamePicker;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -245,6 +247,20 @@ public class UsersService {
         }
         UserModel bestMatch = ratingsProvider.getBestMatch(authUser);
         return Response.ok(bestMatch).build();
+    }
+
+    @Path("myGamesSummary")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getMainMenuInfos(@Context HttpServletRequest request) throws SQLException {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            UserGameSummaryModel userGameSummaryModel = usersProvider.getUserSummaryInfoForMainMenu(authUser.getId(), dbConn);
+            return Response.ok(userGameSummaryModel).build();
+        }
     }
 
 

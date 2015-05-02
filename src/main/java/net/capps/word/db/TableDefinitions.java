@@ -4,6 +4,7 @@ package net.capps.word.db;
  * Created by charlescapps on 12/26/14.
  */
 public class TableDefinitions {
+    // -------- Users table ---------
     public static final String CREATE_WORD_USERS_TABLE =
             "CREATE TABLE IF NOT EXISTS word_users (" +
             "id serial PRIMARY KEY," +
@@ -32,6 +33,8 @@ public class TableDefinitions {
     public static final String DROP_USER_RATING_IDX =
             "DROP INDEX IF EXISTS idx_rating;";
 
+    // --------- Games table -----------
+
     public static final String CREATE_GAMES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_games " +
                     "( id SERIAL PRIMARY KEY," +
@@ -55,6 +58,18 @@ public class TableDefinitions {
                     "player2_rating_increase INTEGER," +
                     "last_activity TIMESTAMP WITH TIME ZONE NOT NULL," +
                     "date_started TIMESTAMP WITH TIME ZONE NOT NULL);";
+
+    public static final String CREATE_PLAYER1_IDX =
+            "CREATE INDEX idx_games_player1 ON word_games (player1);";
+
+    public static final String DROP_PLAYER1_IDX =
+            "DROP INDEX IF EXISTS idx_games_player1;";
+
+    public static final String CREATE_PLAYER2_IDX =
+            "CREATE INDEX idx_games_player2 ON word_games (player2);";
+
+    public static final String DROP_PLAYER2_IDX =
+            "DROP INDEX IF EXISTS idx_games_player2;";
 
     public static final String CREATE_MOVES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_moves " +
