@@ -56,7 +56,8 @@ public class GamesDAO {
 
     private static final String QUERY_IN_PROGRESS_GAMES_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
-                    "WHERE (player1 = ? OR player2 = ?) AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result = ? OR player_1 = ? AND game_result = ? " +
+                    "ORDER BY (player1 = ? AND player1_turn = TRUE OR player2 = ? AND player1_turn = FALSE) DESC, last_activity DESC LIMIT ?;";
 
     private static final String QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
@@ -238,7 +239,11 @@ public class GamesDAO {
         stmt.setInt(1, userId);
         stmt.setInt(2, userId);
         stmt.setInt(3, GameResult.IN_PROGRESS.ordinal());
-        stmt.setInt(4, count);
+        stmt.setInt(4, userId);
+        stmt.setInt(5, GameResult.OFFERED.ordinal());
+        stmt.setInt(6, userId);
+        stmt.setInt(7, userId);
+        stmt.setInt(8, count);
 
         ResultSet resultSet = stmt.executeQuery();
 
