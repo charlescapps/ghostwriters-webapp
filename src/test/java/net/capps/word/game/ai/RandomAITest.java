@@ -48,7 +48,7 @@ public class RandomAITest {
     }
 
     private void doTestPlayRandomMoves(BoardSize bs, GameDensity gameDensity, boolean randomSquares ) {
-        TileSet tileSet = GG.generateRandomFinishedGame(bs.getN(), gameDensity.getNumWords(bs), bs.getMaxInitialWordSize());
+        TileSet tileSet = GG.generateRandomFinishedGame(bs.getN(), gameDensity.getNumWords(bs), bs.getN());
         SquareSet squareSet = randomSquares ?
                 LG.generateRandomBonusLayout(bs) :
                 FixedLayouts.getInstance().getFixedLayout(bs);

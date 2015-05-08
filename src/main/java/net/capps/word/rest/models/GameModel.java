@@ -2,6 +2,7 @@ package net.capps.word.rest.models;
 
 import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.*;
+import net.capps.word.game.dict.DictType;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class GameModel {
     private List<MoveModel> lastMoves;
     private Integer player1RatingIncrease;
     private Integer player2RatingIncrease;
+    private DictType specialDict;
 
     public GameModel() {
 
@@ -242,6 +244,14 @@ public class GameModel {
         this.player2RatingIncrease = player2RatingIncrease;
     }
 
+    public DictType getSpecialDict() {
+        return specialDict;
+    }
+
+    public void setSpecialDict(DictType specialDict) {
+        this.specialDict = specialDict;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -262,6 +272,7 @@ public class GameModel {
                 .add("gameResult", gameResult)
                 .add("player1Turn", player1Turn)
                 .add("lastMoves", lastMoves)
+                .add("specialDict", specialDict)
                 .toString();
     }
 }

@@ -1,6 +1,5 @@
 package net.capps.word.game.dict;
 
-import com.google.common.collect.ImmutableList;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +15,10 @@ public class DictionaryPicker {
     // ---------------- Static ----------------
     private static final Logger LOG = LoggerFactory.getLogger(DictionaryPicker.class);
 
-
     // ---------------- Constructor -----------
     DictionaryPicker() { }
 
     // ---------------- Private fields ---------------
-    private ImmutableList<String> words;
     private final Map<Integer, List<String>> wordsByLen = new HashMap<>(12); // 12 possible word lengths, 2-13
     private int longestWord;
 
@@ -33,28 +30,13 @@ public class DictionaryPicker {
      * @throws java.io.IOException
      */
     public void loadDictionary(Set<String> validDictionary) throws IOException {
-        if (words != null) {
+        if (!wordsByLen.isEmpty()) {
             throw new IllegalStateException("Cannot load DictionaryWordPicker twice!");
         }
 
-        words = ImmutableList.<String>builder().addAll(validDictionary).build();
         storeWordsByLength(validDictionary);
 
         LOG.info("SUCCESS - loaded dictionary into DictionaryWordPicker.");
-    }
-
-    public String getUniformlyRandomWord() {
-        int index = ThreadLocalRandom.current().nextInt(words.size());
-        return words.get(index);
-    }
-
-    /**
-     * Get a random word by
-     * 1) Choosing a random length from all possible lengths of words.
-     * 2) Choosing a random word from words of that length.
-     */
-    public String getRandomWordEqualProbabilityByLength() {
-        return getRandomWordEqualProbabilityByLength(Integer.MAX_VALUE);
     }
 
     /**

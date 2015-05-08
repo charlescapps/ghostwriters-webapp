@@ -16,13 +16,12 @@ public class Dictionaries {
 
     private static final DictionarySet ALL_WORDS_SET = new DictionarySet();
     private static final DictionaryTrie ALL_WORDS_TRIE = new DictionaryTrie();
-    private static final DictionaryPicker ALL_WORDS_PICKER = new DictionaryPicker();
 
     private static final DictionarySet VICTORIAN_WORDS_SET = new DictionarySet();
     private static final DictionaryTrie VICTORIAN_WORDS_TRIE = new DictionaryTrie();
 
-    private static final DictionarySet HORROR_WORDS_SET = new DictionarySet();
-    private static final DictionaryTrie HORROR_WORDS_TRIE = new DictionaryTrie();
+    private static final DictionarySet LOVECRAFT_WORDS_SET = new DictionarySet();
+    private static final DictionaryTrie LOVECRAFT_WORDS_TRIE = new DictionaryTrie();
 
     private static final DictionarySet ADJECTIVES_SET = new DictionarySet();
     private static final DictionaryPicker ADJECTIVES_PICKER = new DictionaryPicker();
@@ -35,13 +34,12 @@ public class Dictionaries {
 
         ALL_WORDS_SET.loadDictionary(DictType.ALL_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ALL_WORDS_TRIE.loadDictionary(ALL_WORDS_SET.getWords());
-        ALL_WORDS_PICKER.loadDictionary(ALL_WORDS_SET.getWords());
 
         VICTORIAN_WORDS_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         VICTORIAN_WORDS_TRIE.loadDictionary(VICTORIAN_WORDS_SET.getWords());
 
-        HORROR_WORDS_SET.loadDictionary(DictType.HORROR.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        HORROR_WORDS_TRIE.loadDictionary(HORROR_WORDS_SET.getWords());
+        LOVECRAFT_WORDS_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        LOVECRAFT_WORDS_TRIE.loadDictionary(LOVECRAFT_WORDS_SET.getWords());
 
         ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWords());
@@ -58,16 +56,12 @@ public class Dictionaries {
         return ALL_WORDS_TRIE;
     }
 
-    public static DictionaryPicker getAllWordsPicker() {
-        return ALL_WORDS_PICKER;
+    public static DictionarySet getLovecraftWordsSet() {
+        return LOVECRAFT_WORDS_SET;
     }
 
-    public static DictionarySet getHorrorWordsSet() {
-        return HORROR_WORDS_SET;
-    }
-
-    public static DictionaryTrie getHorrorWordsTrie() {
-        return HORROR_WORDS_TRIE;
+    public static DictionaryTrie getLovecraftWordsTrie() {
+        return LOVECRAFT_WORDS_TRIE;
     }
 
     public static DictionarySet getVictorianWordsSet() {
