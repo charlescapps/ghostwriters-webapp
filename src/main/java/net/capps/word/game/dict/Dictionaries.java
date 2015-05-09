@@ -14,8 +14,8 @@ public class Dictionaries {
 
     private static final DictionarySet BANNED_SET = new DictionarySet();
 
-    private static final DictionarySet ALL_WORDS_SET = new DictionarySet();
-    private static final DictionaryTrie ALL_WORDS_TRIE = new DictionaryTrie();
+    private static final DictionarySet ENGLISH_WORDS_SET = new DictionarySet();
+    private static final DictionaryTrie ENGLISH_WORDS_TRIE = new DictionaryTrie();
 
     private static final DictionarySet VICTORIAN_WORDS_SET = new DictionarySet();
     private static final DictionaryTrie VICTORIAN_WORDS_TRIE = new DictionaryTrie();
@@ -32,8 +32,8 @@ public class Dictionaries {
     public static void initializeAllDictionaries() throws IOException {
         BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.<DictionarySet>absent());
 
-        ALL_WORDS_SET.loadDictionary(DictType.ALL_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        ALL_WORDS_TRIE.loadDictionary(ALL_WORDS_SET.getWords());
+        ENGLISH_WORDS_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        ENGLISH_WORDS_TRIE.loadDictionary(ENGLISH_WORDS_SET.getWords());
 
         VICTORIAN_WORDS_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         VICTORIAN_WORDS_TRIE.loadDictionary(VICTORIAN_WORDS_SET.getWords());
@@ -48,12 +48,12 @@ public class Dictionaries {
         NOUNS_PICKER.loadDictionary(NOUNS_SET.getWords());
     }
 
-    public static DictionarySet getAllWordsSet() {
-        return ALL_WORDS_SET;
+    public static DictionarySet getEnglishWordsSet() {
+        return ENGLISH_WORDS_SET;
     }
 
-    public static DictionaryTrie getAllWordsTrie() {
-        return ALL_WORDS_TRIE;
+    public static DictionaryTrie getEnglishWordsTrie() {
+        return ENGLISH_WORDS_TRIE;
     }
 
     public static DictionarySet getLovecraftWordsSet() {

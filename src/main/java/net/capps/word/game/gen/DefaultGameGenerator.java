@@ -25,12 +25,18 @@ import static net.capps.word.game.common.Dir.S;
  * Created by charlescapps on 1/13/15.
  */
 public class DefaultGameGenerator implements GameGenerator {
+    private static final DefaultGameGenerator INSTANCE = new DefaultGameGenerator(Dictionaries.getEnglishWordsTrie());
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
+    private final DictionaryTrie trie;
 
-    private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
+    public static DefaultGameGenerator getInstance() {
+        return INSTANCE;
+    }
 
-    public DefaultGameGenerator() {
+    public DefaultGameGenerator(DictionaryTrie trie) {
+        this.trie = trie;
     }
 
     @Override
@@ -60,23 +66,10 @@ public class DefaultGameGenerator implements GameGenerator {
     }
 
     @Override
-    public void generateRandomWord(TileSet tileSet, int maxWordSize) {
-        if (tileSet.isEmpty()) {
-            Placement placement = generateFirstPlacement(tileSet, maxWordSize);
-            tileSet.placeWord(placement);
-            return;
-        }
-        Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
-        if (!placementOpt.isPresent()) {
-            throw new IllegalStateException("Failed to find a valid placement!");
-        }
-        tileSet.placeWord(placementOpt.get());
-    }
-
-    private Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
+    public Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
         final int len = RandomUtil.randomInt(Math.max(maxWordSize / 2, 2), maxWordSize);
-        final String word = TRIE.getRandomWordOfLen(len);
+        final String word = trie.getRandomWordOfLen(len);
         final Dir dir = Dir.randomPlayDir();
 
         int minStartPos = Math.max(0, N / 2 - len + 1);
@@ -88,7 +81,8 @@ public class DefaultGameGenerator implements GameGenerator {
         return new Placement(word, pos, dir);
     }
 
-    private Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
+    @Override
+    public Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
 
         ImmutableList<Pos> positions = POSITION_LISTS.getPositionList(N);
@@ -167,7 +161,7 @@ public class DefaultGameGenerator implements GameGenerator {
                 }
             }
 
-            Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
+            Iterator<String> iter = trie.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
 
             while (iter.hasNext()) {
                 String word = iter.next();

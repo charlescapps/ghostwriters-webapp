@@ -30,7 +30,7 @@ import static java.lang.String.format;
  */
 public class TileSet implements Iterable<Pos> {
     private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
-    private static final DictionarySet DICTIONARY_SET = Dictionaries.getAllWordsSet();
+    private static final DictionarySet DICTIONARY_SET = Dictionaries.getEnglishWordsSet();
 
     // ----------- Errors ----------
     private static final Optional<String> ERR_GRAB_TILES_ON_EMPTY = Optional.of("Grab tiles move must start on an occupied tile");

@@ -7,22 +7,24 @@ import java.io.InputStream;
  */
 public enum DictType {
 
-    ALL_WORDS("English dictionary", "main_dict.txt"),
-    BANNED("Banned words", "banned.txt"),
-    ADJECTIVES("Adjectives", "adjectives.txt"),
-    NOUNS("Nouns", "nouns.txt"),
-    VICTORIAN("Victorian Era", "dickens_dict.filtered.txt"),
-    LOVECRAFT("H.P. Lovecraft", "hp_lovecraft_dict.txt");
+    ENGLISH_WORDS("English dictionary", "main_dict.txt", false),
+    BANNED("Banned words", "banned.txt", false),
+    ADJECTIVES("Adjectives", "adjectives.txt", false),
+    NOUNS("Nouns", "nouns.txt", false),
+    VICTORIAN("Victorian Era", "dickens_dict.filtered.txt", true),
+    LOVECRAFT("H.P. Lovecraft", "hp_lovecraft_dict.txt", true);
 
     private static final String PACKAGE = "net/capps/word/dict/";
 
-    private DictType(String description, String filename) {
+    private DictType(String description, String filename, boolean isSpecialDict) {
         this.description = description;
         this.filename = filename;
+        this.isSpecialDict = isSpecialDict;
     }
 
     private final String description;
     private final String filename;
+    private final boolean isSpecialDict;
 
     public String getDescription() {
         return description;
@@ -30,6 +32,10 @@ public enum DictType {
 
     public String getFilename() {
         return filename;
+    }
+
+    public boolean isSpecialDict() {
+        return isSpecialDict;
     }
 
     public String getResourcePath() {

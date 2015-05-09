@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Created by charlescapps on 2/22/15.
  */
 public class RandomAITest {
-    private static final GameGenerator GG = new DefaultGameGenerator();
+    private static final GameGenerator GG = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator LG = new DefaultSquareSetGenerator();
     private static final RandomAI RA = RandomAI.getInstance();
 

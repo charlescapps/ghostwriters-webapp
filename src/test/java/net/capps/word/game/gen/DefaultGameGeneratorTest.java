@@ -27,7 +27,7 @@ public class DefaultGameGeneratorTest {
 
     @Test
     public void testGenerateFirstMove() {
-        GameGenerator gg = new DefaultGameGenerator();
+        GameGenerator gg = DefaultGameGenerator.getInstance();
         final int SIZE = 15;
         for (int i = 0; i < 100; i++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, 1, 8);
@@ -39,7 +39,7 @@ public class DefaultGameGeneratorTest {
 
     @Test
     public void testGenerateGamesWithTwoMoves() {
-        GameGenerator gg = new DefaultGameGenerator();
+        GameGenerator gg = DefaultGameGenerator.getInstance();
         final int SIZE = BoardSize.VENTI.getN();
         for (int i = 0; i < 10; i++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, 2, 8);
@@ -51,7 +51,7 @@ public class DefaultGameGeneratorTest {
     @Test
     public void testGenerateGamesWithManyMoves() {
         final long START = System.currentTimeMillis();
-        GameGenerator gg = new DefaultGameGenerator();
+        GameGenerator gg = DefaultGameGenerator.getInstance();
         final int SIZE = BoardSize.VENTI.getN();
         for (int numWords = 2; numWords < 40; numWords++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getN());
@@ -61,23 +61,5 @@ public class DefaultGameGeneratorTest {
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
         LOG.info("Duration in seconds: {}", (END - START)/1000);
-    }
-
-    @Test
-    public void testGenerateWordsForBoardThatHadBug() throws Exception {
-        for (int i = 0; i < 200; i++) {
-            TileSet tileSet = new TileSet(BoardSize.VENTI.getN());
-
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/capps/word/games/bug.txt")) {
-                tileSet.load(new InputStreamReader(is));
-            }
-
-            LOG.info("Board:\n{}", tileSet);
-
-            GameGenerator gg = new DefaultGameGenerator();
-            gg.generateRandomWord(tileSet, BoardSize.VENTI.getN());
-
-            LOG.info("Board after move:\n{}", tileSet);
-        }
     }
 }

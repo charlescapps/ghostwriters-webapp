@@ -34,8 +34,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class BestMoveFromRandomSampleAI implements GameAI {
-    private static final DictionarySet SET = Dictionaries.getAllWordsSet();
-    private static final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
+    private static final DictionarySet SET = Dictionaries.getEnglishWordsSet();
+    private static final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
     private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
 
     private final float fractionOfPositionsToSearch;
