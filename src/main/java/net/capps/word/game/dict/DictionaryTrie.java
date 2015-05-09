@@ -20,12 +20,7 @@ import static java.lang.String.format;
  */
 public class DictionaryTrie {
     // ---------------- Static ----------------
-    private static final DictionaryTrie INSTANCE = new DictionaryTrie();
     private static final Logger LOG = LoggerFactory.getLogger(DictionaryTrie.class);
-
-    public static DictionaryTrie getInstance() {
-        return INSTANCE;
-    }
 
     // ---------------- Constructor -----------
     DictionaryTrie() { }

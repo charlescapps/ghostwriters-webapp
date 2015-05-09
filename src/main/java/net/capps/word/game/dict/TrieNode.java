@@ -84,9 +84,6 @@ public class TrieNode {
     // --------- Private -------
 
     private static void buildLevels(Map<Integer, TrieLevel> levels, TrieNode node, int depth, char branch) {
-        if (node.isLeaf()) {
-            return;
-        }
 
         // Add the current node to the level map.
         if (!levels.containsKey(depth)) {
@@ -96,6 +93,10 @@ public class TrieNode {
         TrieLevel level = levels.get(depth);
 
         level.addNode(branch, node);
+
+        if (node.isLeaf()) {
+            return;
+        }
 
         // Recurse on children
         for (Character c: node.branches.keySet()) {

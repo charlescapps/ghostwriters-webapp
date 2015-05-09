@@ -1,6 +1,8 @@
 package net.capps.word.game.dict;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +14,8 @@ import java.util.Map;
  */
 public class TrieLevel {
     // Structure so we can get the words having character at position i in O(1) time.
-    private final Map<Character, List<TrieNode>> nodesByChar = new HashMap<>();
+    private static final Map<Character, List<TrieNode>> EMPTY_NODES_BY_CHAR = ImmutableMap.of();
+    private Map<Character, List<TrieNode>> nodesByChar = EMPTY_NODES_BY_CHAR;
     private TrieNode[] validWordNodes;
 
     public TrieLevel() {
@@ -32,6 +35,9 @@ public class TrieLevel {
 
     public void addNode(char c, TrieNode node) {
         if (!nodesByChar.containsKey(c)) {
+            if (nodesByChar == EMPTY_NODES_BY_CHAR) {
+                nodesByChar = new HashMap<>();
+            }
             nodesByChar.put(c, Lists.newArrayList(node));
         } else {
             nodesByChar.get(c).add(node);
