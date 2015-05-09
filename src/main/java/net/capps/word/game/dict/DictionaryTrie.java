@@ -78,7 +78,7 @@ public class DictionaryTrie {
     }
 
     public String getRandomWordOfLen(int len) {
-        final TrieLevel level = root.getLevels().get(len - 1);
+        final TrieLevel level = root.getLevels().get((byte)(len - 1));
         if (level == null) {
             return null;
         }

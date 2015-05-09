@@ -13,13 +13,13 @@ import java.util.Map;
 public class TrieNode {
     public static final TrieNode[] EMPTY_TRIE_NODE_ARRAY = { };
     private static final Collection<TrieNode> EMPTY_TRIE_NODE_LIST = ImmutableList.of();
-    private static final Map<Integer, TrieLevel> EMPTY_LEVELS = ImmutableMap.of();
+    private static final Map<Byte, TrieLevel> EMPTY_LEVELS = ImmutableMap.of();
 
     private Map<Character, TrieNode> branches;
     private final String word;
 
     // Structure so we can get the words having character at position i in O(1) time.
-    private Map<Integer, TrieLevel> levels;
+    private Map<Byte, TrieLevel> levels;
 
     private boolean validWord = false;
 
@@ -62,14 +62,14 @@ public class TrieNode {
         }
         levels = new HashMap<>();
         for (Character c: branches.keySet()) {
-            buildLevels(levels, branches.get(c), 0, c);
+            buildLevels(levels, branches.get(c), (byte) 0, c);
         }
         for (TrieLevel level: levels.values()) {
             level.storeValidWordNodes();
         }
     }
 
-    public Map<Integer, TrieLevel> getLevels() {
+    public Map<Byte, TrieLevel> getLevels() {
         return levels == null ? EMPTY_LEVELS : levels;
     }
 
@@ -83,7 +83,7 @@ public class TrieNode {
 
     // --------- Private -------
 
-    private static void buildLevels(Map<Integer, TrieLevel> levels, TrieNode node, int depth, char branch) {
+    private static void buildLevels(Map<Byte, TrieLevel> levels, TrieNode node, byte depth, char branch) {
 
         // Add the current node to the level map.
         if (!levels.containsKey(depth)) {
@@ -101,7 +101,7 @@ public class TrieNode {
         // Recurse on children
         for (Character c: node.branches.keySet()) {
             TrieNode child = node.branches.get(c);
-            buildLevels(levels, child, depth + 1, c);
+            buildLevels(levels, child, (byte) (depth + 1), c);
         }
     }
 
