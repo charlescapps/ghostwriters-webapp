@@ -76,7 +76,7 @@ public class DefaultGameGenerator implements GameGenerator {
     private Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
         final int len = RandomUtil.randomInt(Math.max(maxWordSize / 2, 2), maxWordSize);
-        final String word = TRIE.getWordsOfLengthInRandomOrder(len).next();
+        final String word = TRIE.getRandomWordOfLen(len);
         final Dir dir = Dir.randomPlayDir();
 
         int minStartPos = Math.max(0, N / 2 - len + 1);

@@ -129,7 +129,7 @@ public class GamesProvider {
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
 
-        TileSet tileSet = GAME_GENERATOR.generateRandomFinishedGame(bs.getN(), numWords, bs.getMaxInitialWordSize());
+        TileSet tileSet = GAME_GENERATOR.generateRandomFinishedGame(bs.getN(), numWords, bs.getN());
 
         BonusesType bt = validatedInputGame.getBonusesType();
 

@@ -2,6 +2,7 @@ package net.capps.word.game.dict;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DateUtil;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -147,6 +148,17 @@ public class DictionaryTrieTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    public void testGetRandomWordOfLen() {
+        final DictionaryTrie TRIE = Dictionaries.getAllWordsTrie();
+
+        for (int len = 2; len < BoardSize.VENTI.getN(); ++len) {
+            String randomWord = TRIE.getRandomWordOfLen(len);
+            LOG.info("Random Word: {}", randomWord);
+            Assert.assertEquals(len, randomWord.length());
         }
     }
 

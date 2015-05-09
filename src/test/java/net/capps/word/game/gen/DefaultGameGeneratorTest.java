@@ -54,7 +54,7 @@ public class DefaultGameGeneratorTest {
         GameGenerator gg = new DefaultGameGenerator();
         final int SIZE = BoardSize.VENTI.getN();
         for (int numWords = 2; numWords < 40; numWords++) {
-            TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getMaxInitialWordSize());
+            TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getN());
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
             LOG.info("\n{}", game);
         }
@@ -75,7 +75,7 @@ public class DefaultGameGeneratorTest {
             LOG.info("Board:\n{}", tileSet);
 
             GameGenerator gg = new DefaultGameGenerator();
-            gg.generateRandomWord(tileSet, BoardSize.VENTI.getMaxInitialWordSize());
+            gg.generateRandomWord(tileSet, BoardSize.VENTI.getN());
 
             LOG.info("Board after move:\n{}", tileSet);
         }

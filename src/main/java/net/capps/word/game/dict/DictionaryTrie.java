@@ -1,5 +1,6 @@
 package net.capps.word.game.dict;
 
+import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.dict.iterators.RandomWordIteratorFactory;
 import net.capps.word.game.dict.iterators.WordsOfLengthIterator;
 import net.capps.word.util.DateUtil;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.String.format;
 
@@ -30,6 +32,7 @@ public class DictionaryTrie {
 
     // ---------------- Private fields ---------------
     private final TrieNode root = new TrieNode("");
+    private final int[] numWordsByLength = new int[BoardSize.VENTI.getN() + 1];
 
     // ---------------- Public ----------------
     /**
@@ -46,6 +49,7 @@ public class DictionaryTrie {
         LOG.info("Starting to load dictionary into Trie...");
         long START = System.currentTimeMillis();
         for (String word: validDictionary) {
+            ++numWordsByLength[word.length()];
             insertWord(word, root);
         }
         long END = System.currentTimeMillis();
@@ -76,6 +80,40 @@ public class DictionaryTrie {
 
     public Iterator<String> getWordsOfLengthInRandomOrder(int len) {
         return WordsOfLengthIterator.create(root, len);
+    }
+
+    public String getRandomWordOfLen(int len) {
+        final TrieLevel level = root.getLevels().get(len - 1);
+        if (level == null) {
+            return null;
+        }
+        final TrieNode[] wordNodes = level.getValidWordNodes();
+        if (wordNodes.length <= 0) {
+            return null;
+        }
+        final int index = ThreadLocalRandom.current().nextInt(wordNodes.length);
+        return wordNodes[index].getWord();
+    }
+
+    public String getRandomWordUniformlyAtRandom() {
+        return getRandomWordBetweenLength(2, BoardSize.VENTI.getN());
+    }
+
+    public String getRandomWordBetweenLength(final int minLen, final int maxLen) {
+        int totalWordsBetweenLens = 0;
+        for (int i = minLen; i <= maxLen; ++i) {
+            totalWordsBetweenLens += numWordsByLength[i];
+        }
+
+        int wordChoice = ThreadLocalRandom.current().nextInt(totalWordsBetweenLens);
+
+        int len = minLen;
+        while (wordChoice >= numWordsByLength[len]) {
+            wordChoice -= numWordsByLength[len];
+            ++len;
+        }
+
+        return getRandomWordOfLen(len);
     }
 
     // --------------- Private ---------------
