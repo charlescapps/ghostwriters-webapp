@@ -26,7 +26,7 @@ public class DictionaryTrie {
     DictionaryTrie() { }
 
     // ---------------- Private fields ---------------
-    private final TrieNode root = new TrieNode("");
+    private final TrieNode root = new TrieNode(null);
     private final int[] numWordsByLength = new int[BoardSize.VENTI.getN() + 1];
 
     // ---------------- Public ----------------
@@ -69,11 +69,11 @@ public class DictionaryTrie {
         return isPrefix(str, root);
     }
 
-    public Iterator<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints, int len) {
+    public Iterator<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints, byte len) {
         return RandomWordIteratorFactory.create(root, constraints, len);
     }
 
-    public Iterator<String> getWordsOfLengthInRandomOrder(int len) {
+    public Iterator<String> getWordsOfLengthInRandomOrder(byte len) {
         return WordsOfLengthIterator.create(root, len);
     }
 

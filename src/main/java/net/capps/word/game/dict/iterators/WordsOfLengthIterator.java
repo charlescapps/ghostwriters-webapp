@@ -20,12 +20,12 @@ public class WordsOfLengthIterator implements Iterator<String> {
         this.level = level;
     }
 
-    public static Iterator<String> create(TrieNode node, int len) {
+    public static Iterator<String> create(TrieNode node, byte len) {
         if (len <= 0) {
             throw new IllegalArgumentException("Length cannot be <= 0");
         }
 
-        TrieLevel level = node.getLevels().get(len - 1);
+        TrieLevel level = node.getLevels().get((byte)(len - 1));
         if (level == null || level.getValidWordNodes().length <= 0) {
             return EmptyStringIterator.INSTANCE;
         }

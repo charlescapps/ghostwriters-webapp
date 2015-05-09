@@ -154,14 +154,14 @@ public class DefaultGameGenerator implements GameGenerator {
             List<WordConstraint> wcs = new ArrayList<>();
 
             // Get all constraints from existing tiles.
-            for (int j = 0; j <= totalDiff; j++) {
+            for (byte j = 0; j <= totalDiff; j++) {
                 Pos p1 = start.go(dir, j);
                 if (tileSet.isOccupied(p1)) {
                     wcs.add(WordConstraint.of(j, tileSet.getLetterAt(p1)));
                 }
             }
 
-            Iterator<String> iter = trie.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
+            Iterator<String> iter = trie.getWordsWithConstraintsInRandomOrder(wcs, (byte)(totalDiff + 1));
 
             while (iter.hasNext()) {
                 String word = iter.next();

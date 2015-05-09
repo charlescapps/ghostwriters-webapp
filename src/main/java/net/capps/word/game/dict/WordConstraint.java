@@ -6,10 +6,10 @@ import com.google.common.base.Predicate;
  * Created by charlescapps on 1/17/15.
  */
 public class WordConstraint implements Predicate<String> {
-    public final int pos;
+    public final byte pos;
     public final char c;
 
-    public WordConstraint(int pos, char c)  {
+    public WordConstraint(byte pos, char c)  {
         if (!Character.isAlphabetic(c)) {
             throw new IllegalArgumentException(String.format("Invalid alphabetic character for WordConstraint: '%c'", c));
         }
@@ -17,7 +17,7 @@ public class WordConstraint implements Predicate<String> {
         this.c = Character.toUpperCase(c);
     }
 
-    public static WordConstraint of(int pos, char c) {
+    public static WordConstraint of(byte pos, char c) {
         return new WordConstraint(pos, c);
     }
 

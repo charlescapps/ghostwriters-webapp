@@ -31,6 +31,12 @@ public class DictionaryTrieTest {
     }
 
     @Test
+    public void testGetWord() {
+        final DictionarySet SET = Dictionaries.getEnglishWordsSet();
+        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+    }
+
+    @Test
     public void testTrieContainsMethod() {
         final DictionarySet SET = Dictionaries.getEnglishWordsSet();
         final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
@@ -81,7 +87,7 @@ public class DictionaryTrieTest {
         long START = System.currentTimeMillis();
         for (int len = 2; len <= 15; len++) {
             LOG.debug("RANDOM words of length {}", len);
-            Iterator<String> it = TRIE.getWordsOfLengthInRandomOrder(len);
+            Iterator<String> it = TRIE.getWordsOfLengthInRandomOrder((byte)len);
 
             while (it.hasNext()) {
                 String word = it.next();
@@ -113,9 +119,9 @@ public class DictionaryTrieTest {
         final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
         Set<String> foundWords = new HashSet<>();
 
-        WordConstraint constraint = new WordConstraint(2, 'C');
+        WordConstraint constraint = new WordConstraint((byte) 2, 'C');
 
-        Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(constraint), 5);
+        Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(constraint), (byte)5);
         while (iter.hasNext()) {
             String word = iter.next();
             foundWords.add(word);
@@ -129,16 +135,18 @@ public class DictionaryTrieTest {
     @Test
     public void testEnumerateWordsWithAllSingleConstraints() {
         final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        int num = 0;
 
         for (int len = 2; len <= 15; len++) {
             for (int pos = 0; pos < len; pos++) {
                 for (char c = 'A'; c <= 'Z'; c++) {
-                    WordConstraint wc = new WordConstraint(pos, c);
+                    WordConstraint wc = new WordConstraint((byte)pos, c);
 
-                    Iterator<String> iterator = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(wc), len);
+                    Iterator<String> iterator = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(wc), (byte)len);
 
                     boolean first = true;
                     while (iterator.hasNext()) {
+                        ++num;
                         String word = iterator.next();
                         if (first) {
                             first = false;
@@ -149,6 +157,7 @@ public class DictionaryTrieTest {
                 }
             }
         }
+        LOG.info("Total num={}", num);
     }
 
     @Test
@@ -170,11 +179,11 @@ public class DictionaryTrieTest {
                 for (int pos2 = pos1 + 1; pos2 < len; pos2++) {
                     for (char c1 = 'A'; c1 <= 'Z'; c1++) {
                         for (char c2 = 'A'; c2 <= 'Z'; c2++) {
-                            WordConstraint wc1 = new WordConstraint(pos1, c1);
-                            WordConstraint wc2 = new WordConstraint(pos2, c2);
+                            WordConstraint wc1 = new WordConstraint((byte)pos1, c1);
+                            WordConstraint wc2 = new WordConstraint((byte)pos2, c2);
 
                             List<WordConstraint> wcs = Lists.newArrayList(wc1, wc2);
-                            Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(wcs, len);
+                            Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(wcs, (byte)len);
 
                             boolean first = true;
                             while (iter.hasNext()) {

@@ -2,7 +2,6 @@ package net.capps.word.game.dict;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;

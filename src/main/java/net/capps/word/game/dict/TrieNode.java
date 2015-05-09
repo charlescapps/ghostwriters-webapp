@@ -16,15 +16,15 @@ public class TrieNode {
     private static final Map<Byte, TrieLevel> EMPTY_LEVELS = ImmutableMap.of();
 
     private Map<Character, TrieNode> branches;
-    private final String word;
+    private final TrieNode parent;
 
     // Structure so we can get the words having character at position i in O(1) time.
     private Map<Byte, TrieLevel> levels;
 
     private boolean validWord = false;
 
-    public TrieNode(String word) {
-        this.word = word;
+    public TrieNode(TrieNode parent) {
+        this.parent = parent;
     }
 
     public TrieNode addChild(Character c) {
@@ -33,7 +33,7 @@ public class TrieNode {
         }
         TrieNode child = branches.get(c);
         if (child == null) {
-            child = new TrieNode(word + c);
+            child = new TrieNode(this);
             branches.put(c, child);
         }
 
@@ -78,7 +78,21 @@ public class TrieNode {
     }
 
     public String getWord() {
-        return word;
+        StringBuilder sb = new StringBuilder();
+        TrieNode node = this;
+        while (node.parent != null) {
+            Map<Character, TrieNode> branches = node.parent.branches;
+            for (Character c: branches.keySet()) {
+                if (branches.get(c) == node) {
+                    sb.append(c);
+                    break;
+                }
+            }
+            node = node.parent;
+        }
+
+        sb.reverse();
+        return sb.toString();
     }
 
     // --------- Private -------

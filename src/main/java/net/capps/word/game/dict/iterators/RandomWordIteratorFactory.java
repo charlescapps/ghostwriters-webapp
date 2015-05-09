@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class RandomWordIteratorFactory {
 
-    public static Iterator<String> create(TrieNode node, List<WordConstraint> constraints, int len) {
+    public static Iterator<String> create(TrieNode node, List<WordConstraint> constraints, byte len) {
         if (len < 0) {
             throw new IllegalArgumentException("Cannot have 0 length! Found len=" + len);
         }
@@ -32,7 +32,7 @@ public class RandomWordIteratorFactory {
         }
 
         WordConstraint constraint = constraints.get(0);
-        List<WordConstraint> remaining = shiftConstraints(constraints.subList(1, constraints.size()), constraint.pos + 1) ;
+        List<WordConstraint> remaining = shiftConstraints(constraints.subList(1, constraints.size()), (byte)(constraint.pos + 1)) ;
 
         TrieLevel level = node.getLevels().get(constraint.pos);
 
@@ -47,7 +47,7 @@ public class RandomWordIteratorFactory {
 
         for (int i = 0; i < N; i++) {
             TrieNode descendant = descendants.get(i);
-            Iterator<String> delegate = create(descendant, remaining, len - constraint.pos - 1);
+            Iterator<String> delegate = create(descendant, remaining, (byte)(len - constraint.pos - 1));
             delegates[i] = delegate;
         }
 
@@ -56,10 +56,10 @@ public class RandomWordIteratorFactory {
         return new DelegatingIterator<>(delegates);
     }
 
-    private static List<WordConstraint> shiftConstraints(List<WordConstraint> constraints, int len) {
+    private static List<WordConstraint> shiftConstraints(List<WordConstraint> constraints, byte len) {
         List<WordConstraint> shifted = Lists.newArrayListWithCapacity(constraints.size());
         for (WordConstraint constraint: constraints) {
-            shifted.add(new WordConstraint(constraint.pos - len, constraint.c));
+            shifted.add(new WordConstraint((byte)(constraint.pos - len), constraint.c));
         }
         return shifted;
     }
