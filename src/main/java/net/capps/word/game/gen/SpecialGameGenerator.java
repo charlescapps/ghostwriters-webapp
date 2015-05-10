@@ -23,7 +23,7 @@ public class SpecialGameGenerator implements GameGenerator {
     private final DefaultGameGenerator specialGameGenerator;
 
     private SpecialGameGenerator(DictType specialDict) {
-        this.specialGameGenerator = new DefaultGameGenerator(specialDict.getDictionaryTrie());
+        this.specialGameGenerator = new DefaultGameGenerator(specialDict.getDictionaryWordSets());
     }
 
     public static SpecialGameGenerator of(DictType specialDict) {

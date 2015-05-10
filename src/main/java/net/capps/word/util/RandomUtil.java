@@ -54,8 +54,14 @@ public class RandomUtil {
 
     public static <T> T pickRandomElementFromSet(Set<T> set) {
         final Random RANDOM = ThreadLocalRandom.current();
-        Object[] array = set.toArray();
-        int index = RANDOM.nextInt(array.length);
-        return (T) array[index]; // Cast should always succeed since we passed in a Set<T>
+        int index = RANDOM.nextInt(set.size());
+        int current = 0;
+        for (T item: set) {
+            if (current == index) {
+                return item;
+            }
+            ++current;
+        }
+        return null;
     }
 }

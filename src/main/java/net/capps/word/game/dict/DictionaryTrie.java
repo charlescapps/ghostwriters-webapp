@@ -1,17 +1,12 @@
 package net.capps.word.game.dict;
 
 import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.dict.iterators.RandomWordIteratorFactory;
-import net.capps.word.game.dict.iterators.WordsOfLengthIterator;
 import net.capps.word.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.String.format;
 
@@ -51,14 +46,6 @@ public class DictionaryTrie {
 
 
         LOG.info(format("SUCCESS - loaded dictionary into DictionaryTrie in %s.", DateUtil.getDurationPretty(END - START)));
-
-        LOG.info("Starting to build the Level maps...");
-        START = System.currentTimeMillis();
-        buildAllLevelsFromRoot(root);
-        END = System.currentTimeMillis();
-
-        LOG.info(format("SUCCESS - created Level Maps in %s.", DateUtil.getDurationPretty(END - START)));
-
     }
 
     public boolean contains(String str) {
@@ -67,48 +54,6 @@ public class DictionaryTrie {
 
     public boolean isPrefix(String str) {
         return isPrefix(str, root);
-    }
-
-    public Iterator<String> getWordsWithConstraintsInRandomOrder(List<WordConstraint> constraints, byte len) {
-        return RandomWordIteratorFactory.create(root, constraints, len);
-    }
-
-    public Iterator<String> getWordsOfLengthInRandomOrder(byte len) {
-        return WordsOfLengthIterator.create(root, len);
-    }
-
-    public String getRandomWordOfLen(int len) {
-        final TrieLevel level = root.getLevels().get((byte)(len - 1));
-        if (level == null) {
-            return null;
-        }
-        final TrieNode[] wordNodes = level.getValidWordNodes();
-        if (wordNodes.length <= 0) {
-            return null;
-        }
-        final int index = ThreadLocalRandom.current().nextInt(wordNodes.length);
-        return wordNodes[index].getWord();
-    }
-
-    public String getRandomWordUniformlyAtRandom() {
-        return getRandomWordBetweenLength(2, BoardSize.VENTI.getN());
-    }
-
-    public String getRandomWordBetweenLength(final int minLen, final int maxLen) {
-        int totalWordsBetweenLens = 0;
-        for (int i = minLen; i <= maxLen; ++i) {
-            totalWordsBetweenLens += numWordsByLength[i];
-        }
-
-        int wordChoice = ThreadLocalRandom.current().nextInt(totalWordsBetweenLens);
-
-        int len = minLen;
-        while (wordChoice >= numWordsByLength[len]) {
-            wordChoice -= numWordsByLength[len];
-            ++len;
-        }
-
-        return getRandomWordOfLen(len);
     }
 
     // --------------- Private ---------------
@@ -144,13 +89,6 @@ public class DictionaryTrie {
         char c = word.charAt(0);
         TrieNode child = trieNode.addChild(c);
         insertWord(word.substring(1), child);
-    }
-
-    private static void buildAllLevelsFromRoot(TrieNode node) {
-        node.buildLevels();
-        for (TrieNode child: node.getChildren()) {
-            buildAllLevelsFromRoot(child);
-        }
     }
 
 }

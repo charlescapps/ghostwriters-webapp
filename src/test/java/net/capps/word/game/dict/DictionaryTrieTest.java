@@ -1,7 +1,6 @@
 package net.capps.word.game.dict;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DateUtil;
@@ -32,14 +31,14 @@ public class DictionaryTrieTest {
 
     @Test
     public void testGetWord() {
-        final DictionarySet SET = Dictionaries.getEnglishWordsSet();
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionarySet SET = Dictionaries.getEnglishDictSet();
+        final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
     }
 
     @Test
     public void testTrieContainsMethod() {
-        final DictionarySet SET = Dictionaries.getEnglishWordsSet();
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionarySet SET = Dictionaries.getEnglishDictSet();
+        final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
 
         LOG.info("Verifying that the Trie contains every word...");
         for (String word: SET.getWords()) {
@@ -59,8 +58,8 @@ public class DictionaryTrieTest {
 
     @Test
     public void testContainsPerformance() {
-        final DictionarySet SET = Dictionaries.getEnglishWordsSet();
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionarySet SET = Dictionaries.getEnglishDictSet();
+        final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
         Set<String> words = SET.getWords();
 
         long START = System.currentTimeMillis();
@@ -80,48 +79,13 @@ public class DictionaryTrieTest {
     }
 
     @Test
-    public void testEnumerateWordsInRandomOrder() {
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
-        Set<String> foundWords = new HashSet<>();
-
-        long START = System.currentTimeMillis();
-        for (int len = 2; len <= 15; len++) {
-            LOG.debug("RANDOM words of length {}", len);
-            Iterator<String> it = TRIE.getWordsOfLengthInRandomOrder((byte)len);
-
-            while (it.hasNext()) {
-                String word = it.next();
-                if (foundWords.contains(word)) {
-                    throw new IllegalStateException("A word was iterated twice!");
-                }
-                foundWords.add(word);
-                Assert.assertEquals("Expected the length to be correct!", len, word.length());
-                LOG.debug(word);
-            }
-        }
-        long END = System.currentTimeMillis();
-        LOG.info("Enumerated all words in {}", DateUtil.getDurationPrettyMillis(END - START));
-
-        if (foundWords.size() != Dictionaries.getEnglishWordsSet().getWords().size()) {
-            Set<String> missingWords = Sets.newHashSet(Dictionaries.getEnglishWordsSet().getWords());
-            missingWords.removeAll(foundWords);
-            for (String word : missingWords) {
-                LOG.info("MISSING: {}", word);
-            }
-        }
-
-        Assert.assertEquals("Expected all words to be enumerated!",
-                Dictionaries.getEnglishWordsSet().getWords().size(), foundWords.size());
-    }
-
-    @Test
     public void testEnumerateWordsWithOneConstraint() {
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionaryWordSets WORD_SETS = Dictionaries.getEnglishWordSets();
         Set<String> foundWords = new HashSet<>();
 
         WordConstraint constraint = new WordConstraint((byte) 2, 'C');
 
-        Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(constraint), (byte)5);
+        Iterator<String> iter = WORD_SETS.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(constraint), 5);
         while (iter.hasNext()) {
             String word = iter.next();
             foundWords.add(word);
@@ -134,7 +98,7 @@ public class DictionaryTrieTest {
 
     @Test
     public void testEnumerateWordsWithAllSingleConstraints() {
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionaryWordSets WORD_SETS = Dictionaries.getEnglishWordSets();
         int num = 0;
 
         for (int len = 2; len <= 15; len++) {
@@ -142,7 +106,7 @@ public class DictionaryTrieTest {
                 for (char c = 'A'; c <= 'Z'; c++) {
                     WordConstraint wc = new WordConstraint((byte)pos, c);
 
-                    Iterator<String> iterator = TRIE.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(wc), (byte)len);
+                    Iterator<String> iterator = WORD_SETS.getWordsWithConstraintsInRandomOrder(Lists.newArrayList(wc), len);
 
                     boolean first = true;
                     while (iterator.hasNext()) {
@@ -162,10 +126,10 @@ public class DictionaryTrieTest {
 
     @Test
     public void testGetRandomWordOfLen() {
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionaryWordSets WORD_SETS = Dictionaries.getEnglishWordSets();
 
         for (int len = 2; len < BoardSize.VENTI.getN(); ++len) {
-            String randomWord = TRIE.getRandomWordOfLen(len);
+            String randomWord = WORD_SETS.getRandomWordOfLen(len);
             LOG.info("Random Word: {}", randomWord);
             Assert.assertEquals(len, randomWord.length());
         }
@@ -173,7 +137,7 @@ public class DictionaryTrieTest {
 
     @Test
     public void testEnumerateWordsWith2Constraints() {
-        final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+        final DictionaryWordSets WORD_SETS = Dictionaries.getEnglishWordSets();
         for (int len = 2; len <= 15; len++) {
             for (int pos1 = 0; pos1 < len - 1; pos1++) {
                 for (int pos2 = pos1 + 1; pos2 < len; pos2++) {
@@ -183,7 +147,7 @@ public class DictionaryTrieTest {
                             WordConstraint wc2 = new WordConstraint((byte)pos2, c2);
 
                             List<WordConstraint> wcs = Lists.newArrayList(wc1, wc2);
-                            Iterator<String> iter = TRIE.getWordsWithConstraintsInRandomOrder(wcs, (byte)len);
+                            Iterator<String> iter = WORD_SETS.getWordsWithConstraintsInRandomOrder(wcs, len);
 
                             boolean first = true;
                             while (iter.hasNext()) {

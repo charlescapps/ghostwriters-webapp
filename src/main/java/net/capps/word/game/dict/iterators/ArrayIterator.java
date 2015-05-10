@@ -4,28 +4,27 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Created by charlescapps on 1/27/15.
+ * Created by charlescapps on 5/9/15.
  */
-public class SingletonIterator<T> implements Iterator<T> {
-    private final T item;
-    private boolean hasReturnedItem = false;
+public class ArrayIterator<T> implements Iterator<T> {
+    private final T[] array;
+    private int index = 0;
 
-    public SingletonIterator(T item) {
-        this.item = item;
+    public ArrayIterator(T[] array) {
+        this.array = array;
     }
 
     @Override
     public boolean hasNext() {
-        return !hasReturnedItem;
+        return index < array.length;
     }
 
     @Override
     public T next() {
-        if (hasReturnedItem) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        hasReturnedItem = true;
-        return item;
+        return array[index++];
     }
 
     @Override

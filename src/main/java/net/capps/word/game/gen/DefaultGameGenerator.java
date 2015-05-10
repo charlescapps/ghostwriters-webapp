@@ -8,7 +8,7 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.Dictionaries;
-import net.capps.word.game.dict.DictionaryTrie;
+import net.capps.word.game.dict.DictionaryWordSets;
 import net.capps.word.game.dict.WordConstraint;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
@@ -25,18 +25,18 @@ import static net.capps.word.game.common.Dir.S;
  * Created by charlescapps on 1/13/15.
  */
 public class DefaultGameGenerator implements GameGenerator {
-    private static final DefaultGameGenerator INSTANCE = new DefaultGameGenerator(Dictionaries.getEnglishWordsTrie());
+    private static final DefaultGameGenerator INSTANCE = new DefaultGameGenerator(Dictionaries.getEnglishWordSets());
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
-    private final DictionaryTrie trie;
+    private final DictionaryWordSets dictWordSets;
 
     public static DefaultGameGenerator getInstance() {
         return INSTANCE;
     }
 
-    public DefaultGameGenerator(DictionaryTrie trie) {
-        this.trie = trie;
+    public DefaultGameGenerator(DictionaryWordSets dictWordSets) {
+        this.dictWordSets = dictWordSets;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class DefaultGameGenerator implements GameGenerator {
     @Override
     public Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
-        final int len = RandomUtil.randomInt(Math.max(maxWordSize / 2, 2), maxWordSize);
-        final String word = trie.getRandomWordOfLen(len);
+        final String word = dictWordSets.getRandomWordBetweenLengths(2, maxWordSize);
+        final int len = word.length();
         final Dir dir = Dir.randomPlayDir();
 
         int minStartPos = Math.max(0, N / 2 - len + 1);
@@ -161,7 +161,7 @@ public class DefaultGameGenerator implements GameGenerator {
                 }
             }
 
-            Iterator<String> iter = trie.getWordsWithConstraintsInRandomOrder(wcs, (byte)(totalDiff + 1));
+            Iterator<String> iter = dictWordSets.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
 
             while (iter.hasNext()) {
                 String word = iter.next();

@@ -14,14 +14,17 @@ public class Dictionaries {
 
     private static final DictionarySet BANNED_SET = new DictionarySet();
 
-    private static final DictionarySet ENGLISH_WORDS_SET = new DictionarySet();
-    private static final DictionaryTrie ENGLISH_WORDS_TRIE = new DictionaryTrie();
+    private static final DictionarySet ENGLISH_DICT_SET = new DictionarySet();
+    private static final DictionaryTrie ENGLISH_DICT_TRIE = new DictionaryTrie();
+    private static final DictionaryWordSets ENGLISH_WORD_SETS = new DictionaryWordSets();
 
-    private static final DictionarySet VICTORIAN_WORDS_SET = new DictionarySet();
-    private static final DictionaryTrie VICTORIAN_WORDS_TRIE = new DictionaryTrie();
+    private static final DictionarySet VICTORIAN_DICT_SET = new DictionarySet();
+    private static final DictionaryTrie VICTORIAN_DICT_TRIE = new DictionaryTrie();
+    private static final DictionaryWordSets VICTORIAN_WORD_SETS = new DictionaryWordSets();
 
-    private static final DictionarySet LOVECRAFT_WORDS_SET = new DictionarySet();
-    private static final DictionaryTrie LOVECRAFT_WORDS_TRIE = new DictionaryTrie();
+    private static final DictionarySet LOVECRAFT_DICT_SET = new DictionarySet();
+    private static final DictionaryTrie LOVECRAFT_DICT_TRIE = new DictionaryTrie();
+    private static final DictionaryWordSets LOVECRAFT_WORD_SETS = new DictionaryWordSets();
 
     private static final DictionarySet ADJECTIVES_SET = new DictionarySet();
     private static final DictionaryPicker ADJECTIVES_PICKER = new DictionaryPicker();
@@ -32,14 +35,17 @@ public class Dictionaries {
     public static void initializeAllDictionaries() throws IOException {
         BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.<DictionarySet>absent());
 
-        ENGLISH_WORDS_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        ENGLISH_WORDS_TRIE.loadDictionary(ENGLISH_WORDS_SET.getWords());
+        ENGLISH_DICT_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        ENGLISH_DICT_TRIE.loadDictionary(ENGLISH_DICT_SET.getWords());
+        ENGLISH_WORD_SETS.loadDictionarySets(ENGLISH_DICT_SET.getWords());
 
-        VICTORIAN_WORDS_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        VICTORIAN_WORDS_TRIE.loadDictionary(VICTORIAN_WORDS_SET.getWords());
+        VICTORIAN_DICT_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        VICTORIAN_DICT_TRIE.loadDictionary(VICTORIAN_DICT_SET.getWords());
+        VICTORIAN_WORD_SETS.loadDictionarySets(VICTORIAN_DICT_SET.getWords());
 
-        LOVECRAFT_WORDS_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        LOVECRAFT_WORDS_TRIE.loadDictionary(LOVECRAFT_WORDS_SET.getWords());
+        LOVECRAFT_DICT_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        LOVECRAFT_DICT_TRIE.loadDictionary(LOVECRAFT_DICT_SET.getWords());
+        LOVECRAFT_WORD_SETS.loadDictionarySets(LOVECRAFT_DICT_SET.getWords());
 
         ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWords());
@@ -48,28 +54,40 @@ public class Dictionaries {
         NOUNS_PICKER.loadDictionary(NOUNS_SET.getWords());
     }
 
-    public static DictionarySet getEnglishWordsSet() {
-        return ENGLISH_WORDS_SET;
+    public static DictionarySet getEnglishDictSet() {
+        return ENGLISH_DICT_SET;
     }
 
-    public static DictionaryTrie getEnglishWordsTrie() {
-        return ENGLISH_WORDS_TRIE;
+    public static DictionaryTrie getEnglishDictTrie() {
+        return ENGLISH_DICT_TRIE;
     }
 
-    public static DictionarySet getLovecraftWordsSet() {
-        return LOVECRAFT_WORDS_SET;
+    public static DictionaryWordSets getEnglishWordSets() {
+        return ENGLISH_WORD_SETS;
     }
 
-    public static DictionaryTrie getLovecraftWordsTrie() {
-        return LOVECRAFT_WORDS_TRIE;
+    public static DictionarySet getLovecraftDictSet() {
+        return LOVECRAFT_DICT_SET;
     }
 
-    public static DictionarySet getVictorianWordsSet() {
-        return VICTORIAN_WORDS_SET;
+    public static DictionaryTrie getLovecraftDictTrie() {
+        return LOVECRAFT_DICT_TRIE;
     }
 
-    public static DictionaryTrie getVictorianWordsTrie() {
-        return VICTORIAN_WORDS_TRIE;
+    public static DictionaryWordSets getLovecraftWordSets() {
+        return LOVECRAFT_WORD_SETS;
+    }
+
+    public static DictionarySet getVictorianDictSet() {
+        return VICTORIAN_DICT_SET;
+    }
+
+    public static DictionaryTrie getVictorianDictTrie() {
+        return VICTORIAN_DICT_TRIE;
+    }
+
+    public static DictionaryWordSets getVictorianWordSets() {
+        return VICTORIAN_WORD_SETS;
     }
 
     public static DictionarySet getAdjectivesSet() {

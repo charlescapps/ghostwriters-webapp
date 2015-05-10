@@ -47,8 +47,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomAI implements GameAI {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
-    private static final DictionarySet SET = Dictionaries.getEnglishWordsSet();
-    private static final DictionaryTrie TRIE = Dictionaries.getEnglishWordsTrie();
+    private static final DictionarySet SET = Dictionaries.getEnglishDictSet();
+    private static final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
     private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
 
     private static final RandomAI INSTANCE = new RandomAI();
