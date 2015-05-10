@@ -11,7 +11,7 @@ public enum DictType {
     BANNED("Banned words", "banned.txt", false),
     ADJECTIVES("Adjectives", "adjectives.txt", false),
     NOUNS("Nouns", "nouns.txt", false),
-    VICTORIAN("Victorian Era", "dickens_dict.filtered.txt", true),
+    VICTORIAN("Victorian Era", "victorian_dict.txt", true),
     LOVECRAFT("H.P. Lovecraft", "lovecraft_dict.txt", true);
 
     private static final String PACKAGE = "net/capps/word/dict/";
