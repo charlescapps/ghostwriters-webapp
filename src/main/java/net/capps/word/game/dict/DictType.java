@@ -12,7 +12,7 @@ public enum DictType {
     ADJECTIVES("Adjectives", "adjectives.txt", false),
     NOUNS("Nouns", "nouns.txt", false),
     VICTORIAN("Victorian Era", "dickens_dict.filtered.txt", true),
-    LOVECRAFT("H.P. Lovecraft", "hp_lovecraft_dict.txt", true);
+    LOVECRAFT("H.P. Lovecraft", "lovecraft_dict.txt", true);
 
     private static final String PACKAGE = "net/capps/word/dict/";
 
