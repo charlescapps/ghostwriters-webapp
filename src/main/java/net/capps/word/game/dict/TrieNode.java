@@ -10,21 +10,21 @@ public class TrieNode {
     public static final TrieNode[] EMPTY_TRIE_NODE_ARRAY = { };
 
     private Map<Character, TrieNode> branches;
-    private final TrieNode parent;
+    private final String word;
 
     private boolean validWord = false;
 
-    public TrieNode(TrieNode parent) {
-        this.parent = parent;
+    public TrieNode(String word) {
+        this.word = word;
     }
 
-    public TrieNode addChild(Character c) {
+    public TrieNode addChild(char c) {
         if (branches == null) {
             branches = new HashMap<>();
         }
         TrieNode child = branches.get(c);
         if (child == null) {
-            child = new TrieNode(this);
+            child = new TrieNode(word + c);
             branches.put(c, child);
         }
 
@@ -48,21 +48,7 @@ public class TrieNode {
     }
 
     public String getWord() {
-        StringBuilder sb = new StringBuilder();
-        TrieNode node = this;
-        while (node.parent != null) {
-            Map<Character, TrieNode> branches = node.parent.branches;
-            for (Character c: branches.keySet()) {
-                if (branches.get(c) == node) {
-                    sb.append(c);
-                    break;
-                }
-            }
-            node = node.parent;
-        }
-
-        sb.reverse();
-        return sb.toString();
+        return word;
     }
 
 }

@@ -21,7 +21,7 @@ public class DictionaryTrie {
     DictionaryTrie() { }
 
     // ---------------- Private fields ---------------
-    private final TrieNode root = new TrieNode(null);
+    private final TrieNode root = new TrieNode("");
     private final int[] numWordsByLength = new int[BoardSize.VENTI.getN() + 1];
 
     // ---------------- Public ----------------

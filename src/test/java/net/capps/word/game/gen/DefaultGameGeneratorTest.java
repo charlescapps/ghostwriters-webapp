@@ -2,6 +2,7 @@ package net.capps.word.game.gen;
 
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.BoardSize;
+import net.capps.word.game.common.GameDensity;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DateUtil;
 import org.junit.Assert;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import static net.capps.word.game.common.BoardSize.VENTI;
 
 /**
  * Created by charlescapps on 1/18/15.
@@ -40,7 +43,7 @@ public class DefaultGameGeneratorTest {
     @Test
     public void testGenerateGamesWithTwoMoves() {
         GameGenerator gg = DefaultGameGenerator.getInstance();
-        final int SIZE = BoardSize.VENTI.getN();
+        final int SIZE = VENTI.getN();
         for (int i = 0; i < 10; i++) {
             TileSet game = gg.generateRandomFinishedGame(SIZE, 2, 8);
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
@@ -52,14 +55,29 @@ public class DefaultGameGeneratorTest {
     public void testGenerateGamesWithManyMoves() {
         final long START = System.currentTimeMillis();
         GameGenerator gg = DefaultGameGenerator.getInstance();
-        final int SIZE = BoardSize.VENTI.getN();
+        final int SIZE = VENTI.getN();
         for (int numWords = 2; numWords < 40; numWords++) {
-            TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, BoardSize.VENTI.getN());
+            TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, VENTI.getN());
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
           //  LOG.info("\n{}", game);
         }
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
+        LOG.info("Duration in seconds: {}", (END - START)/1000);
+    }
+
+    @Test
+    public void testGenerateVentiGamesWithRegularDensity() {
+        final long START = System.currentTimeMillis();
+        GameGenerator gg = DefaultGameGenerator.getInstance();
+        final int SIZE = VENTI.getN();
+        for (int i = 0; i < 100; i++) {
+            TileSet game = gg.generateRandomFinishedGame(SIZE, GameDensity.REGULAR.getNumWords(VENTI), VENTI.getN());
+            Assert.assertEquals("Game should be correct size", SIZE, game.N);
+            //  LOG.info("\n{}", game);
+        }
+        final long END = System.currentTimeMillis();
+        LOG.info("Duration of testGenerateVentiGamesWithRegularDensity: {}", DateUtil.getDurationPretty(END - START));
         LOG.info("Duration in seconds: {}", (END - START)/1000);
     }
 }
