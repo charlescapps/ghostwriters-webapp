@@ -22,6 +22,10 @@ public class Dictionaries {
     private static final DictionaryTrie VICTORIAN_DICT_TRIE = new DictionaryTrie();
     private static final DictionaryWordSets VICTORIAN_WORD_SETS = new DictionaryWordSets();
 
+    private static final DictionarySet POE_DICT_SET = new DictionarySet();
+    private static final DictionaryTrie POE_DICT_TRIE = new DictionaryTrie();
+    private static final DictionaryWordSets POE_WORD_SETS = new DictionaryWordSets();
+
     private static final DictionarySet LOVECRAFT_DICT_SET = new DictionarySet();
     private static final DictionaryTrie LOVECRAFT_DICT_TRIE = new DictionaryTrie();
     private static final DictionaryWordSets LOVECRAFT_WORD_SETS = new DictionaryWordSets();
@@ -42,6 +46,10 @@ public class Dictionaries {
         VICTORIAN_DICT_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         VICTORIAN_DICT_TRIE.loadDictionary(VICTORIAN_DICT_SET.getWords());
         VICTORIAN_WORD_SETS.loadDictionarySets(VICTORIAN_DICT_SET.getWords());
+
+        POE_DICT_SET.loadDictionary(DictType.POE.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        POE_DICT_TRIE.loadDictionary(POE_DICT_SET.getWords());
+        POE_WORD_SETS.loadDictionarySets(POE_DICT_SET.getWords());
 
         LOVECRAFT_DICT_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         LOVECRAFT_DICT_TRIE.loadDictionary(LOVECRAFT_DICT_SET.getWords());
@@ -88,6 +96,18 @@ public class Dictionaries {
 
     public static DictionaryWordSets getVictorianWordSets() {
         return VICTORIAN_WORD_SETS;
+    }
+
+    public static DictionarySet getPoeDictSet() {
+        return POE_DICT_SET;
+    }
+
+    public static DictionaryTrie getPoeDictTrie() {
+        return POE_DICT_TRIE;
+    }
+
+    public static DictionaryWordSets getPoeWordSets() {
+        return POE_WORD_SETS;
     }
 
     public static DictionarySet getAdjectivesSet() {

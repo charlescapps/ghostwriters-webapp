@@ -50,6 +50,7 @@ public enum DictType {
     public DictionarySet getDictionarySet() {
         switch (this) {
             case VICTORIAN: return Dictionaries.getVictorianDictSet();
+            case POE: return Dictionaries.getPoeDictSet();
             case LOVECRAFT: return Dictionaries.getLovecraftDictSet();
         }
         throw new IllegalArgumentException("Can only get dictionary set for special dictionaries.");
@@ -59,6 +60,7 @@ public enum DictType {
         switch (this) {
             case ENGLISH_WORDS: return Dictionaries.getEnglishDictTrie();
             case VICTORIAN: return Dictionaries.getVictorianDictTrie();
+            case POE: return Dictionaries.getPoeDictTrie();
             case LOVECRAFT: return Dictionaries.getLovecraftDictTrie();
         }
         throw new IllegalArgumentException("Can only get dictionary trie for special dictionaries.");
@@ -68,6 +70,7 @@ public enum DictType {
         switch (this) {
             case ENGLISH_WORDS: return Dictionaries.getEnglishWordSets();
             case VICTORIAN: return Dictionaries.getVictorianWordSets();
+            case POE: return Dictionaries.getPoeWordSets();
             case LOVECRAFT: return Dictionaries.getLovecraftWordSets();
         }
         throw new IllegalArgumentException("Can only get dictionary trie for special dictionaries.");
