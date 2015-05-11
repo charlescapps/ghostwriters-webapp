@@ -15,21 +15,21 @@ import java.util.Map;
 /**
  * Created by charlescapps on 5/8/15.
  */
-public class SpecialGameGenerator implements GameGenerator {
-    private static final Logger LOG = LoggerFactory.getLogger(SpecialGameGenerator.class);
+public class ExtraDictGameGenerator implements GameGenerator {
+    private static final Logger LOG = LoggerFactory.getLogger(ExtraDictGameGenerator.class);
     private static final DefaultGameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
-    private static final Map<DictType, SpecialGameGenerator> SPECIAL_GAME_GENERATORS = new HashMap<>();
+    private static final Map<DictType, ExtraDictGameGenerator> SPECIAL_GAME_GENERATORS = new HashMap<>();
 
     private final DefaultGameGenerator specialGameGenerator;
 
-    private SpecialGameGenerator(DictType specialDict) {
+    private ExtraDictGameGenerator(DictType specialDict) {
         this.specialGameGenerator = new DefaultGameGenerator(specialDict.getDictionaryWordSets());
     }
 
-    public static SpecialGameGenerator of(DictType specialDict) {
+    public static ExtraDictGameGenerator of(DictType specialDict) {
         if (SPECIAL_GAME_GENERATORS.get(specialDict) == null) {
-            SpecialGameGenerator specialGameGenerator = new SpecialGameGenerator(specialDict);
-            SPECIAL_GAME_GENERATORS.put(specialDict, specialGameGenerator);
+            ExtraDictGameGenerator extraDictGameGenerator = new ExtraDictGameGenerator(specialDict);
+            SPECIAL_GAME_GENERATORS.put(specialDict, extraDictGameGenerator);
         }
         return SPECIAL_GAME_GENERATORS.get(specialDict);
     }

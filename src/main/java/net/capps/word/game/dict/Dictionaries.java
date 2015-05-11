@@ -43,7 +43,7 @@ public class Dictionaries {
         ENGLISH_DICT_TRIE.loadDictionary(ENGLISH_DICT_SET.getWords());
         ENGLISH_WORD_SETS.loadDictionarySets(ENGLISH_DICT_SET.getWords());
 
-        VICTORIAN_DICT_SET.loadDictionary(DictType.VICTORIAN.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
+        VICTORIAN_DICT_SET.loadDictionary(DictType.MYTHOS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         VICTORIAN_DICT_TRIE.loadDictionary(VICTORIAN_DICT_SET.getWords());
         VICTORIAN_WORD_SETS.loadDictionarySets(VICTORIAN_DICT_SET.getWords());
 
@@ -86,15 +86,15 @@ public class Dictionaries {
         return LOVECRAFT_WORD_SETS;
     }
 
-    public static DictionarySet getVictorianDictSet() {
+    public static DictionarySet getMythosDictSet() {
         return VICTORIAN_DICT_SET;
     }
 
-    public static DictionaryTrie getVictorianDictTrie() {
+    public static DictionaryTrie getMythosDictTrie() {
         return VICTORIAN_DICT_TRIE;
     }
 
-    public static DictionaryWordSets getVictorianWordSets() {
+    public static DictionaryWordSets getMythosWordSets() {
         return VICTORIAN_WORD_SETS;
     }
 

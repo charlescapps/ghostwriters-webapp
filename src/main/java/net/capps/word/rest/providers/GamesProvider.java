@@ -8,8 +8,10 @@ import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.*;
-import net.capps.word.game.dict.DictType;
-import net.capps.word.game.gen.*;
+import net.capps.word.game.gen.DefaultGameGenerator;
+import net.capps.word.game.gen.DefaultSquareSetGenerator;
+import net.capps.word.game.gen.GameGenerator;
+import net.capps.word.game.gen.SquareSetGenerator;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -26,7 +28,7 @@ import java.sql.SQLException;
 public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
-    private static final GameGenerator GAME_GENERATOR = DefaultGameGenerator.getInstance();
+    private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
 
@@ -97,10 +99,6 @@ public class GamesProvider {
         }
         if (input.getGameDensity() == null) {
             return Optional.of(ERR_MISSING_GAME_DENSITY);
-        }
-        DictType dictType = input.getSpecialDict();
-        if (dictType != null && !dictType.isSpecialDict()) {
-            return Optional.of(ERR_INVALID_DICT_TYPE);
         }
 
         return Optional.absent();
@@ -194,8 +192,8 @@ public class GamesProvider {
 
     private GameGenerator getGameGenerator(GameModel inputGame) {
         return inputGame.getSpecialDict() == null ?
-                GAME_GENERATOR :
-                SpecialGameGenerator.of(inputGame.getSpecialDict());
+                DEFAULT_GAME_GENERATOR :
+                inputGame.getSpecialDict().getGameGenerator();
 
     }
 }
