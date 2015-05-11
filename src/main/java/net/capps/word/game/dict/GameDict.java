@@ -1,6 +1,5 @@
 package net.capps.word.game.dict;
 
-import net.capps.word.game.gen.ExtraDictGameGenerator;
 import net.capps.word.game.gen.GameGenerator;
 import net.capps.word.game.gen.SpecialDictGameGenerator;
 
@@ -26,9 +25,9 @@ public enum GameDict {
         switch (this) {
             case POE:
             case LOVECRAFT:
-                return ExtraDictGameGenerator.of(this.primaryDict);
             case MYTHOS:
-                return new SpecialDictGameGenerator(primaryDict.getDictionaryWordSets(), secondaryDict.getDictionaryWordSets());
+                return new SpecialDictGameGenerator(primaryDict.getDictionaryWordSets(),
+                        secondaryDict == null ? null : secondaryDict.getDictionaryWordSets());
         }
         throw new IllegalStateException("Invalid GameDict enum given...");
     }

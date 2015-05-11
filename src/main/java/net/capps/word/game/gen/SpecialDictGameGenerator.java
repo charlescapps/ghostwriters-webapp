@@ -13,6 +13,8 @@ import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static net.capps.word.game.common.Dir.S;
@@ -30,7 +32,8 @@ public class SpecialDictGameGenerator implements GameGenerator {
     private final DictionaryWordSets secondaryWordSets;
     private final Set<String> usedWords = new HashSet<>();
 
-    public SpecialDictGameGenerator(DictionaryWordSets primaryWordSets, DictionaryWordSets secondaryWordSets) {
+    public SpecialDictGameGenerator(@Nonnull DictionaryWordSets primaryWordSets,
+                                    @Nullable DictionaryWordSets secondaryWordSets) {
         this.primaryWordSets = primaryWordSets;
         this.secondaryWordSets = secondaryWordSets;
     }
@@ -55,7 +58,8 @@ public class SpecialDictGameGenerator implements GameGenerator {
                 return tileSet;
             }
             Placement placement = validPlacementOpt.get();
-            if (primaryWordSets.contains(placement.getWord()) || secondaryWordSets.contains(placement.getWord())) {
+            if (primaryWordSets.contains(placement.getWord()) ||
+                    secondaryWordSets != null && secondaryWordSets.contains(placement.getWord())) {
                 usedWords.add(placement.getWord());
             }
             // LOG.trace("Placing word: " + placement);
@@ -84,9 +88,11 @@ public class SpecialDictGameGenerator implements GameGenerator {
         if (placementOpt.isPresent()) {
             return placementOpt;
         }
-        placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, secondaryWordSets);
-        if (placementOpt.isPresent()) {
-            return placementOpt;
+        if (secondaryWordSets != null) {
+            placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, secondaryWordSets);
+            if (placementOpt.isPresent()) {
+                return placementOpt;
+            }
         }
         return DEFAULT_GAME_GENERATOR.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
     }
