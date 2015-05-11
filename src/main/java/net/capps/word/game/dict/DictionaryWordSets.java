@@ -19,11 +19,13 @@ import static java.lang.String.format;
 public class DictionaryWordSets {
     private static final Logger LOG = LoggerFactory.getLogger(DictionaryWordSets.class);
     private final Map<Integer, WordSets> wordSetsByLength = new HashMap<>();
+    private Set<String> words;
 
     public DictionaryWordSets() {
     }
 
     public void loadDictionarySets(Set<String> words) {
+        this.words = words;
         LOG.info("Starting to load Dictionary Word Sets...");
         final long START = System.currentTimeMillis();
         Map<Integer, Set<String>> wordsByLength = new HashMap<>();
@@ -89,6 +91,10 @@ public class DictionaryWordSets {
         String[] array = intersection.toArray(new String[intersection.size()]);
         RandomUtil.shuffleInPlace(array);
         return new ArrayIterator<>(array);
+    }
+
+    public boolean contains(String word) {
+        return words.contains(word);
     }
 
 }

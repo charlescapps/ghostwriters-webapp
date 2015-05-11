@@ -28,7 +28,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
     private final DictionaryWordSets primaryWordSets;
     private final DictionaryWordSets secondaryWordSets;
-    private final Set<String> usedPrimaryWords = new HashSet<>();
+    private final Set<String> usedWords = new HashSet<>();
 
     public SpecialDictGameGenerator(DictionaryWordSets primaryWordSets, DictionaryWordSets secondaryWordSets) {
         this.primaryWordSets = primaryWordSets;
@@ -40,7 +40,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
         Preconditions.checkArgument(numWords > 0, "numWords must be > 0");
         Preconditions.checkArgument(maxWordSize >= 2, "maxWordSize must be at least 2");
         Preconditions.checkArgument(N >= 5, "N must be at least 5");
-        Preconditions.checkArgument(usedPrimaryWords.isEmpty(), "Cannot re-use a Special2GameGenerator instance!");
+        Preconditions.checkArgument(usedWords.isEmpty(), "Cannot re-use a Special2GameGenerator instance!");
 
         TileSet tileSet = new TileSet(N);
 
@@ -51,13 +51,13 @@ public class SpecialDictGameGenerator implements GameGenerator {
         for (int i = 1; i < numWords; i++) {
             Optional<Placement> validPlacementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
             if (!validPlacementOpt.isPresent()) {
-                validPlacementOpt = DEFAULT_GAME_GENERATOR.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
-            }
-            if (!validPlacementOpt.isPresent()) {
                 LOG.error("ERROR - couldn't find placement for board:\n{}", tileSet);
                 return tileSet;
             }
             Placement placement = validPlacementOpt.get();
+            if (primaryWordSets.contains(placement.getWord()) || secondaryWordSets.contains(placement.getWord())) {
+                usedWords.add(placement.getWord());
+            }
             // LOG.trace("Placing word: " + placement);
             tileSet.placeWord(placement);
         }
@@ -69,7 +69,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
     public Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
         final int N = tileSet.N;
         final String word = primaryWordSets.getRandomWordBetweenLengths(2, maxWordSize);
-        usedPrimaryWords.add(word);
+        usedWords.add(word);
         final Dir dir = Dir.randomPlayDir();
 
         int startPos = 0;
@@ -80,6 +80,18 @@ public class SpecialDictGameGenerator implements GameGenerator {
 
     @Override
     public Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
+        Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, primaryWordSets);
+        if (placementOpt.isPresent()) {
+            return placementOpt;
+        }
+        placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, secondaryWordSets);
+        if (placementOpt.isPresent()) {
+            return placementOpt;
+        }
+        return DEFAULT_GAME_GENERATOR.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
+    }
+
+    public Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize, DictionaryWordSets wordSets) {
         final int N = tileSet.N;
 
         ImmutableList<Pos> positions = POSITION_LISTS.getPositionList(N);
@@ -91,7 +103,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
             if (!tileSet.isOccupied(p)) {
                 Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
                 for (Dir dir: randomOrderDirs) {
-                    Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize);
+                    Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize, wordSets);
                     if (optValidPlacement.isPresent()) {
                         return optValidPlacement;
                     }
@@ -102,7 +114,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
         return Optional.absent();
     }
 
-    private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
+    private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize, DictionaryWordSets wordSets) {
         // Precondition: the start pos isn't an occupied tile.
 
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
@@ -151,32 +163,21 @@ public class SpecialDictGameGenerator implements GameGenerator {
             List<WordConstraint> wcs = new ArrayList<>();
 
             // Get all constraints from existing tiles.
-            for (byte j = 0; j <= totalDiff; j++) {
+            for (int j = 0; j <= totalDiff; j++) {
                 Pos p1 = start.go(dir, j);
                 if (tileSet.isOccupied(p1)) {
                     wcs.add(WordConstraint.of(j, tileSet.getLetterAt(p1)));
                 }
             }
 
-            // First search the Primary Dictionary, ignoring words we've already placed.
-            Iterator<String> iter = primaryWordSets.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
+            // Search the given word sets, ignoring words we've already placed.
+            Iterator<String> iter = wordSets.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
 
             while (iter.hasNext()) {
                 String word = iter.next();
-                if (usedPrimaryWords.contains(word)) {
+                if (usedWords.contains(word)) {
                     continue;
                 }
-                Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementError(placement).isPresent()) {
-                    return Optional.of(placement);
-                }
-            }
-
-            // Next, search the Secondary Dictionary.
-            iter = secondaryWordSets.getWordsWithConstraintsInRandomOrder(wcs, totalDiff + 1);
-
-            while (iter.hasNext()) {
-                String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
                 if (!tileSet.getPlacementError(placement).isPresent()) {
                     return Optional.of(placement);

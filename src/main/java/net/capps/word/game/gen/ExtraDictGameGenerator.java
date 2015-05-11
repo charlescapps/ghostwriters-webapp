@@ -20,10 +20,10 @@ public class ExtraDictGameGenerator implements GameGenerator {
     private static final DefaultGameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final Map<DictType, ExtraDictGameGenerator> SPECIAL_GAME_GENERATORS = new HashMap<>();
 
-    private final DefaultGameGenerator specialGameGenerator;
+    private final DefaultGameGenerator gameGenerator;
 
     private ExtraDictGameGenerator(DictType specialDict) {
-        this.specialGameGenerator = new DefaultGameGenerator(specialDict.getDictionaryWordSets());
+        this.gameGenerator = new DefaultGameGenerator(specialDict.getDictionaryWordSets());
     }
 
     public static ExtraDictGameGenerator of(DictType specialDict) {
@@ -61,12 +61,12 @@ public class ExtraDictGameGenerator implements GameGenerator {
 
     @Override
     public Placement generateFirstPlacement(TileSet tileSet, int maxWordSize) {
-        return specialGameGenerator.generateFirstPlacement(tileSet, maxWordSize);
+        return gameGenerator.generateFirstPlacement(tileSet, maxWordSize);
     }
 
     @Override
     public Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
-        Optional<Placement> specialWordPlacement = specialGameGenerator.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
+        Optional<Placement> specialWordPlacement = gameGenerator.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
         if (specialWordPlacement.isPresent()) {
             return specialWordPlacement;
         }
