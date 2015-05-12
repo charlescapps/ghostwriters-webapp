@@ -18,7 +18,8 @@ public class TableDefinitions {
             "rating INTEGER NOT NULL," +
             "wins INTEGER NOT NULL DEFAULT 0," +
             "losses INTEGER NOT NULL DEFAULT 0," +
-            "ties INTEGER NOT NULL DEFAULT 0" +
+            "ties INTEGER NOT NULL DEFAULT 0," +
+            "tokens INTEGER NOT NULL DEFAULT 10" +
             ");";
 
     public static final String CREATE_LOWERCASE_USER_IDX =

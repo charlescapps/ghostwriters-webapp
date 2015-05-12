@@ -12,15 +12,19 @@ import net.capps.word.rest.providers.UserRecordChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.plaf.nimbus.State;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by charlescapps on 12/26/14.
  */
 public class UsersDAO {
+    public static final int MAX_TOKENS = 10;
+
     private static final Logger LOG = LoggerFactory.getLogger(UsersDAO.class);
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
     
@@ -100,6 +104,15 @@ public class UsersDAO {
     private static final String GET_NUM_GAMES_OFFERED_TO_ME =
             "SELECT COUNT(*) AS count FROM word_games " +
                     "WHERE (player2 = ? AND player1_turn = FALSE) AND game_result = ?";
+
+    private static final String INCREASE_TOKENS_FROM_PURCHASE =
+            "UPDATE word_users SET tokens = tokens + ? WHERE id = ?;";
+
+    private static final String INCREMENT_TOKENS =
+            "UPDATE word_users SET tokens = LEAST(" + MAX_TOKENS + ", tokens + 1) WHERE id >= ? AND id < ?;";
+
+    private static final String SPEND_TOKENS =
+            "UPDATE word_users SET tokens = GREATEST(0, tokens - ?) WHERE id = ?;";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -406,7 +419,68 @@ public class UsersDAO {
         return resultSet.getInt("count");
     }
 
+    public void incrementAllUserTokens() throws SQLException {
+        final int BATCH_SIZE = 1000;
+        LOG.info("Starting to increment tokens for all users in batches of 1,000 users...");
+        final long START = System.currentTimeMillis();
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            final int MAX_ID = getMaximumId(dbConn);
+            int lowerId = 0;
+            while (lowerId <= MAX_ID) {
+                int upperId = lowerId + BATCH_SIZE;
+                PreparedStatement stmt = dbConn.prepareStatement(INCREMENT_TOKENS);
+                stmt.setInt(1, lowerId);
+                stmt.setInt(2, upperId);
+                int numAffected = stmt.executeUpdate();
+                LOG.info("Incremented tokens for user ids {} - {}, users updated: {}.", lowerId, upperId, numAffected);
+                lowerId += BATCH_SIZE;
+            }
+        }
+        final long END = System.currentTimeMillis();
+        LOG.warn("Duration to increment all users' tokens by 1: {}s", TimeUnit.MILLISECONDS.toSeconds(END - START));
+    }
+
+    public UserModel increaseUsersTokensForPurchase(int userId, int numTokens) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(INCREASE_TOKENS_FROM_PURCHASE, Statement.RETURN_GENERATED_KEYS);
+            stmt.setInt(1, numTokens);
+            stmt.setInt(2, userId);
+            int num = stmt.executeUpdate();
+            if (num != 1) {
+                throw new SQLException("Expected 1 row to be updated, instead was: " + num);
+            }
+            ResultSet resultSet = stmt.getResultSet();
+            resultSet.next();
+            return getUserFromResultSet(resultSet);
+        }
+    }
+
+    public UserModel spendTokens(int userId, int numTokens) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(SPEND_TOKENS, Statement.RETURN_GENERATED_KEYS);
+            stmt.setInt(1, numTokens);
+            stmt.setInt(2, userId);
+            int num = stmt.executeUpdate();
+            if (num != 1) {
+                throw new SQLException("Expected 1 row to be updated, instead was: " + num);
+            }
+            ResultSet resultSet = stmt.getResultSet();
+            resultSet.next();
+            return getUserFromResultSet(resultSet);
+        }
+    }
+
+
     // ------------ Private ---------
+
+    private int getMaximumId(Connection dbConn) throws SQLException {
+        Statement stmt = dbConn.createStatement();
+        ResultSet resultSet = stmt.executeQuery("SELECT MAX(id) AS max_id FROM word_users;");
+        if (!resultSet.next()) {
+            throw new SQLException("No result found for the max ID");
+        }
+        return resultSet.getInt("max_id");
+    }
 
     private UserModel getUserFromResultSet(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("id");
@@ -420,12 +494,14 @@ public class UsersDAO {
         int wins = resultSet.getInt("wins");
         int losses = resultSet.getInt("losses");
         int ties = resultSet.getInt("ties");
+        int tokens = resultSet.getInt("tokens");
         UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
         user.setRating(rating);
         user.setWins(wins);
         user.setLosses(losses);
         user.setTies(ties);
+        user.setTokens(tokens);
         return user;
     }
 

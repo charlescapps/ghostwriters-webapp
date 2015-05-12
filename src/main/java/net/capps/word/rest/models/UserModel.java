@@ -22,6 +22,7 @@ public class UserModel {
     private Integer losses;
     private Integer ties;
     private Integer rank;
+    private Integer tokens;
 
     public UserModel() {
 
@@ -127,6 +128,14 @@ public class UserModel {
 
     public void setRank(Integer rank) {
         this.rank = rank;
+    }
+
+    public Integer getTokens() {
+        return tokens;
+    }
+
+    public void setTokens(Integer tokens) {
+        this.tokens = tokens;
     }
 
     @JsonIgnore

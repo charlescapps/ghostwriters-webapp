@@ -10,6 +10,7 @@ import net.capps.word.rest.models.UserModel;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.ws.rs.BadRequestException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.String.format;
 
 /**
  * Created by charlescapps on 12/27/14.
@@ -69,7 +72,7 @@ public class UsersProvider {
                     emailAddress.validate();
                 } catch (AddressException e) {
                     return Optional.of(new ErrorModel(
-                            String.format("The given email address '%s' is not a valid email address.", userModel.getEmail())));
+                            format("The given email address '%s' is not a valid email address.", userModel.getEmail())));
                 }
             }
         }
@@ -163,7 +166,7 @@ public class UsersProvider {
         username = username.trim();
         if (username.length() < MIN_USERNAME_LEN || username.length() > MAX_USERNAME_LEN) {
             return Optional.of(new ErrorModel(
-                    String.format("Username must be between %d and %d characters in length.", MIN_USERNAME_LEN, MAX_USERNAME_LEN)));
+                    format("Username must be between %d and %d characters in length.", MIN_USERNAME_LEN, MAX_USERNAME_LEN)));
         }
         Matcher m = USERNAME_PATTERN.matcher(username);
         if (!m.matches()) {
@@ -178,7 +181,7 @@ public class UsersProvider {
     private Optional<ErrorModel> isValidPassword(String password) {
         if (password.length() < MIN_PASSWORD_LEN || password.length() > MAX_PASSWORD_LEN) {
             return Optional.of(new ErrorModel(
-                    String.format("Password length must be between %d and %d characters", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)
+                    format("Password length must be between %d and %d characters", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)
             ));
         }
         Matcher m = PASSWORD_PATTERN.matcher(password);

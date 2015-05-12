@@ -263,7 +263,6 @@ public class UsersService {
         }
     }
 
-
     // ------ Helpers ----
     public URI getWordUserURI(int id) {
         return uriInfo.getAbsolutePathBuilder()
