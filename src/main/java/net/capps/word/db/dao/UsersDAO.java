@@ -448,7 +448,7 @@ public class UsersDAO {
             if (num != 1) {
                 throw new SQLException("Expected 1 row to be updated, instead was: " + num);
             }
-            ResultSet resultSet = stmt.getResultSet();
+            ResultSet resultSet = stmt.getGeneratedKeys();
             resultSet.next();
             return getUserFromResultSet(resultSet);
         }
@@ -462,7 +462,7 @@ public class UsersDAO {
         if (num != 1) {
             throw new SQLException("Expected 1 row to be updated, instead was: " + num);
         }
-        ResultSet resultSet = stmt.getResultSet();
+        ResultSet resultSet = stmt.getGeneratedKeys();
         resultSet.next();
         return getUserFromResultSet(resultSet);
     }
