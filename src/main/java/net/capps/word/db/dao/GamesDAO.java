@@ -1,6 +1,5 @@
 package net.capps.word.db.dao;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.Game;
@@ -14,6 +13,7 @@ import net.capps.word.rest.models.UserModel;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 1/21/15.
@@ -75,51 +75,49 @@ public class GamesDAO {
         return INSTANCE;
     }
 
-    public GameModel createNewGame(GameModel validatedInputGame, TileSet tileSet, SquareSet squareSet) throws Exception {
+    public GameModel createNewGame(Connection dbConn, GameModel validatedInputGame, TileSet tileSet, SquareSet squareSet) throws Exception {
         final String squares = squareSet.toCompactString();
         final String tiles = tileSet.toCompactString();
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(INSERT_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, validatedInputGame.getGameType().ordinal());
-            final AiType aiType = validatedInputGame.getAiType();
-            if (aiType != null) {
-                stmt.setInt(2, aiType.ordinal());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
-            stmt.setInt(3, validatedInputGame.getPlayer1());
-            stmt.setInt(4, validatedInputGame.getPlayer2());
-            stmt.setString(5, "");
-            stmt.setString(6, "");
-            stmt.setInt(7, 0); // Player 1 starts with 0 points
-            stmt.setInt(8, 0); // Player 2 starts with 0 points
-            stmt.setShort(9, (short) validatedInputGame.getBoardSize().ordinal());
-            stmt.setShort(10, (short) validatedInputGame.getBonusesType().ordinal());
-            stmt.setShort(11, (short) validatedInputGame.getGameDensity().ordinal());
-            stmt.setString(12, squares);
-            stmt.setString(13, tiles);
-            // Single player --> Game is immediately IN_PROGRESS
-            // Two player --> Game starts in OFFERED state
-            GameResult initialGameResult = validatedInputGame.getGameType() == GameType.SINGLE_PLAYER ?
-                    GameResult.IN_PROGRESS :
-                    GameResult.OFFERED;
-            stmt.setShort(14, (short) initialGameResult.ordinal());
-            stmt.setBoolean(15, true); // Always starts as player 1's turn.
-
-            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            stmt.setTimestamp(16, timestamp);
-            stmt.setTimestamp(17, timestamp);
-
-            stmt.executeUpdate();
-
-            // Construct the GameModel to return from the inserted data.
-            ResultSet result = stmt.getGeneratedKeys();
-            if (!result.next()) {
-                throw new IllegalStateException("Just inserted game into database, but no result present!");
-            }
-
-            return getGameByResultSetRow(result);
+        PreparedStatement stmt = dbConn.prepareStatement(INSERT_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
+        stmt.setInt(1, validatedInputGame.getGameType().ordinal());
+        final AiType aiType = validatedInputGame.getAiType();
+        if (aiType != null) {
+            stmt.setInt(2, aiType.ordinal());
+        } else {
+            stmt.setNull(2, Types.INTEGER);
         }
+        stmt.setInt(3, validatedInputGame.getPlayer1());
+        stmt.setInt(4, validatedInputGame.getPlayer2());
+        stmt.setString(5, "");
+        stmt.setString(6, "");
+        stmt.setInt(7, 0); // Player 1 starts with 0 points
+        stmt.setInt(8, 0); // Player 2 starts with 0 points
+        stmt.setShort(9, (short) validatedInputGame.getBoardSize().ordinal());
+        stmt.setShort(10, (short) validatedInputGame.getBonusesType().ordinal());
+        stmt.setShort(11, (short) validatedInputGame.getGameDensity().ordinal());
+        stmt.setString(12, squares);
+        stmt.setString(13, tiles);
+        // Single player --> Game is immediately IN_PROGRESS
+        // Two player --> Game starts in OFFERED state
+        GameResult initialGameResult = validatedInputGame.getGameType() == GameType.SINGLE_PLAYER ?
+                GameResult.IN_PROGRESS :
+                GameResult.OFFERED;
+        stmt.setShort(14, (short) initialGameResult.ordinal());
+        stmt.setBoolean(15, true); // Always starts as player 1's turn.
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        stmt.setTimestamp(16, timestamp);
+        stmt.setTimestamp(17, timestamp);
+
+        stmt.executeUpdate();
+
+        // Construct the GameModel to return from the inserted data.
+        ResultSet result = stmt.getGeneratedKeys();
+        if (!result.next()) {
+            throw new IllegalStateException("Just inserted game into database, but no result present!");
+        }
+
+        return getGameByResultSetRow(result);
     }
 
     public Optional<GameModel> getGameById(int gameId) throws SQLException {
@@ -134,7 +132,7 @@ public class GamesDAO {
 
         ResultSet result = stmt.executeQuery();
         if (!result.next()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of(getGameByResultSetRow(result));
     }
@@ -151,7 +149,7 @@ public class GamesDAO {
 
         ResultSet result = stmt.executeQuery();
         if (!result.next()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         return Optional.of(getGameWithPlayersByResultSetRow(result));
     }
@@ -294,20 +292,20 @@ public class GamesDAO {
     }
 
     public List<GameModel> getFinishedGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
-            PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
-            stmt.setInt(1, userId);
-            stmt.setInt(2, userId);
-            stmt.setInt(3, GameResult.REJECTED.ordinal());
-            stmt.setInt(4, count);
+        PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
+        stmt.setInt(1, userId);
+        stmt.setInt(2, userId);
+        stmt.setInt(3, GameResult.REJECTED.ordinal());
+        stmt.setInt(4, count);
 
-            ResultSet resultSet = stmt.executeQuery();
+        ResultSet resultSet = stmt.executeQuery();
 
-            List<GameModel> games = new ArrayList<>(count);
-            while (resultSet.next()) {
-                games.add(getGameWithPlayersByResultSetRow(resultSet));
-            }
+        List<GameModel> games = new ArrayList<>(count);
+        while (resultSet.next()) {
+            games.add(getGameWithPlayersByResultSetRow(resultSet));
+        }
 
-            return games;
+        return games;
     }
 
     // ---------------- Private ----------------
@@ -342,10 +340,10 @@ public class GamesDAO {
         Object player1RatingIncrease = result.getObject("player1_rating_increase");
         Object player2RatingIncrease = result.getObject("player2_rating_increase");
         if (player1RatingIncrease instanceof Integer) {
-            game.setPlayer1RatingIncrease((Integer)player1RatingIncrease);
+            game.setPlayer1RatingIncrease((Integer) player1RatingIncrease);
         }
         if (player2RatingIncrease instanceof Integer) {
-            game.setPlayer2RatingIncrease((Integer)player2RatingIncrease);
+            game.setPlayer2RatingIncrease((Integer) player2RatingIncrease);
         }
 
         return game;
@@ -393,10 +391,10 @@ public class GamesDAO {
         game.setPlayer2Model(player2Model);
 
         if (player1RatingIncrease instanceof Integer) {
-            game.setPlayer1RatingIncrease((Integer)player1RatingIncrease);
+            game.setPlayer1RatingIncrease((Integer) player1RatingIncrease);
         }
         if (player2RatingIncrease instanceof Integer) {
-            game.setPlayer2RatingIncrease((Integer)player2RatingIncrease);
+            game.setPlayer2RatingIncrease((Integer) player2RatingIncrease);
         }
 
         return game;

@@ -1,11 +1,11 @@
 package net.capps.word.db.dao;
 
-import com.google.common.base.Optional;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.rest.models.SessionModel;
 
 import java.sql.*;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 2/5/15.
@@ -58,7 +58,7 @@ public class SessionsDAO {
             if (resultSet.next()) {
                 return Optional.of(createSessionFromCurrentRow(resultSet));
             }
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -70,7 +70,7 @@ public class SessionsDAO {
             if (resultSet.next()) {
                 return Optional.of(createSessionFromCurrentRow(resultSet));
             }
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

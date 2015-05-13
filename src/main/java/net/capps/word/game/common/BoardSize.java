@@ -4,9 +4,9 @@ package net.capps.word.game.common;
  * Created by charlescapps on 1/15/15.
  */
 public enum BoardSize {
-    TALL(5, 5, 4, 2, 1, "net/capps/word/layouts/DefaultTallSquareConfig.txt", 50.d, 10),
-    GRANDE(9, 13, 8, 4, 4, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt", 100.d, 20),
-    VENTI(13, 16, 14, 7, 6, "net/capps/word/layouts/DefaultVentiSquareConfig.txt", 200.d, 50);
+    TALL(5, 5, 4, 2, 1, "net/capps/word/layouts/DefaultTallSquareConfig.txt", 50.d, 10, 1),
+    GRANDE(9, 13, 8, 4, 4, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt", 100.d, 20, 2),
+    VENTI(13, 16, 14, 7, 6, "net/capps/word/layouts/DefaultVentiSquareConfig.txt", 200.d, 50, 3);
 
     private final int N; // Number of rows/cols in an NxN board
     private final int x2; // Number of double-letter bonuses on the board
@@ -16,8 +16,10 @@ public enum BoardSize {
     private final String defaultLayoutFile;
     private final double ratingK;
     private final int minimumRatingIncrease;
+    private final int tokenCost;
 
-    private BoardSize(int N, int x2, int x3, int x4, int x5, String defaultLayoutFile, double ratingK, int minimumRatingIncrease) {
+    private BoardSize(int N, int x2, int x3, int x4, int x5,
+                      String defaultLayoutFile, double ratingK, int minimumRatingIncrease, int tokenCost) {
         this.N = N;
         this.x2 = x2;
         this.x3 = x3;
@@ -26,6 +28,7 @@ public enum BoardSize {
         this.defaultLayoutFile = defaultLayoutFile;
         this.ratingK = ratingK;
         this.minimumRatingIncrease = minimumRatingIncrease;
+        this.tokenCost = tokenCost;
     }
 
     public int getN() {
@@ -58,5 +61,9 @@ public enum BoardSize {
 
     public int getMinimumRatingIncrease() {
         return minimumRatingIncrease;
+    }
+
+    public int getTokenCost() {
+        return tokenCost;
     }
 }

@@ -1,6 +1,5 @@
 package net.capps.word.rest.services;
 
-import com.google.common.base.Optional;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.auth.AuthHelper;
@@ -9,6 +8,7 @@ import net.capps.word.rest.models.*;
 import net.capps.word.rest.providers.GamesProvider;
 import net.capps.word.rest.providers.GamesSearchProvider;
 import net.capps.word.rest.providers.MovesProvider;
+import net.capps.word.rest.providers.TokensProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -20,6 +20,7 @@ import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static javax.ws.rs.core.Response.Status;
 
@@ -37,6 +38,7 @@ public class GamesService {
     private static final GamesProvider gamesProvider = GamesProvider.getInstance();
     private static final GamesSearchProvider gamesSearchProvider = GamesSearchProvider.getInstance();
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
+    private static final TokensProvider tokensProvider = TokensProvider.getInstance();
 
     // ------ OK results ------
     private static final GenericOkModel OK_ACCEPTED_GAME = new GenericOkModel("Game accepted!");
@@ -59,13 +61,26 @@ public class GamesService {
                     .build();
         }
 
-        GameModel created = gamesProvider.createNewGame(input, player1);
+        errorOpt = tokensProvider.getCanAffordGameError(player1, input);
+        if (errorOpt.isPresent()) {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(errorOpt.get())
+                    .build();
+        }
 
-        URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
 
-        return Response.created(uri)
-                .entity(created)
-                .build();
+            UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);
+            created.setPlayer1Model(updatedUser);
+
+            URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
+
+            return Response.created(uri)
+                    .entity(created)
+                    .build();
+        }
+
     }
 
     @GET

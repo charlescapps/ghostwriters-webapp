@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
@@ -10,7 +9,6 @@ import net.capps.word.rest.models.UserModel;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.ws.rs.BadRequestException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +16,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +76,7 @@ public class UsersProvider {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public UserModel createNewUser(UserModel validatedInput) throws Exception {
@@ -92,18 +91,18 @@ public class UsersProvider {
         byte[] salt = generateSalt();
         byte[] hashPass = hashPassUsingSha256(password, salt);
         usersDao.updateUserPassword(userId, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {
         Optional<UserModel> existing = usersDao.getUserByUsername(validatedInput.getUsername(), false);
         if (existing.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         if (validatedInput.getEmail() != null) {
             Optional<UserModel> existingEmail = usersDao.getUserByEmail(validatedInput.getEmail());
             if (existingEmail.isPresent()) {
-                return Optional.absent();
+                return Optional.empty();
             }
         }
         return Optional.of(createNewUser(validatedInput));
@@ -175,7 +174,7 @@ public class UsersProvider {
         if (username.contains("  ")) {
             return Optional.of(new ErrorModel("Username cannot contain 2 consecutive spaces"));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<ErrorModel> isValidPassword(String password) {
@@ -188,7 +187,7 @@ public class UsersProvider {
         if (!m.matches()) {
             return Optional.of(new ErrorModel("Password can only contain letters, numbers, or !,@,#,$,%,^,&,*,(,),-,_,+,=,{,},[,]"));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
 

@@ -1,6 +1,5 @@
 package net.capps.word.rest.auth;
 
-import com.google.common.base.Optional;
 import com.google.common.net.HttpHeaders;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.crypto.CryptoUtils;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,7 +127,7 @@ public class AuthHelper {
     public Optional<UserModel> validateSession(HttpServletRequest request) throws Exception {
         Cookie wordsCookie = null;
         if (request.getCookies() == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
         for (Cookie cookie: request.getCookies()) {
             if (COOKIE_NAME.equals(cookie.getName())) {
@@ -135,13 +135,13 @@ public class AuthHelper {
             }
         }
         if (wordsCookie == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         String sessionId = wordsCookie.getValue();
         Optional<SessionModel> session = sessionsDao.getSessionForSessionId(sessionId);
         if (!session.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         int userId = session.get().getUserId();
         return usersDAO.getUserById(userId);

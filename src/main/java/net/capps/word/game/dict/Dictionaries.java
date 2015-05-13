@@ -1,9 +1,9 @@
 package net.capps.word.game.dict;
 
-import com.google.common.base.Optional;
 import net.capps.word.game.common.BoardSize;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 3/14/15.
@@ -37,7 +37,7 @@ public class Dictionaries {
     private static final DictionaryPicker NOUNS_PICKER = new DictionaryPicker();
 
     public static void initializeAllDictionaries() throws IOException {
-        BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.<DictionarySet>absent());
+        BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.empty());
 
         ENGLISH_DICT_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
         ENGLISH_DICT_TRIE.loadDictionary(ENGLISH_DICT_SET.getWords());

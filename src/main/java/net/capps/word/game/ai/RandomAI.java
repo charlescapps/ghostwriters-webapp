@@ -1,6 +1,5 @@
 package net.capps.word.game.ai;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -18,10 +17,7 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.util.RandomUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -98,7 +94,7 @@ public class RandomAI implements GameAI {
 
     private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
         if (rack.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         final int N = tileSet.N;
 
@@ -119,7 +115,7 @@ public class RandomAI implements GameAI {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<Move> getRandomGrabMove(Game game, TileSet tileSet) {
@@ -129,13 +125,13 @@ public class RandomAI implements GameAI {
         maxToGrab = Math.min(maxToGrab, tileSet.N);
 
         if (maxToGrab <= 0) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final List<Pos> startPosList = tileSet.getAllStartTilePositions();
 
         if (startPosList.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         final Random random = ThreadLocalRandom.current();
         int index = random.nextInt(startPosList.size());
@@ -180,9 +176,9 @@ public class RandomAI implements GameAI {
 
         generateMoves(gameId, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 
-        // If no moves are found, return Optional.absent()
+        // If no moves are found, return Optional.empty()
         if (foundMoves.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         // If we find moves, return a random move starting at this position
         Random random = ThreadLocalRandom.current();

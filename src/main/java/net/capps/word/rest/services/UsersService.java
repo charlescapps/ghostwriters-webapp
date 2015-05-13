@@ -1,6 +1,5 @@
 package net.capps.word.rest.services;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.WordDbManager;
@@ -24,6 +23,7 @@ import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static javax.ws.rs.core.Response.Status.*;
 

@@ -1,8 +1,9 @@
 package net.capps.word.game.gen;
 
-import com.google.common.base.Optional;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Placement;
+
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 1/15/15.

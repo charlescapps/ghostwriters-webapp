@@ -1,6 +1,5 @@
 package net.capps.word.game.board;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
@@ -22,6 +21,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -263,7 +263,7 @@ public class TileSet implements Iterable<Pos> {
             return errorOpt;
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<String> isValidGrabTilesMove(Move move) {
@@ -278,7 +278,7 @@ public class TileSet implements Iterable<Pos> {
             return errorOpt;
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<String> doesMoveStartInValidPosition(Pos start, Dir dir) {
@@ -290,7 +290,7 @@ public class TileSet implements Iterable<Pos> {
         if (isOccupied(previous)) {
             return ERR_INVALID_MOVE_START;
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<String> lettersMatchTilesPlayed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
@@ -317,7 +317,7 @@ public class TileSet implements Iterable<Pos> {
             return ERR_MUST_PLAY_ALL_TILES;
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<String> lettersMatchTilesGrabbed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
@@ -348,7 +348,7 @@ public class TileSet implements Iterable<Pos> {
 
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<String> getPlacementError(Placement placement) {
@@ -405,7 +405,7 @@ public class TileSet implements Iterable<Pos> {
         if (isOccupied(afterWordPos)) {
             return Optional.of("Letters given to play must include all consecutive letters on the board from start position.");
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<String> getErrorForPerpendicularPlacement(final Placement placement) {
@@ -427,7 +427,7 @@ public class TileSet implements Iterable<Pos> {
                 }
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<String> getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
@@ -438,7 +438,7 @@ public class TileSet implements Iterable<Pos> {
                 Pos start = getEndOfOccupied(pos.n(), Dir.N);
                 Pos end = getEndOfOccupied(pos.s(), Dir.S);
                 if (start.equals(end)) {
-                    return Optional.absent();
+                    return Optional.empty();
                 }
                 return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
 
@@ -447,11 +447,11 @@ public class TileSet implements Iterable<Pos> {
                 start = getEndOfOccupied(pos.w(), Dir.W);
                 end = getEndOfOccupied(pos.e(), Dir.E);
                 if (start.equals(end)) {
-                    return Optional.absent();
+                    return Optional.empty();
                 }
                 return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public boolean isOccupiedOrAdjacentOccupied(Pos p) {
@@ -477,13 +477,13 @@ public class TileSet implements Iterable<Pos> {
         for (int i = 0; i < maxLen; i++) {
             Pos p = start.go(dir, i);
             if (!isValid(p)) {
-                return Optional.absent();
+                return Optional.empty();
             }
             if (isOccupiedOrAdjacentOccupied(p)) {
                 return Optional.of(p);
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Pos getEndOfOccupied(Pos start, Dir dir) {

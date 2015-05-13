@@ -1,8 +1,9 @@
 package net.capps.word.util;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.rest.models.ErrorModel;
+
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 3/26/15.
@@ -27,10 +28,10 @@ public class ErrorOrResult<T> {
     }
 
     public Optional<ErrorModel> getError() {
-        return Optional.fromNullable(error);
+        return Optional.ofNullable(error);
     }
 
     public Optional<T> getResult() {
-        return Optional.fromNullable(result);
+        return Optional.ofNullable(result);
     }
 }

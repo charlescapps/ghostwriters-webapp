@@ -1,7 +1,6 @@
 package net.capps.word.game.board;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
@@ -17,6 +16,7 @@ import net.capps.word.rest.models.GameModel;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -141,7 +141,7 @@ public class Game {
             case GRAB_TILES:
                 return getGrabTilesError(move);
             case PASS:
-                return Optional.absent();
+                return Optional.empty();
         }
         throw new IllegalStateException();
     }

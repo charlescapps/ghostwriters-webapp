@@ -1,6 +1,5 @@
 package net.capps.word.game.gen;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import net.capps.word.game.board.TileSet;
@@ -117,7 +116,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize, DictionaryWordSets wordSets) {
@@ -126,7 +125,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
         Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         Pos occOrAdj = firstOccupiedOrAdjacent.get();
@@ -191,7 +190,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
 }

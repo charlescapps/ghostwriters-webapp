@@ -1,6 +1,5 @@
 package net.capps.word.game.ai;
 
-import com.google.common.base.Optional;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
@@ -19,6 +18,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 2/22/15.
@@ -53,7 +54,7 @@ public class RandomAITest {
                 LG.generateRandomBonusLayout(bs) :
                 FixedLayouts.getInstance().getFixedLayout(bs);
 
-        Game game = new Game(0, GameResult.IN_PROGRESS, tileSet, squareSet, "", "", 0, 0, true, Optional.<Move>absent());
+        Game game = new Game(0, GameResult.IN_PROGRESS, tileSet, squareSet, "", "", 0, 0, true, Optional.empty());
 
         while (game.getGameResult() == GameResult.IN_PROGRESS) {
             LOG.info("Game state:\n{}", game);

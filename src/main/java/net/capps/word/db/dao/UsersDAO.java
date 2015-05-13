@@ -1,6 +1,5 @@
 package net.capps.word.db.dao;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
@@ -12,11 +11,11 @@ import net.capps.word.rest.providers.UserRecordChange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.plaf.nimbus.State;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,10 +26,10 @@ public class UsersDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(UsersDAO.class);
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
-    
+
     private static final String INSERT_USER_QUERY =
             "INSERT INTO word_users (username, email, device_id, date_joined, is_system_user, rating) " +
-            "VALUES (?, ?, ?, ?, ?, ?);";
+                    "VALUES (?, ?, ?, ?, ?, ?);";
 
     private static final String UPDATE_USER_PASSWORD =
             "UPDATE word_users SET (hashpass, salt) = (?, ?) WHERE id = ?";
@@ -75,10 +74,10 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
+                    "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
                     "ON t1.rating < t2.rating OR (t1.rating = t2.rating AND t2.id <= t1.id) " +
-                "GROUP BY t1.id " +
-                "ORDER BY rank ASC;";
+                    "GROUP BY t1.id " +
+                    "ORDER BY rank ASC;";
 
     // Get users with ranking around a given user
     private static final String GET_USER_WITH_RANK =
@@ -99,7 +98,7 @@ public class UsersDAO {
     private static final String GET_NUM_GAMES_MY_TURN =
             "SELECT COUNT(*) AS count FROM word_games " +
                     "WHERE (player1 = ? AND player1_turn = TRUE OR player2 = ? AND player1_turn = FALSE) AND game_result = ? OR " +
-                           "player1 = ? AND player1_turn = TRUE AND game_result = ?";
+                    "player1 = ? AND player1_turn = TRUE AND game_result = ?";
 
     private static final String GET_NUM_GAMES_OFFERED_TO_ME =
             "SELECT COUNT(*) AS count FROM word_games " +
@@ -170,7 +169,7 @@ public class UsersDAO {
                 throw new ConflictException("email", String.format("A user with email '%s' already exists.", validatedUserInput.getEmail()));
             }
         }
-        try(Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, validatedUserInput.getUsername());
             // Set the email, which can be null
@@ -258,7 +257,7 @@ public class UsersDAO {
             stmt.setInt(1, id);
             ResultSet result = stmt.executeQuery();
             if (!result.next()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             return Optional.of(getUserFromResultSet(result));
         }
@@ -270,7 +269,7 @@ public class UsersDAO {
             stmt.setString(1, deviceId);
             ResultSet result = stmt.executeQuery();
             if (!result.next()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             return Optional.of(getUserFromResultSet(result));
         }
@@ -283,7 +282,7 @@ public class UsersDAO {
             stmt.setString(1, username);
             ResultSet result = stmt.executeQuery();
             if (!result.next()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             return Optional.of(getUserFromResultSet(result));
         }
@@ -295,12 +294,12 @@ public class UsersDAO {
             stmt.setString(1, email);
             ResultSet result = stmt.executeQuery();
             if (!result.next()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             return Optional.of(getUserFromResultSet(result));
         }
     }
-    
+
     public List<UserModel> getUsersWithRatingGEQ(final int userId, final int dbRating, final int limit) throws SQLException {
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_GEQ);
@@ -339,7 +338,7 @@ public class UsersDAO {
             stmt.setInt(1, userId);
             ResultSet resultSet = stmt.executeQuery();
             if (!resultSet.next()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             UserModel userModel = getUserFromResultSetWithRank(resultSet);
             return Optional.of(userModel);
@@ -455,19 +454,17 @@ public class UsersDAO {
         }
     }
 
-    public UserModel spendTokens(int userId, int numTokens) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(SPEND_TOKENS, Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, numTokens);
-            stmt.setInt(2, userId);
-            int num = stmt.executeUpdate();
-            if (num != 1) {
-                throw new SQLException("Expected 1 row to be updated, instead was: " + num);
-            }
-            ResultSet resultSet = stmt.getResultSet();
-            resultSet.next();
-            return getUserFromResultSet(resultSet);
+    public UserModel spendTokens(Connection dbConn, int userId, int numTokens) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(SPEND_TOKENS, Statement.RETURN_GENERATED_KEYS);
+        stmt.setInt(1, numTokens);
+        stmt.setInt(2, userId);
+        int num = stmt.executeUpdate();
+        if (num != 1) {
+            throw new SQLException("Expected 1 row to be updated, instead was: " + num);
         }
+        ResultSet resultSet = stmt.getResultSet();
+        resultSet.next();
+        return getUserFromResultSet(resultSet);
     }
 
 

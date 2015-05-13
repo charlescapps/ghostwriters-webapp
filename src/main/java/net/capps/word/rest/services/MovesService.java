@@ -4,7 +4,6 @@ package net.capps.word.rest.services;
  * Created by charlescapps on 1/24/15.
  */
 
-import com.google.common.base.Optional;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.auth.AuthHelper;
@@ -29,6 +28,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
+import java.util.Optional;
 
 import static javax.ws.rs.core.Response.Status;
 

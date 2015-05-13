@@ -1,11 +1,11 @@
 package net.capps.word.game.dict;
 
-import com.google.common.base.Optional;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -48,7 +48,7 @@ public class RandomUsernamePicker {
             }
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static String uppercase(String word) {

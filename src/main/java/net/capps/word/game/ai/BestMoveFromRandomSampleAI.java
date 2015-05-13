@@ -1,6 +1,5 @@
 package net.capps.word.game.ai;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -21,6 +20,7 @@ import net.capps.word.util.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -88,12 +88,12 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
     private Optional<Move> getBestMoveFromRandomSubsetOfPositions(Game game, Rack rack, TileSet tileSet) {
         if (rack.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         List<Pos> unoccupiedPositions = tileSet.getAllUnoccupiedPositions();
         if (unoccupiedPositions.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         // Search the possible start positions in a random order.
@@ -119,7 +119,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             ++numChecked;
         }
 
-        return Optional.fromNullable(bestMove);
+        return Optional.ofNullable(bestMove);
     }
 
     private Optional<Move> getBestGrabMoveFromSubsetOfPositions(Game game) {
@@ -131,13 +131,13 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         maxToGrab = Math.min(maxToGrab, tileSet.N);
 
         if (maxToGrab <= 0) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         final List<Pos> startPosList = tileSet.getAllStartTilePositions();
 
         if (startPosList.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         List<Pos> startPosListRandom = RandomUtil.shuffleList(startPosList);
@@ -235,9 +235,9 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         generateMoves(game.getGameId(), prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 
-        // If no moves are found, return Optional.absent()
+        // If no moves are found, return Optional.empty()
         if (foundMoves.isEmpty()) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
         int bestScore = 0;

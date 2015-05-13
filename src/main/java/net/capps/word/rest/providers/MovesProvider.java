@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +22,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -85,7 +85,7 @@ public class MovesProvider {
         }
 
         // Create a Board object
-        Game gameState = new Game(game, Optional.<Move>absent());
+        Game gameState = new Game(game, Optional.empty());
         Move move = new Move(inputMoveModel);
 
         // Check if it's a valid move.
@@ -108,7 +108,7 @@ public class MovesProvider {
         List<MoveModel> prevMove = movesDAO.getMostRecentMoves(validatedMove.getGameId(), 1, dbConn);
         Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
                 Optional.of(new Move(prevMove.get(0))) :
-                Optional.<Move>absent();
+                Optional.empty();
 
         Game game = new Game(gameModel, previousMoveOpt);
         Move move = new Move(validatedMove);
@@ -208,7 +208,7 @@ public class MovesProvider {
                 return Optional.of(new ErrorModel("Must provide non-empty list of tiles that were played or grabbed."));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private Optional<ErrorModel> isValidLettersField(String letters) {
@@ -218,6 +218,6 @@ public class MovesProvider {
                 return Optional.of(new ErrorModel("Each letter for a move must be an uppercase letter or wild card (*)"));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 }

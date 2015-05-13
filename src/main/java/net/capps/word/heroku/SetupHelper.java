@@ -1,6 +1,5 @@
 package net.capps.word.heroku;
 
-import com.google.common.base.Optional;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
@@ -17,6 +16,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 12/28/14.

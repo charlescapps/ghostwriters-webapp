@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
@@ -9,6 +8,7 @@ import net.capps.word.rest.models.UserModel;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 3/18/15.
@@ -39,14 +39,14 @@ public class GamesSearchProvider {
         if (inProgress == null) {
             return ERR_MISSING_IN_PROGRESS;
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<ErrorModel> validateCount(int count) {
         if (count <= 0 || count > MAX_COUNT) {
             return ERR_MISSING_COUNT;
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public List<GameModel> getGamesForUserLastActivityDesc(UserModel authUser, int count, boolean inProgress, boolean includeMoves, Connection dbConn) throws SQLException {

@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
@@ -21,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 1/18/15.
@@ -101,7 +101,7 @@ public class GamesProvider {
             return Optional.of(ERR_MISSING_GAME_DENSITY);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public Optional<ErrorModel> validateAcceptOrRejectGameOffer(int gameId, UserModel authUser, Connection dbConn) throws SQLException {
@@ -115,7 +115,7 @@ public class GamesProvider {
             return Optional.of(ERR_INVALID_ACCEPT_OR_REJECT_USER);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public URI getGameURI(int gameId, UriInfo uriInfo) {
@@ -125,7 +125,7 @@ public class GamesProvider {
                 .build();
     }
 
-    public GameModel createNewGame(GameModel validatedInputGame, UserModel gameCreator) throws Exception {
+    public GameModel createNewGame(GameModel validatedInputGame, UserModel gameCreator, Connection dbConn) throws Exception {
         BoardSize bs = validatedInputGame.getBoardSize();
         GameDensity gd = validatedInputGame.getGameDensity();
         int numWords = gd.getNumWords(bs);
@@ -149,7 +149,7 @@ public class GamesProvider {
             validatedInputGame.setPlayer2(systemUser.get().getId());
         }
 
-        GameModel createdGame = gamesDAO.createNewGame(validatedInputGame, tileSet, squareSet);
+        GameModel createdGame = gamesDAO.createNewGame(dbConn, validatedInputGame, tileSet, squareSet);
         Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(createdGame.getPlayer2());
         if (!player2Model.isPresent()) {
             throw new Exception("Error - player2 was not found in the database. User ID is: " + createdGame.getPlayer2());

@@ -1,6 +1,5 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Optional;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
@@ -13,6 +12,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.String.format;
