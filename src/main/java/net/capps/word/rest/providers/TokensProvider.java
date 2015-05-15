@@ -1,7 +1,7 @@
 package net.capps.word.rest.providers;
 
 import net.capps.word.db.dao.UsersDAO;
-import net.capps.word.game.dict.GameDict;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -67,7 +67,7 @@ public class TokensProvider {
 
     private int computeCreateGameTokenCost(GameModel inputGame) {
         int cost = 0;
-        GameDict specialDict = inputGame.getSpecialDict();
+        SpecialDict specialDict = inputGame.getSpecialDict();
         if (specialDict != null) {
             cost += specialDict.getTokenCost();
         }

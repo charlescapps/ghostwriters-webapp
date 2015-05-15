@@ -5,26 +5,32 @@ package net.capps.word.game.dict;
  */
 public enum DictType {
 
-    ENGLISH_WORDS("English dictionary", "main_dict.txt"),
-    BANNED("Banned words", "banned.txt"),
-    ADJECTIVES("Adjectives", "adjectives.txt"),
-    NOUNS("Nouns", "nouns.txt"),
-    POE("Edgar Allen Poe", "poe_dict.txt"),
-    LOVECRAFT("H.P. Lovecraft", "lovecraft_dict.txt"),
-    MYTHOS("Cthulhu Mythos", "mythos_dict.txt");
+    ENGLISH_WORDS("English dictionary", "main_dict.txt", 0),
+    BANNED("Banned words", "banned.txt", 0),
+    ADJECTIVES("Adjectives", "adjectives.txt", 0),
+    NOUNS("Nouns", "nouns.txt", 0),
+    POE("Edgar Allen Poe", "poe_dict.txt", 25),
+    LOVECRAFT("H.P. Lovecraft", "lovecraft_dict.txt", 25),
+    MYTHOS("Cthulhu Mythos", "mythos_dict.txt", 50);
 
     private static final String PACKAGE = "net/capps/word/dict/";
 
-    private DictType(String description, String filename) {
+    private DictType(String description, String filename, int bonusPoints) {
         this.description = description;
         this.filename = filename;
+        this.bonusPoints = bonusPoints;
     }
 
     private final String description;
     private final String filename;
+    private final int bonusPoints;
 
     public String getResourcePath() {
         return PACKAGE + filename;
+    }
+
+    public int getBonusPoints() {
+        return bonusPoints;
     }
 
     public DictionarySet getDictionarySet() {

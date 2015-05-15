@@ -19,7 +19,7 @@ public class ProfessorAI implements GameAI {
         return INSTANCE;
     }
 
-    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.5f, 0.8f);
+    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.5f, 0.8f, 0.15f);
 
     @Override
     public Move getNextMove(Game game) {

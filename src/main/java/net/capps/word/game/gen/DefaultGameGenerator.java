@@ -166,7 +166,7 @@ public class DefaultGameGenerator implements GameGenerator {
             while (iter.hasNext()) {
                 String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementError(placement).isPresent()) {
+                if (!tileSet.getPlacementErrorWithoutCheckingDictionary(placement).isPresent()) {
                     return Optional.of(placement);
                 }
             }

@@ -7,6 +7,8 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
+import net.capps.word.game.dict.DictType;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterPoints;
@@ -30,6 +32,7 @@ public class Game {
     private static final Optional<String> ERR_CANNOT_PLAY = Optional.of("Cannot play more moves, game is complete!");
 
     private final int gameId;
+    private final SpecialDict specialDict;
     private final int N;
     private final SquareSet squareSet;
     private final TileSet tileSet;
@@ -48,6 +51,7 @@ public class Game {
         Preconditions.checkNotNull(gameModel.getTiles());
         Preconditions.checkNotNull(gameModel.getSquares());
         this.gameId = Preconditions.checkNotNull(gameModel.getId());
+        this.specialDict = gameModel.getSpecialDict();
         Reader squareReader = new StringReader(gameModel.getSquares());
         Reader tileReader = new StringReader(gameModel.getTiles());
         N = gameModel.getBoardSize().getN();
@@ -66,6 +70,7 @@ public class Game {
     public Game(int gameId, GameResult gameResult, TileSet tileSet, SquareSet squareSet, String player1Rack, String player2Rack,
                 int player1Points, int player2Points, boolean player1Turn, Optional<Move> previousMoveOpt) {
         this.gameId = gameId;
+        this.specialDict = null;
         this.squareSet = Preconditions.checkNotNull(squareSet);
         this.tileSet = Preconditions.checkNotNull(tileSet);
         this.gameResult = Preconditions.checkNotNull(gameResult);
@@ -85,6 +90,10 @@ public class Game {
 
     public int getGameId() {
         return gameId;
+    }
+
+    public SpecialDict getSpecialDict() {
+        return specialDict;
     }
 
     public int getN() {
@@ -189,11 +198,31 @@ public class Game {
             }
         }
 
-        int totalPoints = wordPoints + perpWordPoints;
+        int totalPoints = wordPoints + perpWordPoints + computeBonusPointsForSpecialDictionaryPlay(move);
         if (totalPoints <= 0) {
             throw new IllegalStateException("Something went wrong computing the points - any move must earn > 0 points!");
         }
         return totalPoints;
+    }
+
+    private int computeBonusPointsForSpecialDictionaryPlay(Move move) {
+        final String word = move.getLetters();
+        if (specialDict == null) {
+            return 0;
+        }
+        DictType primaryDict = specialDict.getPrimaryDict();
+        if (primaryDict.getDictionarySet().contains(word)) {
+            return primaryDict.getBonusPoints();
+        }
+
+        DictType secondaryDict = specialDict.getSecondaryDict();
+        if (secondaryDict == null) {
+            return 0;
+        }
+        if (secondaryDict.getDictionarySet().contains(word)) {
+            return secondaryDict.getBonusPoints();
+        }
+        return 0;
     }
 
     private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
@@ -311,7 +340,7 @@ public class Game {
             return Optional.of(format("Player 2 doesn't have required tiles: \"%s\"", move.getTilesAsString()));
         }
         // Check that the play is valid
-        return tileSet.getPlayWordMoveError(move);
+        return tileSet.getPlayWordMoveError(move, specialDict);
     }
 
     private Optional<String> getGrabTilesError(Move move) {

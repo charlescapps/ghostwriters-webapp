@@ -8,6 +8,7 @@ import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionarySet;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterUtils;
@@ -250,7 +251,7 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public Optional<String> getPlayWordMoveError(Move move) {
+    public Optional<String> getPlayWordMoveError(Move move, SpecialDict specialDict) {
         // Check if the tiles played from the player's Rack match what's on the board
         Optional<String> errorOpt = lettersMatchTilesPlayed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles());
         if (errorOpt.isPresent()) {
@@ -258,7 +259,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         Placement placement = move.getPlacement();
-        errorOpt = getPlacementError(placement);
+        errorOpt = getPlacementError(placement, specialDict);
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
@@ -351,14 +352,8 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    public Optional<String> getPlacementError(Placement placement) {
-        final String word = placement.getWord();
+    public Optional<String> getPlacementErrorWithoutCheckingDictionary(Placement placement) {
         final Dir dir = placement.getDir();
-
-        // Must be a valid dictionary word
-        if (!DICTIONARY_SET.contains(word)) {
-            return Optional.of(format("\"%s\" is not in our dictionary!", word));
-        }
 
         // Can only play EAST or SOUTH
         if (!dir.isValidPlayDir()) {
@@ -378,6 +373,34 @@ public class TileSet implements Iterable<Pos> {
 
         // Must be a valid play with words formed perpendicularly
         return getErrorForPerpendicularPlacement(placement);
+    }
+
+    public Optional<String> getPlacementError(Placement placement, SpecialDict specialDict) {
+        final String word = placement.getWord();
+
+        // Must be a valid dictionary word
+        if (!isValidWord(word, specialDict)) {
+            return Optional.of(format("\"%s\" is not in the dictionary for this game!", word));
+        }
+
+        return getPlacementErrorWithoutCheckingDictionary(placement);
+    }
+
+    private boolean isValidWord(String word, SpecialDict specialDict) {
+        if (DICTIONARY_SET.contains(word)) {
+            return true;
+        }
+        if (specialDict == null) {
+            return false;
+        }
+        if (specialDict.getPrimaryDict().getDictionarySet().contains(word)) {
+            return true;
+        }
+        if (specialDict.getSecondaryDict() != null &&
+            specialDict.getSecondaryDict().getDictionarySet().contains(word)) {
+            return true;
+        }
+        return false;
     }
 
     private Optional<String> isValidPlacementInPrimaryDir(Placement placement) {

@@ -7,13 +7,12 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.DictionaryWordSets;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.dict.WordConstraint;
 import net.capps.word.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 
 import static net.capps.word.game.common.Dir.S;
@@ -27,14 +26,17 @@ public class SpecialDictGameGenerator implements GameGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpecialDictGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
+    private final SpecialDict specialDict;
     private final DictionaryWordSets primaryWordSets;
     private final DictionaryWordSets secondaryWordSets;
     private final Set<String> usedWords = new HashSet<>();
 
-    public SpecialDictGameGenerator(@Nonnull DictionaryWordSets primaryWordSets,
-                                    @Nullable DictionaryWordSets secondaryWordSets) {
-        this.primaryWordSets = primaryWordSets;
-        this.secondaryWordSets = secondaryWordSets;
+    public SpecialDictGameGenerator(SpecialDict specialDict) {
+        this.specialDict = specialDict;
+        this.primaryWordSets = specialDict.getPrimaryDict().getDictionaryWordSets();
+        this.secondaryWordSets = specialDict.getSecondaryDict() == null ?
+                null :
+                specialDict.getSecondaryDict().getDictionaryWordSets();
     }
 
     @Override
@@ -184,7 +186,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
                     continue;
                 }
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementError(placement).isPresent()) {
+                if (!tileSet.getPlacementErrorWithoutCheckingDictionary(placement).isPresent()) {
                     return Optional.of(placement);
                 }
             }

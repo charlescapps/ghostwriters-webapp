@@ -8,7 +8,7 @@ import net.capps.word.game.gen.SpecialDictGameGenerator;
  *
  * Represents dictionaries that can be used in the Ghostwriters game.
  */
-public enum GameDict {
+public enum SpecialDict {
     POE(DictType.POE, null, 1),
     LOVECRAFT(DictType.LOVECRAFT, null, 1),
     MYTHOS(DictType.MYTHOS, DictType.LOVECRAFT, 2);
@@ -17,7 +17,7 @@ public enum GameDict {
     private final DictType secondaryDict;
     private final int tokenCost;
 
-    GameDict(DictType primaryDict, DictType secondaryDict, int tokenCost) {
+    SpecialDict(DictType primaryDict, DictType secondaryDict, int tokenCost) {
         this.primaryDict = primaryDict;
         this.secondaryDict = secondaryDict;
         this.tokenCost = tokenCost;
@@ -28,13 +28,20 @@ public enum GameDict {
             case POE:
             case LOVECRAFT:
             case MYTHOS:
-                return new SpecialDictGameGenerator(primaryDict.getDictionaryWordSets(),
-                        secondaryDict == null ? null : secondaryDict.getDictionaryWordSets());
+                return new SpecialDictGameGenerator(this);
         }
         throw new IllegalStateException("Invalid GameDict enum given...");
     }
 
     public int getTokenCost() {
         return tokenCost;
+    }
+
+    public DictType getPrimaryDict() {
+        return primaryDict;
+    }
+
+    public DictType getSecondaryDict() {
+        return secondaryDict;
     }
 }

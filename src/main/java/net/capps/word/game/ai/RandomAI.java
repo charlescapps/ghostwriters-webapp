@@ -200,7 +200,7 @@ public class RandomAI implements GameAI {
         if (placements.size() >= minPlacements && SET.contains(prefix)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.getPlayWordMoveError(move).isPresent()) {
+            if (!tileSet.getPlayWordMoveError(move, null).isPresent()) {
                 moves.add(move);
             }
         }

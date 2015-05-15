@@ -69,12 +69,15 @@ public class GamesService {
         }
 
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            dbConn.setAutoCommit(false);
             GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
 
             UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);
             created.setPlayer1Model(updatedUser);
 
             URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
+
+            dbConn.commit();
 
             return Response.created(uri)
                     .entity(created)
