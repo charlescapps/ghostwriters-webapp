@@ -326,7 +326,7 @@ public class GamesDAO {
         final AiType aiType = gameType == GameType.TWO_PLAYER ? null : AiType.values()[result.getShort("ai_type")];
         game.setAiType(aiType);
         Object specialDictOrdinal = result.getObject("special_dict");
-        final SpecialDict specialDict = specialDictOrdinal == null ? null : SpecialDict.values() [(Short) specialDictOrdinal];
+        final SpecialDict specialDict = specialDictOrdinal == null ? null : SpecialDict.values() [(Integer) specialDictOrdinal];
         game.setSpecialDict(specialDict);
         game.setPlayer1(result.getInt("player1"));
         game.setPlayer2(result.getInt("player2"));
