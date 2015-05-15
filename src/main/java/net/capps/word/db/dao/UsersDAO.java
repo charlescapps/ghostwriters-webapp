@@ -108,7 +108,7 @@ public class UsersDAO {
             "UPDATE word_users SET tokens = tokens + ? WHERE id = ?;";
 
     private static final String INCREMENT_TOKENS =
-            "UPDATE word_users SET tokens = LEAST(" + MAX_TOKENS + ", tokens + 1) WHERE id >= ? AND id < ?;";
+            "UPDATE word_users SET tokens = GREATEST(tokens, LEAST(" + MAX_TOKENS + ", tokens + 1)) WHERE id >= ? AND id < ?;";
 
     private static final String SPEND_TOKENS =
             "UPDATE word_users SET tokens = GREATEST(0, tokens - ?) WHERE id = ?;";
