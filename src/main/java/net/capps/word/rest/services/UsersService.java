@@ -104,6 +104,17 @@ public class UsersService {
                 .build();
     }
 
+    @Path("/me")
+    @GET
+    @Filters.RegularUserAuthRequired
+    public Response getSelf(@Context HttpServletRequest request) throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        return Response.ok(authUser).build();
+    }
+
     @Path("/nextUsername")
     @GET
     @Filters.InitialUserAuthRequired
