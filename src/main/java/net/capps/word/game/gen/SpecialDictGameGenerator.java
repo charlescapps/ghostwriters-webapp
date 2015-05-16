@@ -186,7 +186,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
                     continue;
                 }
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementErrorWithoutCheckingDictionary(placement).isPresent()) {
+                if (!tileSet.getPlacementError(placement, specialDict).isPresent()) {
                     return Optional.of(placement);
                 }
             }

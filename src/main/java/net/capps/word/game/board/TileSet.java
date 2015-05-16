@@ -352,7 +352,14 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    public Optional<String> getPlacementErrorWithoutCheckingDictionary(Placement placement) {
+    public Optional<String> getPlacementError(Placement placement, SpecialDict specialDict) {
+        final String word = placement.getWord();
+
+        // Must be a valid dictionary word
+        if (!isValidWord(word, specialDict)) {
+            return Optional.of(format("\"%s\" is not in the dictionary for this game!", word));
+        }
+
         final Dir dir = placement.getDir();
 
         // Can only play EAST or SOUTH
@@ -372,18 +379,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         // Must be a valid play with words formed perpendicularly
-        return getErrorForPerpendicularPlacement(placement);
-    }
-
-    public Optional<String> getPlacementError(Placement placement, SpecialDict specialDict) {
-        final String word = placement.getWord();
-
-        // Must be a valid dictionary word
-        if (!isValidWord(word, specialDict)) {
-            return Optional.of(format("\"%s\" is not in the dictionary for this game!", word));
-        }
-
-        return getPlacementErrorWithoutCheckingDictionary(placement);
+        return getErrorForPerpendicularPlacement(placement, specialDict);
     }
 
     private boolean isValidWord(String word, SpecialDict specialDict) {
@@ -431,7 +427,7 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement) {
+    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement, SpecialDict specialDict) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
@@ -445,7 +441,7 @@ public class TileSet implements Iterable<Pos> {
             char c = word.charAt(i);
             Optional<String> perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord.isPresent()) {
-                if (!DICTIONARY_SET.contains(perpWord.get())) {
+                if (!isValidWord(perpWord.get(), specialDict)) {
                     return Optional.of(format("Sorry, \"%s\" isn't in our dictionary.", perpWord.get()));
                 }
             }
