@@ -74,7 +74,7 @@ public class MovesService {
                 LOG.info("Playing AI moves...");
                 updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
             } else {
-                movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
+               // movesProvider.populateLastMoves(updatedGame, originalGame, input, dbConn);
             }
 
             ratingsProvider.updatePlayerRatings(updatedGame, dbConn);

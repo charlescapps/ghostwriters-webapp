@@ -127,7 +127,7 @@ public class MovesProvider {
         List<MoveModel> aiMoves = new ArrayList<>();
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
         while (gameModel.getPlayer1Turn() == isPlayer1Turn && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
-            gameModel = playeOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
+            gameModel = playOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
         }
 
         gameModel.setLastMoves(aiMoves);
@@ -162,7 +162,7 @@ public class MovesProvider {
 
     // ------------ Private --------------
 
-    private GameModel playeOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
+    private GameModel playOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 
         GameAI gameAI = aiType.getGameAiInstance();
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
