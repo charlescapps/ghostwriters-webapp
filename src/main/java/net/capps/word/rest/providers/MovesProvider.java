@@ -172,6 +172,9 @@ public class MovesProvider {
         if (gameSpecialDict == null) {
             return;
         }
+        if (move.getMoveType() != MoveType.PLAY_WORD) {
+            return;
+        }
         DictType dictForWord = gameSpecialDict.getDictForWord(move.getLetters());
         move.setDict(dictForWord);
     }
