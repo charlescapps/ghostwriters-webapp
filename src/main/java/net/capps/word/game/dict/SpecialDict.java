@@ -44,4 +44,14 @@ public enum SpecialDict {
     public DictType getSecondaryDict() {
         return secondaryDict;
     }
+
+    public DictType getDictForWord(String word) {
+        if (primaryDict.getDictionarySet().contains(word)) {
+            return primaryDict;
+        }
+        if (secondaryDict != null && secondaryDict.getDictionarySet().contains(word)) {
+            return secondaryDict;
+        }
+        return null;
+    }
 }

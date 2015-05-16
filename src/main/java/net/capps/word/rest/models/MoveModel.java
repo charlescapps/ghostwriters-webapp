@@ -1,6 +1,7 @@
 package net.capps.word.rest.models;
 
 import net.capps.word.game.common.Dir;
+import net.capps.word.game.dict.DictType;
 import net.capps.word.game.move.MoveType;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -19,6 +20,7 @@ public class MoveModel {
     private MoveType moveType;
     private Integer points;
     private Long datePlayed;
+    private DictType dict;
 
     public MoveModel() {
 
@@ -106,5 +108,13 @@ public class MoveModel {
 
     public void setDatePlayed(Long datePlayed) {
         this.datePlayed = datePlayed;
+    }
+
+    public DictType getDict() {
+        return dict;
+    }
+
+    public void setDict(DictType dict) {
+        this.dict = dict;
     }
 }

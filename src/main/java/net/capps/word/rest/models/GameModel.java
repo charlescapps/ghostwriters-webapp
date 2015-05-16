@@ -35,6 +35,7 @@ public class GameModel {
     private Long lastActivity;
     private Long dateCreated;
     private List<MoveModel> lastMoves;
+    private MoveModel myMove;
     private Integer player1RatingIncrease;
     private Integer player2RatingIncrease;
     private SpecialDict specialDict;
@@ -226,6 +227,14 @@ public class GameModel {
 
     public void setLastMoves(List<MoveModel> lastMoves) {
         this.lastMoves = lastMoves;
+    }
+
+    public MoveModel getMyMove() {
+        return myMove;
+    }
+
+    public void setMyMove(MoveModel myMove) {
+        this.myMove = myMove;
     }
 
     public Integer getPlayer1RatingIncrease() {

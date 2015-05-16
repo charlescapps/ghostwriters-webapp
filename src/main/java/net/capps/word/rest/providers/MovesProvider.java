@@ -9,6 +9,8 @@ import net.capps.word.game.ai.GameAI;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
+import net.capps.word.game.dict.DictType;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
@@ -130,21 +132,19 @@ public class MovesProvider {
             gameModel = playOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
         }
 
+        // Store the dictionary used on the Move, so we can have a modal dialog saying the AI played a bonus word.
+        for (MoveModel move: aiMoves) {
+            addSpecialDictUsageToMove(gameModel, move);
+        }
+
         gameModel.setLastMoves(aiMoves);
 
         return gameModel;
     }
 
-    public void populateLastMoves(GameModel newGame, GameModel originalGame, MoveModel playedMove, Connection dbConn) throws Exception {
-        // If the turn didn't change, then the lastMoves is an empty list
-        if (originalGame.getPlayer1Turn() == newGame.getPlayer1Turn()) {
-            newGame.setLastMoves(ImmutableList.<MoveModel>of());
-            return;
-        }
-        // Otherwise, query the database for the previous consecutive moves by the current player
-        int playerId = playedMove.getPlayerId();
-        List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(playerId, newGame.getId(), dbConn);
-        newGame.setLastMoves(lastMoves);
+    public void populateMyMove(GameModel newGame, MoveModel playedMove) throws Exception {
+        addSpecialDictUsageToMove(newGame, playedMove);
+        newGame.setMyMove(playedMove);
     }
 
     public void populateLastMoves(GameModel gameModel, UserModel authUser, Connection dbConn) throws SQLException {
@@ -158,9 +158,23 @@ public class MovesProvider {
         } else {
             gameModel.setLastMoves(ImmutableList.<MoveModel>of());
         }
+
+        // Populate the last opponent moves with the dictionary the word was played from.
+        for (MoveModel move: gameModel.getLastMoves()) {
+            addSpecialDictUsageToMove(gameModel, move);
+        }
     }
 
     // ------------ Private --------------
+
+    private void addSpecialDictUsageToMove(GameModel gameModel, MoveModel move) {
+        SpecialDict gameSpecialDict = gameModel.getSpecialDict();
+        if (gameSpecialDict == null) {
+            return;
+        }
+        DictType dictForWord = gameSpecialDict.getDictForWord(move.getLetters());
+        move.setDict(dictForWord);
+    }
 
     private GameModel playOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 
