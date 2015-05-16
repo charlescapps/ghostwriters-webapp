@@ -53,6 +53,7 @@ public class MovesDAO {
 
     public MoveModel insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(INSERT_MOVE, Statement.RETURN_GENERATED_KEYS);
+        inputMove.setPoints(numPoints);
         stmt.setInt(1, inputMove.getGameId());
         stmt.setInt(2, inputMove.getPlayerId());
         stmt.setShort(3, (short) inputMove.getMoveType().ordinal());
