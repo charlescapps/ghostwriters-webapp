@@ -4,23 +4,23 @@ package net.capps.word.rest.models;
  * Created by charlescapps on 4/10/15.
  */
 public class PushData {
-    private String updatedGame;
+    private String updatedGameId;
     private String isGameOffer;
 
     public PushData() {
 
     }
 
-    public PushData(String updatedGame) {
-        this.updatedGame = updatedGame;
+    public PushData(String updatedGameId) {
+        this.updatedGameId = updatedGameId;
     }
 
-    public String getUpdatedGame() {
-        return updatedGame;
+    public String getUpdatedGameId() {
+        return updatedGameId;
     }
 
-    public void setUpdatedGame(String updatedGame) {
-        this.updatedGame = updatedGame;
+    public void setUpdatedGameId(String updatedGameId) {
+        this.updatedGameId = updatedGameId;
     }
 
     public String getIsGameOffer() {
