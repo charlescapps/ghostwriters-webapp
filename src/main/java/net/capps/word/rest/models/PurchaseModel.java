@@ -6,27 +6,36 @@ import net.capps.word.iap.InAppPurchaseProduct;
  * Created by charlescapps on 5/17/15.
  */
 public class PurchaseModel {
-    private String googleVerification;
-    private String appleVerification;
+    private Boolean isGoogle;
+    private String identifier;
+    private String signature;
     private InAppPurchaseProduct product;
 
     public PurchaseModel() {
     }
 
-    public String getGoogleVerification() {
-        return googleVerification;
+    public Boolean getIsGoogle() {
+        return isGoogle;
     }
 
-    public void setGoogleVerification(String googleVerification) {
-        this.googleVerification = googleVerification;
+    public void setIsGoogle(Boolean isGoogle) {
+        this.isGoogle = isGoogle;
     }
 
-    public String getAppleVerification() {
-        return appleVerification;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setAppleVerification(String appleVerification) {
-        this.appleVerification = appleVerification;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public InAppPurchaseProduct getProduct() {

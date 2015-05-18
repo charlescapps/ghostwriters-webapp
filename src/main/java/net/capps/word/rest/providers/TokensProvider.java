@@ -22,10 +22,6 @@ public class TokensProvider {
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final TokensProvider INSTANCE = new TokensProvider();
 
-    // Errors
-    private static final ErrorModel MISSING_NUM_TOKENS = new ErrorModel("Missing numTokens query param");
-    private static final ErrorModel INVALID_NUM_TOKENS = new ErrorModel("Invalid numTokens, must be positive");
-
     private TokensProvider() { }
 
     public static TokensProvider getInstance() {
@@ -33,14 +29,17 @@ public class TokensProvider {
     }
 
     public Optional<ErrorModel> validatePurchase(PurchaseModel purchaseModel) {
-        if (purchaseModel.getAppleVerification() == null && purchaseModel.getGoogleVerification() == null) {
-            return Optional.of(new ErrorModel("A purchase must provide a valid verification code."));
+        if (purchaseModel.getIsGoogle() == null) {
+            return Optional.of(new ErrorModel("A purchase must include the 'isGoogle' field."));
         }
-        if (purchaseModel.getAppleVerification() != null && purchaseModel.getGoogleVerification() != null) {
-            return Optional.of(new ErrorModel("You can't provide an Apple & a Google verification!"));
+        if (purchaseModel.getIdentifier() == null) {
+            return Optional.of(new ErrorModel("A purchase must include a valid identifier string."));
+        }
+        if (purchaseModel.getSignature() == null) {
+            return Optional.of(new ErrorModel("A purchase must include a valid signature string."));
         }
         if (purchaseModel.getProduct() == null) {
-            return Optional.of(new ErrorModel("You must provide a product type."));
+            return Optional.of(new ErrorModel("A purchase must provide a product type."));
         }
         return Optional.empty();
     }
