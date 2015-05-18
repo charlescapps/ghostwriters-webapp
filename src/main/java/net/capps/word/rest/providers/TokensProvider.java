@@ -2,8 +2,10 @@ package net.capps.word.rest.providers;
 
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.dict.SpecialDict;
+import net.capps.word.iap.InAppPurchaseProduct;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.PurchaseModel;
 import net.capps.word.rest.models.UserModel;
 
 import javax.ws.rs.BadRequestException;
@@ -30,14 +32,21 @@ public class TokensProvider {
         return INSTANCE;
     }
 
-    public Optional<ErrorModel> validateNumTokens(Integer numTokens) {
-        if (numTokens == null) {
-            return Optional.of(MISSING_NUM_TOKENS);
+    public Optional<ErrorModel> validatePurchase(PurchaseModel purchaseModel) {
+        if (purchaseModel.getAppleVerification() == null && purchaseModel.getGoogleVerification() == null) {
+            return Optional.of(new ErrorModel("A purchase must provide a valid verification code."));
         }
-        if (numTokens <= 0) {
-            return Optional.of(INVALID_NUM_TOKENS);
+        if (purchaseModel.getAppleVerification() != null && purchaseModel.getGoogleVerification() != null) {
+            return Optional.of(new ErrorModel("You can't provide an Apple & a Google verification!"));
+        }
+        if (purchaseModel.getProduct() == null) {
+            return Optional.of(new ErrorModel("You must provide a product type."));
         }
         return Optional.empty();
+    }
+
+    public UserModel giveTokensForPurchase(UserModel userModel, InAppPurchaseProduct product) throws SQLException {
+        return usersDAO.increaseUsersTokensForPurchase(userModel.getId(), product.getNumTokens());
     }
 
     public UserModel spendTokens(UserModel userModel, int numTokens, Connection dbConn) throws SQLException {
