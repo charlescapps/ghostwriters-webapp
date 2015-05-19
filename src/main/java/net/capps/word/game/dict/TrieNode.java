@@ -15,7 +15,7 @@ public class TrieNode {
     private boolean validWord = false;
 
     public TrieNode(String word) {
-        this.word = word;
+        this.word = word.intern(); // Avoid duplicate Strings being stored in the JVM
     }
 
     public TrieNode addChild(char c) {

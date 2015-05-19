@@ -66,6 +66,7 @@ public class DictionarySet {
                     LOG.trace("Not including banned word '{}'", word);
                     continue;
                 }
+                word = word.intern(); // Avoid duplicate strings being stored elsewhere in the JVM
                 builder.add(word);
             }
             words = builder.build();
