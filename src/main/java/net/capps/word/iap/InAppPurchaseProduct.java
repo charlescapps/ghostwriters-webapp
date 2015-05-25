@@ -4,9 +4,10 @@ package net.capps.word.iap;
  * Created by charlescapps on 5/17/15.
  */
 public enum InAppPurchaseProduct {
-    BOOK_PACK_1(10),
-    BOOK_PACK_2(25),
-    BOOK_PACK_3(60);
+    book_pack_1(10),
+    book_pack_2(25),
+    book_pack_3(60),
+    infinite_books(0);
 
     private final int numTokens;
 
