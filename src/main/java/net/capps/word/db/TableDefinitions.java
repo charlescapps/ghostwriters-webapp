@@ -19,7 +19,8 @@ public class TableDefinitions {
             "wins INTEGER NOT NULL DEFAULT 0," +
             "losses INTEGER NOT NULL DEFAULT 0," +
             "ties INTEGER NOT NULL DEFAULT 0," +
-            "tokens INTEGER NOT NULL DEFAULT 10" +
+            "tokens INTEGER NOT NULL DEFAULT 10," +
+            "infinite_books BOOLEAN NOT NULL DEFAULT FALSE" +
             ");";
 
     public static final String CREATE_LOWERCASE_USER_IDX =

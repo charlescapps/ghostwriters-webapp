@@ -104,6 +104,7 @@ public class UsersDAO {
             "SELECT COUNT(*) AS count FROM word_games " +
                     "WHERE (player2 = ? AND player1_turn = FALSE) AND game_result = ?";
 
+    // ---------- In-app purchases --------
     private static final String INCREASE_TOKENS_FROM_PURCHASE =
             "UPDATE word_users SET tokens = tokens + ? WHERE id = ?;";
 
@@ -112,6 +113,9 @@ public class UsersDAO {
 
     private static final String SPEND_TOKENS =
             "UPDATE word_users SET tokens = GREATEST(0, tokens - ?) WHERE id = ?;";
+
+    private static final String GRANT_INFINITE_BOOKS =
+            "UPDATE word_users SET (tokens, infinite_books) = (999999, TRUE) WHERE id = ?;";
 
     private static final UsersDAO INSTANCE = new UsersDAO();
 
@@ -467,6 +471,20 @@ public class UsersDAO {
         return getUserFromResultSet(resultSet);
     }
 
+    public UserModel grantInfiniteBooks(int userId) throws SQLException {
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(GRANT_INFINITE_BOOKS, Statement.RETURN_GENERATED_KEYS);
+            stmt.setInt(1, userId);
+            int num = stmt.executeUpdate();
+            if (num != 1) {
+                throw new SQLException("Expected 1 row to be updated when granting infinite books, instead was: " + num);
+            }
+            ResultSet resultSet = stmt.getGeneratedKeys();
+            resultSet.next();
+            return getUserFromResultSet(resultSet);
+        }
+    }
+
 
     // ------------ Private ---------
 
@@ -492,6 +510,7 @@ public class UsersDAO {
         int losses = resultSet.getInt("losses");
         int ties = resultSet.getInt("ties");
         int tokens = resultSet.getInt("tokens");
+        boolean infiniteBooks = resultSet.getBoolean("infinite_books");
         UserModel user = new UserModel(id, username, email, null, new UserHashInfo(hashpass, salt), systemUser);
         user.setDateJoined(dateJoined.getTime());
         user.setRating(rating);
@@ -499,6 +518,7 @@ public class UsersDAO {
         user.setLosses(losses);
         user.setTies(ties);
         user.setTokens(tokens);
+        user.setInfiniteBooks(infiniteBooks);
         return user;
     }
 

@@ -23,6 +23,7 @@ public class UserModel {
     private Integer ties;
     private Integer rank;
     private Integer tokens;
+    private Boolean infiniteBooks;
 
     public UserModel() {
 
@@ -136,6 +137,14 @@ public class UserModel {
 
     public void setTokens(Integer tokens) {
         this.tokens = tokens;
+    }
+
+    public Boolean getInfiniteBooks() {
+        return infiniteBooks;
+    }
+
+    public void setInfiniteBooks(Boolean infiniteBooks) {
+        this.infiniteBooks = infiniteBooks;
     }
 
     @JsonIgnore

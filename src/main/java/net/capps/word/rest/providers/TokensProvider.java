@@ -45,7 +45,12 @@ public class TokensProvider {
     }
 
     public UserModel giveTokensForPurchase(UserModel userModel, InAppPurchaseProduct product) throws SQLException {
-        return usersDAO.increaseUsersTokensForPurchase(userModel.getId(), product.getNumTokens());
+        switch (product) {
+            case infinite_books:
+                return usersDAO.grantInfiniteBooks(userModel.getId());
+            default:
+                return usersDAO.increaseUsersTokensForPurchase(userModel.getId(), product.getNumTokens());
+        }
     }
 
     public UserModel spendTokens(UserModel userModel, int numTokens, Connection dbConn) throws SQLException {
