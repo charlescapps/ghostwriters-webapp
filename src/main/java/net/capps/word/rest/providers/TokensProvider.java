@@ -62,6 +62,10 @@ public class TokensProvider {
     }
 
     public UserModel spendTokensForCreateGame(UserModel authUser, GameModel inputGame, Connection dbConn) throws SQLException {
+        // If the user has purchased infinite_books, then do nothing; the game is free!
+        if (Boolean.TRUE.equals(authUser.getInfiniteBooks())) {
+            return authUser;
+        }
         int cost = computeCreateGameTokenCost(inputGame);
         return spendTokens(authUser, cost, dbConn);
     }
