@@ -28,15 +28,11 @@ public class SpecialDictGameGenerator implements GameGenerator {
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
     private final SpecialDict specialDict;
     private final DictionaryWordSets primaryWordSets;
-    private final DictionaryWordSets secondaryWordSets;
     private final Set<String> usedWords = new HashSet<>();
 
     public SpecialDictGameGenerator(SpecialDict specialDict) {
         this.specialDict = specialDict;
         this.primaryWordSets = specialDict.getPrimaryDict().getDictionaryWordSets();
-        this.secondaryWordSets = specialDict.getSecondaryDict() == null ?
-                null :
-                specialDict.getSecondaryDict().getDictionaryWordSets();
     }
 
     @Override
@@ -59,8 +55,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
                 return tileSet;
             }
             Placement placement = validPlacementOpt.get();
-            if (primaryWordSets.contains(placement.getWord()) ||
-                    secondaryWordSets != null && secondaryWordSets.contains(placement.getWord())) {
+            if (primaryWordSets.contains(placement.getWord())) {
                 usedWords.add(placement.getWord());
             }
             // LOG.trace("Placing word: " + placement);
@@ -88,12 +83,6 @@ public class SpecialDictGameGenerator implements GameGenerator {
         Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, primaryWordSets);
         if (placementOpt.isPresent()) {
             return placementOpt;
-        }
-        if (secondaryWordSets != null) {
-            placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, secondaryWordSets);
-            if (placementOpt.isPresent()) {
-                return placementOpt;
-            }
         }
         return DEFAULT_GAME_GENERATOR.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
     }

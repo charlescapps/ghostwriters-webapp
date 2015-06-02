@@ -1,6 +1,7 @@
 package net.capps.word.game.dict;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,8 @@ import java.util.regex.Pattern;
  */
 public class DictionarySet {
     // ---------------- Static ----------------
-    private static final Pattern VALID_WORD_PATTERN = Pattern.compile("[A-Z]+");
+    private static final Pattern WORD_PATTERN = Pattern.compile("[a-zA-Z]+");
+    private static final Pattern WORD_WITH_DEFINITION_PATTERN = Pattern.compile("([a-zA-Z]+) +\"([^\"]+)\" *");
     private static final Logger LOG = LoggerFactory.getLogger(DictionarySet.class);
 
     // ---------------- Constructor -----------
@@ -24,6 +26,7 @@ public class DictionarySet {
 
     // ---------------- Private ---------------
     private ImmutableSet<String> words;
+    private ImmutableMap<String, String> definitions;
 
     // ---------------- Public ----------------
     /**
@@ -49,29 +52,48 @@ public class DictionarySet {
         LOG.info("***** Starting to load dictionary set from file: {} *****", file.getName());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 
-            ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+            ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
+            ImmutableMap.Builder<String, String> definitionsBuilder = ImmutableMap.builder();
+
             String line;
             while ((line = br.readLine()) != null) {
-                String word = line.trim().toUpperCase();
-                Matcher m = VALID_WORD_PATTERN.matcher(word);
+                String wordAndDefinition = line.trim();
+                String word, definition = null;
+
+                Matcher wordAndDefinitionMatcher = WORD_WITH_DEFINITION_PATTERN.matcher(wordAndDefinition);
+
+                if (wordAndDefinitionMatcher.matches()) {
+                    word = wordAndDefinitionMatcher.group(1);
+                    definition = wordAndDefinitionMatcher.group(2);
+                } else {
+                    Matcher wordMatcher = WORD_PATTERN.matcher(wordAndDefinition);
+                    if (!wordMatcher.matches()) {
+                        LOG.error("Error - invalid line found in dictionary: '{}'", wordAndDefinition);
+                        continue;
+                    }
+                    word = wordAndDefinition;
+                }
+                word = word.toUpperCase();
+
                 if (word.length() > maxWordLength || word.length() < minWordLength) {
-                    LOG.trace("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, word);
+                    LOG.trace("Ignoring word longer than {} or shorter than {}: {}", maxWordLength, minWordLength, wordAndDefinition);
                     continue;
                 }
-                if (!m.matches()) {
-                    LOG.error("Error - invalid word found in dictionary: '{}'", word);
-                    continue;
-                }
+
                 if (bannedWords.isPresent() && bannedWords.get().contains(word)) {
-                    LOG.trace("Not including banned word '{}'", word);
+                    LOG.trace("Not including banned word '{}'", wordAndDefinition);
                     continue;
                 }
                 word = word.intern(); // Avoid duplicate strings being stored elsewhere in the JVM
-                builder.add(word);
+                setBuilder.add(word);
+                if (definition != null) {
+                    definitionsBuilder.put(word, definition);
+                }
             }
-            words = builder.build();
+            words = setBuilder.build();
+            definitions = definitionsBuilder.build();
         }
-        LOG.info("SUCCESS - loaded {} words from file {}!", words.size(), file.getName());
+        LOG.info("SUCCESS - loaded {} words, and {} definitions from file {}!", words.size(), definitions.size(), file.getName());
     }
 
     public boolean contains(String word) {

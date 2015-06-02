@@ -133,11 +133,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         // Select the dictionary to use for this move
         float coinFlipToUseSpecialDict = random.nextFloat();
         if (coinFlipToUseSpecialDict < probabilityToSelectWordFromSpecialDict) {
-            if (specialDict.getSecondaryDict() == null) {
-                return specialDict.getPrimaryDict();
-            }
-
-            return random.nextBoolean() ? specialDict.getPrimaryDict() : specialDict.getSecondaryDict();
+            return specialDict.getPrimaryDict();
         }
 
         return DictType.ENGLISH_WORDS;

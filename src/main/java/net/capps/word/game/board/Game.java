@@ -215,13 +215,6 @@ public class Game {
             return primaryDict.getBonusPoints();
         }
 
-        DictType secondaryDict = specialDict.getSecondaryDict();
-        if (secondaryDict == null) {
-            return 0;
-        }
-        if (secondaryDict.getDictionarySet().contains(word)) {
-            return secondaryDict.getBonusPoints();
-        }
         return 0;
     }
 

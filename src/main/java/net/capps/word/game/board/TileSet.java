@@ -392,10 +392,6 @@ public class TileSet implements Iterable<Pos> {
         if (specialDict.getPrimaryDict().getDictionarySet().contains(word)) {
             return true;
         }
-        if (specialDict.getSecondaryDict() != null &&
-            specialDict.getSecondaryDict().getDictionarySet().contains(word)) {
-            return true;
-        }
         return false;
     }
 
