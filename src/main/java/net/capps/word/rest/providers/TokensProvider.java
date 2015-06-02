@@ -35,7 +35,7 @@ public class TokensProvider {
         if (purchaseModel.getIdentifier() == null) {
             return Optional.of(new ErrorModel("A purchase must include a valid identifier string."));
         }
-        if (purchaseModel.getSignature() == null) {
+        if (purchaseModel.getIsGoogle() && purchaseModel.getSignature() == null) {
             return Optional.of(new ErrorModel("A purchase must include a valid signature string."));
         }
         if (purchaseModel.getProduct() == null) {

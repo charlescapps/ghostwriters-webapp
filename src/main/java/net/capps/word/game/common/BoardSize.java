@@ -5,8 +5,8 @@ package net.capps.word.game.common;
  */
 public enum BoardSize {
     TALL(5, 5, 4, 2, 1, "net/capps/word/layouts/DefaultTallSquareConfig.txt", 50.d, 10, 1),
-    GRANDE(9, 13, 8, 4, 4, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt", 100.d, 20, 2),
-    VENTI(13, 16, 14, 7, 6, "net/capps/word/layouts/DefaultVentiSquareConfig.txt", 200.d, 50, 3);
+    GRANDE(9, 13, 8, 4, 4, "net/capps/word/layouts/DefaultGrandeSquareConfig.txt", 100.d, 20, 3),
+    VENTI(13, 16, 14, 7, 6, "net/capps/word/layouts/DefaultVentiSquareConfig.txt", 200.d, 50, 5);
 
     private final int N; // Number of rows/cols in an NxN board
     private final int x2; // Number of double-letter bonuses on the board
