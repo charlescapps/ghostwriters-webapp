@@ -101,8 +101,8 @@ public class TableDefinitions {
             "CREATE TABLE IF NOT EXISTS played_words " +
                     "( user_id INTEGER NOT NULL," +
                     "special_dict SMALLINT NOT NULL," +
-                    "word_map bytea NOT NULL DEFAULT E'\\x'" +
-                    ") CONSTRAINT UNIQUE (user_id, special_dict);";
+                    "word_map bytea NOT NULL" +
+                    " CONSTRAINT UNIQUE (user_id, special_dict));";
 
     public static final String CREATE_PLAYED_WORDS_USER_ID_IDX =
             "CREATE INDEX idx_played_words_user_id ON played_words (user_id);";
