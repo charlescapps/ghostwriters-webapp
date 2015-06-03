@@ -121,7 +121,7 @@ public class PlayedWordsProvider {
         sb.setCharAt(wordIndex, '1');
         String updatedBinaryMap = sb.toString();
         String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
-        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, updatedBinaryMap);
+        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
 
         playedWordsDAO.updateWordMap(dbConn, userId, specialDict, updatedHexMap);
     }
