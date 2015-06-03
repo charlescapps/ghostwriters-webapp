@@ -17,7 +17,7 @@ public class PlayedWordsDAO {
 
     // Queries
     private static final String GET_WORD_MAP =
-            "SELECT word_map FROM played_words WHERE user_id = ? AND special_dict = ?;";
+            "SELECT encode(word_map, 'hex') FROM played_words WHERE user_id = ? AND special_dict = ?;";
 
     private static final String INSERT_WORD_MAP =
             "INSERT INTO played_words (user_id, special_dict, word_map) " +
