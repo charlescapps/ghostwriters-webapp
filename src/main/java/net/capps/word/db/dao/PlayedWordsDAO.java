@@ -24,7 +24,7 @@ public class PlayedWordsDAO {
             "VALUES (?, ?, decode(?, 'hex'))";
 
     private static final String UPDATE_WORD_MAP =
-            "UPDATE played_words SET word_map = E'\\\\x?' WHERE user_id = ? AND special_dict = ?;";
+            "UPDATE played_words SET word_map = decode(?, 'hex') WHERE user_id = ? AND special_dict = ?;";
 
     public static PlayedWordsDAO getInstance() {
         return INSTANCE;
