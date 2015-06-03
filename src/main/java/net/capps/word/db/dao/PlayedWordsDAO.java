@@ -46,6 +46,9 @@ public class PlayedWordsDAO {
 
     public void insertWordMap(Connection dbConn, int userId, SpecialDict specialDict, String hexString) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(INSERT_WORD_MAP);
+        if (hexString.length() % 2 == 1) {
+            hexString += '0';  // Postgres requires an even number of digits.
+        }
         stmt.setInt(1, userId);
         stmt.setShort(2, (short)(specialDict.ordinal()));
         stmt.setString(3, hexString);
@@ -58,6 +61,9 @@ public class PlayedWordsDAO {
 
     public void updateWordMap(Connection dbConn, int userId, SpecialDict specialDict, String hexString) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(UPDATE_WORD_MAP);
+        if (hexString.length() % 2 == 1) {
+            hexString += '0';  // Postgres requires an even number of digits.
+        }
         stmt.setString(1, hexString);
         stmt.setInt(2, userId);
         stmt.setShort(3, (short) (specialDict.ordinal()));
