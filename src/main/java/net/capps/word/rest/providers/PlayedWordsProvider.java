@@ -94,6 +94,12 @@ public class PlayedWordsProvider {
             sb.append('0');
         }
         sb.append('1');
+
+        // Need a multiple of 8 digits to insert bytes into Postgres
+        while (sb.length() % 8 != 0) {
+            sb.append('0');
+        }
+
         if (sb.charAt(wordIndex) != '1') {
             throw new RuntimeException("ERROR - invalid insertion in PlayedWordsProvider#insertNewWordMap. Expected the binary string to be '1' at the position of the word's index");
         }
@@ -112,13 +118,18 @@ public class PlayedWordsProvider {
             return;
         }
 
-        final String binaryMap = hexStringToBinaryString(existingHexMap);
+        final String binaryMap = hexWordMapToBinaryString(existingHexMap);
 
         StringBuilder sb = new StringBuilder(binaryMap);
         while (sb.length() < wordIndex + 1) {
             sb.append('0');
         }
         sb.setCharAt(wordIndex, '1');
+
+        // Need a multiple of 8 digits to insert bytes into Postgres
+        while (sb.length() % 8 != 0) {
+            sb.append('0');
+        }
         String updatedBinaryMap = sb.toString();
         String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
         LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
@@ -132,7 +143,7 @@ public class PlayedWordsProvider {
         final List<WordModel> wordModels = new ArrayList<>(wordList.size());
 
         LOG.info("Getting sorted words for hex word map: '{}'", hexWordMap);
-        String binaryWordMap = hexStringToBinaryString(hexWordMap);
+        String binaryWordMap = hexWordMapToBinaryString(hexWordMap);
 
         final int maxPlayedWord = Math.min(wordList.size(), binaryWordMap.length());
         int i = 0;
@@ -153,17 +164,31 @@ public class PlayedWordsProvider {
         return wordModels;
     }
 
-    private String hexStringToBinaryString(String hexString) {
-        if (hexString.isEmpty()) {
+    private String hexWordMapToBinaryString(String hexMap) {
+        if (hexMap.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        return new BigInteger(hexString, 16).toString(2);
+        String binaryString = new BigInteger(hexMap, 16).toString(2);
+        StringBuilder sb = new StringBuilder(binaryString);
+        final int binaryLen = hexMap.length() * 4;
+        while (binaryString.length() < binaryLen) {
+            sb.append('0');
+        }
+        return sb.toString();
     }
 
     private String binaryStringToHexString(String binaryString) {
         if (binaryString.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        return new BigInteger(binaryString, 2).toString(16);
+        StringBuilder sb = new StringBuilder(binaryString.length() / 4);
+        for (int i = 0; i < binaryString.length() / 4; ++i) {
+            int start = i * 4;
+            String substring = binaryString.substring(start, start + 4);
+            int n = Integer.parseInt(substring, 2);
+            String hex = Integer.toHexString(n);
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 }
