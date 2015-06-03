@@ -99,7 +99,8 @@ public class TableDefinitions {
 
     public static final String CREATE_PLAYED_WORDS_TABLE =
             "CREATE TABLE IF NOT EXISTS played_words " +
-                    "( user_id INTEGER NOT NULL," +
+                    "( id SERIAL PRIMARY KEY," +
+                    "user_id INTEGER NOT NULL," +
                     "special_dict SMALLINT NOT NULL," +
                     "word_map bytea NOT NULL, " +
                     "UNIQUE (user_id, special_dict));";

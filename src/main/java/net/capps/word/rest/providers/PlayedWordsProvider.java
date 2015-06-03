@@ -172,7 +172,7 @@ public class PlayedWordsProvider {
         StringBuilder sb = new StringBuilder(binaryString);
         final int binaryLen = hexMap.length() * 4;
         while (sb.length() < binaryLen) {
-            sb.append('0');
+            sb.insert(0, '0');
         }
         return sb.toString();
     }
