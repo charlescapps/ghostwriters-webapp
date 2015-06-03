@@ -96,4 +96,17 @@ public class TableDefinitions {
                       "session_id VARCHAR(64) UNIQUE," +
                       "date_created TIMESTAMP NOT NULL" +
                      ");";
+
+    public static final String CREATE_PLAYED_WORDS_TABLE =
+            "CREATE TABLE IF NOT EXISTS played_words " +
+                    "( user_id INTEGER NOT NULL," +
+                    "special_dict SMALLINT NOT NULL," +
+                    "word_map bytea NOT NULL DEFAULT E'\\x'" +
+                    ") CONSTRAINT UNIQUE (user_id, special_dict);";
+
+    public static final String CREATE_PLAYED_WORDS_USER_ID_IDX =
+            "CREATE INDEX idx_played_words_user_id ON played_words (user_id);";
+
+    public static final String DROP_PLAYED_WORDS_USER_ID_IDX =
+            "DROP INDEX IF EXISTS idx_played_words_user_id;";
 }

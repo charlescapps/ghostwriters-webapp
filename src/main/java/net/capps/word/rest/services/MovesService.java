@@ -14,6 +14,7 @@ import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.MovesProvider;
 import net.capps.word.rest.providers.OneSignalProvider;
+import net.capps.word.rest.providers.PlayedWordsProvider;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.util.ErrorOrResult;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class MovesService {
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
     private static final OneSignalProvider oneSignalProvider = OneSignalProvider.getInstance();
+    private static final PlayedWordsProvider playedWordsProvider = PlayedWordsProvider.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(MovesService.class);
 
     @POST
@@ -78,6 +80,8 @@ public class MovesService {
             movesProvider.populateMyMove(updatedGame, input);
 
             ratingsProvider.updatePlayerRatings(updatedGame, dbConn);
+
+            playedWordsProvider.registerPlayedWordForMove(updatedGame.getMyMove(), dbConn);
 
             dbConn.commit();
 

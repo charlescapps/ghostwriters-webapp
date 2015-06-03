@@ -32,7 +32,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
 
     public SpecialDictGameGenerator(SpecialDict specialDict) {
         this.specialDict = specialDict;
-        this.primaryWordSets = specialDict.getPrimaryDict().getDictionaryWordSets();
+        this.primaryWordSets = specialDict.getDictType().getDictionaryWordSets();
     }
 
     @Override

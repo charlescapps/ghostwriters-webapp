@@ -35,13 +35,22 @@ public enum SpecialDict {
         return tokenCost;
     }
 
-    public DictType getPrimaryDict() {
+    public DictType getDictType() {
         return primaryDict;
     }
 
     public DictType getDictForWord(String word) {
-        if (primaryDict.getDictionarySet().contains(word)) {
+        if (primaryDict.getDictionary().contains(word)) {
             return primaryDict;
+        }
+        return null;
+    }
+
+    public static SpecialDict ofDictType(DictType dictType) {
+        for (SpecialDict specialDict: SpecialDict.values()) {
+            if (specialDict.getDictType() == dictType) {
+                return specialDict;
+            }
         }
         return null;
     }

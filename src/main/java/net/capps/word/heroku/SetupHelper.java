@@ -80,6 +80,17 @@ public class SetupHelper {
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
+
+            // --------- played_words table ------
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_TABLE);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_PLAYED_WORDS_USER_ID_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_USER_ID_IDX);
+
         }
     }
 

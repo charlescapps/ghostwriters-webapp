@@ -18,10 +18,6 @@ public class Dictionaries {
     private static final DictionaryTrie ENGLISH_DICT_TRIE = new DictionaryTrie();
     private static final DictionaryWordSets ENGLISH_WORD_SETS = new DictionaryWordSets();
 
-    private static final DictionarySet VICTORIAN_DICT_SET = new DictionarySet();
-    private static final DictionaryTrie VICTORIAN_DICT_TRIE = new DictionaryTrie();
-    private static final DictionaryWordSets VICTORIAN_WORD_SETS = new DictionaryWordSets();
-
     private static final DictionarySet POE_DICT_SET = new DictionarySet();
     private static final DictionaryTrie POE_DICT_TRIE = new DictionaryTrie();
     private static final DictionaryWordSets POE_WORD_SETS = new DictionaryWordSets();
@@ -30,6 +26,10 @@ public class Dictionaries {
     private static final DictionaryTrie LOVECRAFT_DICT_TRIE = new DictionaryTrie();
     private static final DictionaryWordSets LOVECRAFT_WORD_SETS = new DictionaryWordSets();
 
+    private static final DictionarySet MYTHOS_DICT_SET = new DictionarySet();
+    private static final DictionaryTrie MYTHOS_DICT_TRIE = new DictionaryTrie();
+    private static final DictionaryWordSets MYTHOS_WORD_SETS = new DictionaryWordSets();
+
     private static final DictionarySet ADJECTIVES_SET = new DictionarySet();
     private static final DictionaryPicker ADJECTIVES_PICKER = new DictionaryPicker();
 
@@ -37,29 +37,29 @@ public class Dictionaries {
     private static final DictionaryPicker NOUNS_PICKER = new DictionaryPicker();
 
     public static void initializeAllDictionaries() throws IOException {
-        BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.empty());
+        BANNED_SET.loadDictionary(DictType.BANNED.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.empty(), false);
 
-        ENGLISH_DICT_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        ENGLISH_DICT_TRIE.loadDictionary(ENGLISH_DICT_SET.getWords());
-        ENGLISH_WORD_SETS.loadDictionarySets(ENGLISH_DICT_SET.getWords());
+        ENGLISH_DICT_SET.loadDictionary(DictType.ENGLISH_WORDS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), false);
+        ENGLISH_DICT_TRIE.loadDictionary(ENGLISH_DICT_SET.getWordSet());
+        ENGLISH_WORD_SETS.loadDictionarySets(ENGLISH_DICT_SET.getWordSet());
 
-        VICTORIAN_DICT_SET.loadDictionary(DictType.MYTHOS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        VICTORIAN_DICT_TRIE.loadDictionary(VICTORIAN_DICT_SET.getWords());
-        VICTORIAN_WORD_SETS.loadDictionarySets(VICTORIAN_DICT_SET.getWords());
+        POE_DICT_SET.loadDictionary(DictType.POE.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), true);
+        POE_DICT_TRIE.loadDictionary(POE_DICT_SET.getWordSet());
+        POE_WORD_SETS.loadDictionarySets(POE_DICT_SET.getWordSet());
 
-        POE_DICT_SET.loadDictionary(DictType.POE.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        POE_DICT_TRIE.loadDictionary(POE_DICT_SET.getWords());
-        POE_WORD_SETS.loadDictionarySets(POE_DICT_SET.getWords());
+        LOVECRAFT_DICT_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), true);
+        LOVECRAFT_DICT_TRIE.loadDictionary(LOVECRAFT_DICT_SET.getWordSet());
+        LOVECRAFT_WORD_SETS.loadDictionarySets(LOVECRAFT_DICT_SET.getWordSet());
 
-        LOVECRAFT_DICT_SET.loadDictionary(DictType.LOVECRAFT.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        LOVECRAFT_DICT_TRIE.loadDictionary(LOVECRAFT_DICT_SET.getWords());
-        LOVECRAFT_WORD_SETS.loadDictionarySets(LOVECRAFT_DICT_SET.getWords());
+        MYTHOS_DICT_SET.loadDictionary(DictType.MYTHOS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), true);
+        MYTHOS_DICT_TRIE.loadDictionary(MYTHOS_DICT_SET.getWordSet());
+        MYTHOS_WORD_SETS.loadDictionarySets(MYTHOS_DICT_SET.getWordSet());
 
-        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWords());
+        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), false);
+        ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWordSet());
 
-        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET));
-        NOUNS_PICKER.loadDictionary(NOUNS_SET.getWords());
+        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), false);
+        NOUNS_PICKER.loadDictionary(NOUNS_SET.getWordSet());
     }
 
     public static DictionarySet getEnglishDictSet() {
@@ -87,15 +87,15 @@ public class Dictionaries {
     }
 
     public static DictionarySet getMythosDictSet() {
-        return VICTORIAN_DICT_SET;
+        return MYTHOS_DICT_SET;
     }
 
     public static DictionaryTrie getMythosDictTrie() {
-        return VICTORIAN_DICT_TRIE;
+        return MYTHOS_DICT_TRIE;
     }
 
     public static DictionaryWordSets getMythosWordSets() {
-        return VICTORIAN_WORD_SETS;
+        return MYTHOS_WORD_SETS;
     }
 
     public static DictionarySet getPoeDictSet() {

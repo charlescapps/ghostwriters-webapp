@@ -41,7 +41,7 @@ public class DictionaryTrieTest {
         final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
 
         LOG.info("Verifying that the Trie contains every word...");
-        for (String word: SET.getWords()) {
+        for (String word: SET.getWordSet()) {
             Assert.assertTrue("Expect Trie to contan every word added to dictionary", TRIE.contains(word));
         }
 
@@ -60,7 +60,7 @@ public class DictionaryTrieTest {
     public void testContainsPerformance() {
         final DictionarySet SET = Dictionaries.getEnglishDictSet();
         final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
-        Set<String> words = SET.getWords();
+        Set<String> words = SET.getWordSet();
 
         long START = System.currentTimeMillis();
         for (String word: words) {

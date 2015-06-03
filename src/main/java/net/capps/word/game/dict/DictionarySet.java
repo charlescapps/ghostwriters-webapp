@@ -1,11 +1,13 @@
 package net.capps.word.game.dict;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URL;
 import java.util.Optional;
@@ -25,7 +27,9 @@ public class DictionarySet {
     DictionarySet() { } // Must call loadDictionary() after instantiation
 
     // ---------------- Private ---------------
-    private ImmutableSet<String> words;
+    private ImmutableSet<String> wordSet;
+    private ImmutableList<String> wordList;
+    private ImmutableMap<String, Integer> wordToIndex;
     private ImmutableMap<String, String> definitions;
 
     // ---------------- Public ----------------
@@ -34,13 +38,14 @@ public class DictionarySet {
      *
      * @param resourceFile path to a resource text file containing a dictionary.
      * @param bannedWords
+     * @param storeList
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void loadDictionary(final String resourceFile, final int minWordLength, final int maxWordLength, Optional<DictionarySet> bannedWords) throws IOException {
-        if (words != null) {
+    public void loadDictionary(final String resourceFile, final int minWordLength, final int maxWordLength, Optional<DictionarySet> bannedWords, boolean storeList) throws IOException {
+        if (wordSet != null) {
             throw new IllegalStateException(
-                    String.format("Cannot load dictionary twice! Dictionary already has %d entries!", words.size()));
+                    String.format("Cannot load dictionary twice! Dictionary already has %d entries!", wordSet.size()));
         }
 
         URL resource = getClass().getClassLoader().getResource(resourceFile);
@@ -53,8 +58,11 @@ public class DictionarySet {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 
             ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
+            ImmutableList.Builder<String> listBuilder = ImmutableList.builder();
+            ImmutableMap.Builder<String, Integer> wordToIndexBuilder = ImmutableMap.builder();
             ImmutableMap.Builder<String, String> definitionsBuilder = ImmutableMap.builder();
 
+            int wordIndex = 0;
             String line;
             while ((line = br.readLine()) != null) {
                 String wordAndDefinition = line.trim();
@@ -86,21 +94,41 @@ public class DictionarySet {
                 }
                 word = word.intern(); // Avoid duplicate strings being stored elsewhere in the JVM
                 setBuilder.add(word);
+                if (storeList) {
+                    listBuilder.add(word);
+                    wordToIndexBuilder.put(word, wordIndex);
+                    ++wordIndex;
+                }
                 if (definition != null) {
                     definitionsBuilder.put(word, definition);
                 }
             }
-            words = setBuilder.build();
+            wordSet = setBuilder.build();
+            wordList = listBuilder.build();
+            wordToIndex = wordToIndexBuilder.build();
             definitions = definitionsBuilder.build();
         }
-        LOG.info("SUCCESS - loaded {} words, and {} definitions from file {}!", words.size(), definitions.size(), file.getName());
+        LOG.info("SUCCESS - loaded {} words, and {} definitions from file {}!", wordSet.size(), definitions.size(), file.getName());
     }
 
     public boolean contains(String word) {
-        return words.contains(word);
+        return wordSet.contains(word);
     }
 
-    public ImmutableSet<String> getWords() {
-        return words;
+    public ImmutableSet<String> getWordSet() {
+        return wordSet;
+    }
+
+    public ImmutableList<String> getWordList() {
+        return wordList;
+    }
+
+    public ImmutableMap<String, String> getDefinitions() {
+        return definitions;
+    }
+
+    @Nullable
+    public Integer getWordIndex(String word) {
+        return wordToIndex.get(word);
     }
 }

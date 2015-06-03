@@ -210,8 +210,8 @@ public class Game {
         if (specialDict == null) {
             return 0;
         }
-        DictType primaryDict = specialDict.getPrimaryDict();
-        if (primaryDict.getDictionarySet().contains(word)) {
+        DictType primaryDict = specialDict.getDictType();
+        if (primaryDict.getDictionary().contains(word)) {
             return primaryDict.getBonusPoints();
         }
 

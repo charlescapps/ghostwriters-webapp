@@ -33,7 +33,7 @@ public enum DictType {
         return bonusPoints;
     }
 
-    public DictionarySet getDictionarySet() {
+    public DictionarySet getDictionary() {
         switch (this) {
             case ENGLISH_WORDS: return Dictionaries.getEnglishDictSet();
             case POE: return Dictionaries.getPoeDictSet();
