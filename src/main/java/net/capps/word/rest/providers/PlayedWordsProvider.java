@@ -171,7 +171,7 @@ public class PlayedWordsProvider {
         String binaryString = new BigInteger(hexMap, 16).toString(2);
         StringBuilder sb = new StringBuilder(binaryString);
         final int binaryLen = hexMap.length() * 4;
-        while (binaryString.length() < binaryLen) {
+        while (sb.length() < binaryLen) {
             sb.append('0');
         }
         return sb.toString();
