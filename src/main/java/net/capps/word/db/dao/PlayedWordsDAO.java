@@ -21,7 +21,7 @@ public class PlayedWordsDAO {
 
     private static final String INSERT_WORD_MAP =
             "INSERT INTO played_words (user_id, special_dict, word_map) " +
-            "VALUES (?, ?, E'\\\\x?')";
+            "VALUES (?, ?, decode(?, 'hex'))";
 
     private static final String UPDATE_WORD_MAP =
             "UPDATE played_words SET word_map = E'\\\\x?' WHERE user_id = ? AND special_dict = ?;";
