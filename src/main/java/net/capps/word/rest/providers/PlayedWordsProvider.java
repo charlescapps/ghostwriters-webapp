@@ -100,12 +100,9 @@ public class PlayedWordsProvider {
             sb.append('0');
         }
 
-        if (sb.charAt(wordIndex) != '1') {
-            throw new RuntimeException("ERROR - invalid insertion in PlayedWordsProvider#insertNewWordMap. Expected the binary string to be '1' at the position of the word's index");
-        }
         final String binaryString = sb.toString();
         final String hexString = binaryStringToHexString(binaryString);
-        LOG.info("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
+        LOG.trace("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
         playedWordsDAO.insertWordMap(dbConn, userId, specialDict, hexString);
     }
 
@@ -132,7 +129,7 @@ public class PlayedWordsProvider {
         }
         String updatedBinaryMap = sb.toString();
         String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
-        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
+        LOG.trace("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
 
         playedWordsDAO.updateWordMap(dbConn, userId, specialDict, updatedHexMap);
     }
@@ -142,7 +139,7 @@ public class PlayedWordsProvider {
         final Map<String, String> defs = specialDict.getDictType().getDictionary().getDefinitions();
         final List<WordModel> wordModels = new ArrayList<>(wordList.size());
 
-        LOG.info("Getting sorted words for hex word map: '{}'", hexWordMap);
+        LOG.trace("Getting sorted words for hex word map: '{}'", hexWordMap);
         String binaryWordMap = hexWordMapToBinaryString(hexWordMap);
 
         final int maxPlayedWord = Math.min(wordList.size(), binaryWordMap.length());
