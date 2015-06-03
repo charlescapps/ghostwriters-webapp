@@ -99,6 +99,7 @@ public class PlayedWordsProvider {
         }
         final String binaryString = sb.toString();
         final String hexString = binaryStringToHexString(binaryString);
+        LOG.info("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
         playedWordsDAO.insertWordMap(dbConn, userId, specialDict, hexString);
     }
 
@@ -120,6 +121,7 @@ public class PlayedWordsProvider {
         sb.setCharAt(wordIndex, '1');
         String updatedBinaryMap = sb.toString();
         String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
+        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, updatedBinaryMap);
 
         playedWordsDAO.updateWordMap(dbConn, userId, specialDict, updatedHexMap);
     }
