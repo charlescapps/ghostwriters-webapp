@@ -8,6 +8,10 @@ import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.WordModel;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.binary.BinaryCodec;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +27,8 @@ public class PlayedWordsProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PlayedWordsProvider.class);
     private static final PlayedWordsProvider INSTANCE = new PlayedWordsProvider();
     private static final PlayedWordsDAO playedWordsDAO = PlayedWordsDAO.getInstance();
+    private static final Hex HEX = new Hex();
+    private static final BinaryCodec BINARY_CODEC = new BinaryCodec();
 
     public static PlayedWordsProvider getInstance() {
         return INSTANCE;
@@ -165,33 +171,24 @@ public class PlayedWordsProvider {
         if (hexMap.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        final int binaryLen = hexMap.length() * 4;
-        StringBuilder sb = new StringBuilder(binaryLen);
-        String binaryNumStr = new BigInteger(hexMap, 16).toString(2);
-        // Converting to binary will remove the leading zeroes, so we need to add them back.
-        final int numLeftZeroes = binaryLen - binaryNumStr.length();
-        for (int i = 0; i < numLeftZeroes; ++i) {
-            sb.append('0');
+        try {
+            byte[] rawBytes = HEX.decode(hexMap.getBytes());
+            byte[] binaryChars = BINARY_CODEC.encode(rawBytes);
+            return new String(binaryChars);
+        } catch (DecoderException e) {
+            throw new RuntimeException(e);
         }
-        sb.append(binaryNumStr);
-        return sb.toString();
     }
 
     private String binaryStringToHexString(String binaryString) {
+        if (binaryString.length() % 8 != 0) {
+            throw new IllegalArgumentException("Must provide a binary string whose len is a multiple of 8 to encode into hex!");
+        }
         if (binaryString.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        if (binaryString.length() % 8 != 0) {
-            throw new IllegalArgumentException("The binary string must be a multiple of 8 bits to convert to a hex string of bytes.");
-        }
-        final int hexLength = binaryString.length() / 4;
-        String hexNumberStr = new BigInteger(binaryString, 2).toString(16);
-        StringBuilder sb = new StringBuilder(hexLength);
-        final int numLeftZeroes = hexLength - hexNumberStr.length();
-        for (int i = 0; i < numLeftZeroes; ++i) {
-            sb.append('0');
-        }
-        sb.append(hexNumberStr);
-        return sb.toString();
+        byte[] rawBytes = BINARY_CODEC.decode(binaryString.getBytes());
+        byte[] hexChars = HEX.encode(rawBytes);
+        return new String(hexChars);
     }
 }
