@@ -9,13 +9,11 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.WordModel;
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.binary.BinaryCodec;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -95,7 +93,12 @@ public class PlayedWordsProvider {
             LOG.error("Bad attempt to insert word map - word '{}' wasn't in the special dict '{}'", playedWord, specialDict);
             return;
         }
-        StringBuilder sb = new StringBuilder(wordIndex + 1);
+        int expectedLen = wordIndex + 1;
+        if (expectedLen % 8 != 0) {
+            expectedLen += (8 - (expectedLen % 8));
+        }
+        LOG.info("WordIndex + 1 = {}, expectedLen = {}", wordIndex + 1, expectedLen);
+        StringBuilder sb = new StringBuilder(expectedLen);
         while (sb.length() < wordIndex) {
             sb.append('0');
         }
@@ -108,7 +111,7 @@ public class PlayedWordsProvider {
 
         final String binaryString = sb.toString();
         final String hexString = binaryStringToHexString(binaryString);
-        LOG.trace("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
+        LOG.info("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
         playedWordsDAO.insertWordMap(dbConn, userId, specialDict, hexString);
     }
 
@@ -135,7 +138,7 @@ public class PlayedWordsProvider {
         }
         String updatedBinaryMap = sb.toString();
         String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
-        LOG.trace("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
+        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
 
         playedWordsDAO.updateWordMap(dbConn, userId, specialDict, updatedHexMap);
     }

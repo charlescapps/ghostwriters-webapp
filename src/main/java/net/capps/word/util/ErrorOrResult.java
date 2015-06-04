@@ -31,6 +31,10 @@ public class ErrorOrResult<T> {
         return Optional.ofNullable(error);
     }
 
+    public boolean isError() {
+        return error != null;
+    }
+
     public Optional<T> getResult() {
         return Optional.ofNullable(result);
     }
