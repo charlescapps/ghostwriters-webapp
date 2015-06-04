@@ -165,12 +165,15 @@ public class PlayedWordsProvider {
         if (hexMap.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        String binaryString = new BigInteger(hexMap, 16).toString(2);
-        StringBuilder sb = new StringBuilder(binaryString);
         final int binaryLen = hexMap.length() * 4;
-        while (sb.length() < binaryLen) {
-            sb.insert(0, '0');
+        StringBuilder sb = new StringBuilder(binaryLen);
+        String binaryNumStr = new BigInteger(hexMap, 16).toString(2);
+        // Converting to binary will remove the leading zeroes, so we need to add them back.
+        final int numLeftZeroes = binaryLen - binaryNumStr.length();
+        for (int i = 0; i < numLeftZeroes; ++i) {
+            sb.append('0');
         }
+        sb.append(binaryNumStr);
         return sb.toString();
     }
 
@@ -178,14 +181,17 @@ public class PlayedWordsProvider {
         if (binaryString.isEmpty()) {
             return "";  // An empty string is equivalent to a string of all 0's. No words have been played.
         }
-        StringBuilder sb = new StringBuilder(binaryString.length() / 4);
-        for (int i = 0; i < binaryString.length() / 4; ++i) {
-            int start = i * 4;
-            String substring = binaryString.substring(start, start + 4);
-            int n = Integer.parseInt(substring, 2);
-            String hex = Integer.toHexString(n);
-            sb.append(hex);
+        if (binaryString.length() % 8 != 0) {
+            throw new IllegalArgumentException("The binary string must be a multiple of 8 bits to convert to a hex string of bytes.");
         }
+        final int hexLength = binaryString.length() / 4;
+        String hexNumberStr = new BigInteger(binaryString, 2).toString(16);
+        StringBuilder sb = new StringBuilder(hexLength);
+        final int numLeftZeroes = hexLength - hexNumberStr.length();
+        for (int i = 0; i < numLeftZeroes; ++i) {
+            sb.append('0');
+        }
+        sb.append(hexNumberStr);
         return sb.toString();
     }
 }
