@@ -6,46 +6,46 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Created by charlescapps on 6/2/15.
  */
 public class WordModel implements Comparable<WordModel> {
-    private String def;
-    private String word;
-    private Boolean played;
+    private String d;
+    private String w;
+    private Boolean p;
 
     public WordModel() {
     }
 
-    public WordModel(String def, String word, Boolean played) {
-        this.def = def;
-        this.word = word;
-        this.played = played;
+    public WordModel(String d, String w, Boolean p) {
+        this.d = d;
+        this.w = w;
+        this.p = p;
     }
 
-    public String getDef() {
-        return def;
+    public String getD() {
+        return d;
     }
 
-    public void setDef(String def) {
-        this.def = def;
+    public void setD(String d) {
+        this.d = d;
     }
 
-    public String getWord() {
-        return word;
+    public String getW() {
+        return w;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setW(String w) {
+        this.w = w;
     }
 
-    public Boolean getPlayed() {
-        return played;
+    public Boolean getP() {
+        return p;
     }
 
-    public void setPlayed(Boolean played) {
-        this.played = played;
+    public void setP(Boolean p) {
+        this.p = p;
     }
 
     @JsonIgnore
     @Override
     public int compareTo(WordModel o) {
-        return word.compareTo(o.word);
+        return w.compareTo(o.w);
     }
 }
