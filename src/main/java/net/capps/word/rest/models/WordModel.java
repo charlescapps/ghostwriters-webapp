@@ -6,25 +6,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Created by charlescapps on 6/2/15.
  */
 public class WordModel implements Comparable<WordModel> {
-    private String definition;
+    private String def;
     private String word;
     private Boolean played;
 
     public WordModel() {
     }
 
-    public WordModel(String definition, String word, Boolean played) {
-        this.definition = definition;
+    public WordModel(String def, String word, Boolean played) {
+        this.def = def;
         this.word = word;
         this.played = played;
     }
 
-    public String getDefinition() {
-        return definition;
+    public String getDef() {
+        return def;
     }
 
-    public void setDefinition(String definition) {
-        this.definition = definition;
+    public void setDef(String def) {
+        this.def = def;
     }
 
     public String getWord() {

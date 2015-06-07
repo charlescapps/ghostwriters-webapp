@@ -1,6 +1,7 @@
 package net.capps.word.servlet;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -27,9 +28,10 @@ public class MyObjectMapperProvider implements ContextResolver<ObjectMapper> {
     }
 
     private static ObjectMapper createDefaultMapper() {
-        final ObjectMapper result = new ObjectMapper();
-        result.enable(SerializationFeature.INDENT_OUTPUT);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        //objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        return result;
+        return objectMapper;
     }
 }
