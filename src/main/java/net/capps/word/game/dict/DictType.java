@@ -9,7 +9,7 @@ public enum DictType {
     BANNED("Banned words", "banned.txt", 0),
     ADJECTIVES("Adjectives", "adjectives.txt", 0),
     NOUNS("Nouns", "nouns.txt", 0),
-    POE("Edgar Allen Poe", "poe_dict_full.txt", 25),
+    POE("Edgar Allen Poe", "poe_dict.txt", 25),
     LOVECRAFT("H.P. Lovecraft", "lovecraft_dict.txt", 25),
     MYTHOS("Cthulhu Mythos", "mythos_dict.txt", 50);
 
