@@ -1,141 +1,142 @@
-ABASE
-ABEYANCE
-ABSTRUSE
-ADDLING
-AEGIPANS
-AFRASIAB
-AGHAST
-ANOMALOUS
-ANTEDILUVIAN
-AQUAREGIA
-ASPHYTIC
-ATHWART
-AVARICE
-AZRAEL
-BEETLING
-BEHEMOTH
-BELDAME
-BENIGHTED
-BESOTTED
-CLAIRVOYANCE
-COPPICE
-CRAVAT
-DECAMP
+ABASE         "To be demeaned or lowered in esteem"
+ABEYANCE      "Temporary inactivity or suspension"
+ABSTRUSE      "Difficult to comprehend"
+ADDLING       "Muddled, confused; rotten"
+AEGIPAN       "Creature from Greek mythology who was half man, half goat"
+AFRASIAB      "A character from the great Persian epic, 'Shahnama'"
+AGHAST        "Struck with overwhelming shock or horror"
+ANOMALOUS     "Abnormal or supernatural"
+ANTEDILUVIAN  "People living before the flood described in the Bible"
+AQUAREGIA     "Aqua regia. An acid that can dissolve gold"
+ASPHYTIC      "Having asphyxia or lack or oxygen"
+ATHWART       "In opposition to; at right angles"
+AVARICE       "Greed"
+AZRAEL        "The Angel of Death in Jewish and Muslim legend"
+BEETLING      "Overhanging; projecting"
+BEHEMOTH      "A monstrosity or creature of great power"
+BELDAME       "An old woman"
+BENIGHTED     "Overcome by the night, or lacking in education"
+BESOTTED      "Quite drunk"
+CLAIRVOYANCE  "The ability to see things beyond the senses, e.g. predicting the future or seeing spirits"
+COPPICE       "A dense thicket of trees"
+CRAVAT        "A necktie or scarf"
+DECAMP        "To depart suddenly in secret"
 DECAMPED
-DECREPITUDE
+DECREPITUDE    "Feebleness, especially from old age"
 DERISION
-DISINTER
-DONJONKEEP
-ECLAT
+DISINTER       "To remove a body from its grave"
+DONJON         "Dungeon; the inner keep of a castle"
+ECLAT          "A flashy display"
 EDUCED
-EIDOLON
-EMACIATE
+EIDOLON         "Phantom or apparition; an astral double of a living being"
+EMACIATE        "To waste away and become unusually thin"
 EMACIATED
 ENTRAILS
-EPITHET
-EREBUS
-ERUDITION
-ESCUTCHEON
-ETHER
-ETHEREAL
-EVANESCENT
+EPITHET             "A word or phrase used to describe a person"
+EREBUS              "In Greek mythology, a region of the underworld where the dead pass after dying"
+ERUDITION           "Learning, extensive knowledge"
+ESCUTCHEON          "A shield on which a coat of arms is displayed"
+ETHER               "A substance thought to permeate vacant space"
+ETHEREAL            "Airy, celestial"
+EVANESCENT          "Something that vanishes or fades away; fleeting"
 EVINCE
 EVINCED
-FETE
-FETID
-FILLIP
-FLAMBEAU
-FOOLSCAP
-FOOTPAD
+FETE                "Fancy outdoor party"
+FETID               "Having an offensive odor"
+FILLIP              "To strike or tap quickly"
+FLAMBEAU            "A flaming torch"
+FOOLSCAP            "A paper size that was formerly the standard in Great Britain"
+FOOTPAD             "Thief or mugger who robs passerby"
 FOOTPADS
-FOREDOOM
+FOREDOOM            "Synonym for doom"
 FOREDOOMED
 FRIEZE
-FUSTIAN
-GALVANIC
+FUSTIAN             "Excessively embellished writing or speech"
+GALVANIC            "Producing electric current"
 GELATINOUS
-GENII
-GHEE
-GIMLET
-GIRT
-GUNWALE
-HESSIAN
-HOGSHEAD
-ICHOR
+GENII               "Genie; a magic spirit serving the person who summons it."
+GHEE                "A liquid butter made clear by boiling"
+GIMLET              "A small tool for boring holes"
+GIRT                "To encircle or surround, alternate spelling of 'gird'"
+GUNWALE             "Topmost planking of a boat"
+HESSIAN             "German mercenary hired by the British during the American Revolution"
+HOGSHEAD            "A large cask or barrel"
+ICHOR               "A watery discharge from a wound or ulcer"
 IMBUE
-INCUBUS
+INCUBUS             "A nightmare; an evil spirit that descends upon sleeping women"
 INEFFABLE
-INHUME
+INHUME              "To bury, especially in a grave"
 INHUMED
-IRENE
-KRAKEN
+IRENE               "A poem writen by Poe in 1831"
+KRAKEN              "A mythical sea monster resembling a giant squid"
 LACONIC
-LETHE
-LUXOR
-MAISON
-MATTOCK
-MEERSCHAUM
-MENDICANT
+LETHE               "Forgetfulness. In Greek mythology, a river running through Hades"
+LUXOR               "A temple in the ancient Egyptian city of Thebes"
+MAISON              "French word for house or building"
+MATTOCK             "A digging tool that combines an axe and a pick."
+MEERSCHAUM          "A tobacco pipe"
+MENDICANT           "Beggar"
 MENDICANTS
-MOIETY
-MONOMANIA
+MOIETY              "A half of something"
+MONOMANIA           "An obsessive interest in a single object or idea"
 MONOMANIAC
-MUMMER
+MUMMER              "A person who wears a mask or costume while merrymaking"
 MUMMERS
-NECROMANCY
+NECROMANCY          "Sorcery; using spells to conjure the dead or evil spirits"
 NEPENTHE
-NIHILITY
-NITRE
-OCCIPUT
+NIHILITY            "Nothingness or nonexistence"
+NITRE               "A clear or white mineral crystal, found as effervescent growths on cavern walls"
+OCCIPUT             "The back part of the skull"
 OCULAR
-OUTRE
-PALL
-PALLID
+OUTRE               "Bizarre, against convention"
+PALL                "A heavy cloth draped over a coffin; anything that covers with darkness or gloom"
+PALLID              "Pale"
 PARADOX
-PENDULOUS
+PENDULOUS           "Held up without any visible support"
 PERFORATION
 PETULANT
 PETULANTLY
-PHTHISIS
+PHTHISIS             "A wasting condition, such as tuberculosis"
 PINE
 PLACID
-PLUTO
+PLUTO                "The Roman god of the underworld"
 PRODIGIOUS
-PUNCHEON
-PURLOIN
+PUNCHEON             "A large cask of varying capacity"
+PURLOIN              "To take something wrongfully"
 PURLOINED
-PURLOINER
-QUAFF
+PURLOINER            "Thief or burglar"
+QUAFF                "To drink a beverage heartily, with much enjoyment"
 RAPTURE
-RENCONTRE
+RENCONTRE            "A violent meeting, or combat"
 REVEL
 REVERIE
-RUBICUND
-RUE
+RUBICUND             "Ruddy; having a healthy, red complexion"
+RUE                  "French word for street"
 RUMINATE
 RUMINATING
-RUNE
-RUNIC
+RUNE                "Characters used by the Germanic peoples until the 13th century"
+RUNES
+RUNIC               "Written in runes; having a secret meaning"
 SAGACITY
-SAGE
+SAGE                   "A wise person"
 SALLY
-SANGUINE
-SARCOPHAGUS
-SATE
-SATYR
+SANGUINE               "Blood-red color, or bloody"
+SARCOPHAGUS            "A coffin"
+SATE                   "Old fashioned spelling of 'sat', past tense of 'sit'"
+SATYR                  "Deity in Greek mythology with the torso of a man and the body of a horse or goat"
 SATYRS
-SCIMITAR
-SCYTHE
-SEDGE
-SEPULCHRE
-SERAPH
+SCIMITAR               "A saber with a curved blade used chiefly by Arabs and Turks"
+SCYTHE                 "A farming tool with a long, curved blade. The Grim Reaper is often shown with a scythe."
+SEDGE                  "A marsh plant"
+SEPULCHRE              "A tomb or other place of burial"
+SERAPH                 "An angel or celestial being"
 SERAPHS
-SHARPER
+SHARPER                "A swindler, cheating gambler"
 SHARPERS
-SIMOOM
-SINCIPUT
-SODDEN
-SULPHUREOUS
+SIMOOM                 "A strong, suffocating sandy wind of the deserts of North Africa"
+SINCIPUT               "Upper half of the skull"
+SODDEN                 "Dull or expressionless, especially from alcohol"
+SULPHUREOUS                      "Antiquated spelling of sulphurous. Pertaining to the fires of hell."
 SUNDER                           "To sever or break apart into pieces"
 SYBIL                            "Woman regarded as an oracle or prophet by the ancient Greeks and Romans"
 SYBILS
@@ -147,6 +148,6 @@ TYPHUS                           "A disease causing headache, fever, chills, exh
 VIAND                            "An article of food"
 WAYLAID                          "Ambushed, attacked by surprise"
 WONT                             "A habitual way of doing something"
-XERXES                           "King of Persia in 519-465 B.C. who invaded Ancient Greece"
+XERXES                           "King of Persia from 486-465 B.C. who invaded Ancient Greece"
 YAWL                             "A ship's small boat"
 ZEAL                             "Fanatical or extreme enthusiasm for a cause"
