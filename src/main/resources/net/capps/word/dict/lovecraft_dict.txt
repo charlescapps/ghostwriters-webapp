@@ -1,241 +1,174 @@
-ABERRATION
+ABERRATION          "Diverging from the ordinary or what is known to be true"
 ABERRATIONS
-ABNORMAL
-ABNORMALITY
-ACCURSED
-AEON
-AEONS
-AESTHETE
-AESTHETES
+ABNORMAL            "Quite unusual; seemingly impossible"
+ACCURSED            "Damnable; detestable"
+AEON                "Eon; an indefinitely long period of time; one billion years"
+AEONS               "'In the Land of Sona-Nyl there is neither time nor space, neither suffering nor death; and there I dwelt for many aeons.' - The White Ship"
+ALIENATE            "To cause someone to be withdrawn from society or objective reality"
 ALIENATED
-ALIENIST
+ALIENATES
+ALIENIST            "Antiquated term for a doctor specializing in mental illness"
 ALIENISTS
-AMORPHOUS
-ANIMATE
+AMORPHOUS           "Lacking definite form or shape"
+ANIMATE             "Alive, possessing life, or lively"
 ANIMATED
 ANIMATES
-ANTEDILUVIAN
-ANTIQUARIAN
+ANTEDILUVIAN        "Old-fashioned, antiquated, or primitive; literally people before the flood described in the Bible"
+ANTIQUARIAN         "An expert or collector of antiquities"
 ANXIOUS
-ARABESQUE
-ARCHEOLOGICAL
-BABBLE
-BABBLING
-BASRELIEF
-BETWIXT
+BABBLE              "To talk irrationally or excessively"
+BABBLED
+BABBLES
+BASRELIEF           "Sculpture in which the figures depicted project from the background"
 BIZARRE
-BIZARRELY
 BLASPHEMIES
-BLASPHEMOUS
-BLASPHEMY
-CAT
+BLASPHEMOUS         "Being offensive towards anything held to be sacred"
+BLASPHEMY           "Offensive speech or behavior towards anything held to be sacred"
+CAT                 "Our feline friends, featured in 'The Dream-Quest of Unknown Kadath' and 'The Cats of Ulthar'"
 CATS
-CENTURIES
-CHAOTIC
-CHARNEL
-CHTHONIC
+CHAOTIC             "Unruly; disorganized; characterized by chaos"
+CHARNEL             "ghastly; sepulchral; deathly"
+CHTHONIC            "Relating to deities and creatures dwelling under the earth"
 CLAW
 CLAWS
 COFFIN
 COFFINS
-COSMIC
+COSMIC              "Vast; immeasurable in time or space; of the cosmos"
 CRYPT
-CRYPTIC
-CRYPTICAL
+CRYPTIC             "Secret; occult; mysterious in meaning"
+CRYPTICAL           "Synonym for cryptic"
 CRYPTS
-CULT
+CULT                "A group of people bound together by the veneration of the same deity, idol, or belief"
 CULTS
-CYCLOPEAN
-DAEMON
-DAEMONIAC
+CYCLOPEAN           "gigantic; relating to a style of Greek architecture characterized by large, undressed blocks of stone"
+DAEMON              "Antiquated spelling of 'demon'"
+DAEMONIAC           "Evil, sinister, or possessed by a daemon"
 DANK
-DELIRIUM
+DELIRIUM            "Temporary disorder of the mind, characterized by restlessness, excitement, or delusions"
 DELIRIUMS
-DENIZEN
+DENIZEN             "An inhabitant; resident; frequenter"
 DENIZENS
-DISAPPEAR
-DISAPPEARED
-DISQUIETING
-DISTURBING
-DREAD
-DREAM
+DREAD               "Intense fear or apprehension; reluctance"
+DREAM               "'In his house at R’lyeh dead Cthulhu waits dreaming' - The Call of Cthulhu"
 DREAMING
-DREAMS
-DRIPPING
-ECCENTRICITY
-EFFULGENCE
-ELDER
-ELDRITCH
-ENIGMATIC
-ENIGMATICAL
-ESSENTIAL
-ETHEREAL
+ECCENTRIC           "Deviating from social norms or practices"
+EFFULGENCE          "An intense brightness or radiance"
+ELDRITCH            "Unearthly; weird; spooky"
+ENIGMATIC           "Resembling an enigma; perplexing, puzzling, or mysterious"
+ENIGMATICAL         "Enigmatic"
 EVIL
-EVOKE
-EXCITED
-FANTASTIC
-FATHOMLESS
-FEVERED
-FIEND
-FIENDISH
+EVOKE               "To produce or bring forth, as in a memory"
+FATHOMLESS          "Impossible to measure the depth of; bottomless"
+FEVERED             "Having intense nervous energy or excitement"
+FIEND               "An evil spirit, demon, or a wicked person"
+FIENDISH            "Cruel; diabolical; wicked"
 FIENDISHLY
 FIENDS
-FOETID
-FORBIDDEN
-FORMULA
-FORMULAE
-FUGITIVE
-FULGUROUS
-FUNGOID
-FUNGOIDS
-FUNGOUS
-FUNGUS
-FURTIVE
-GAMBREL
-GHOUL
+FOETID              "Having an offensive odor, malodorous"
+FORMULA             "A particular set of words or symbols, used in religious ceremonies, mathematics, or the occult"
+FORMULAE            "Plural form of formula"
+FULGUROUS           "Characteristic or resembling lightning"
+FUNGOID             "Funguslike; resembling a fungus"
+GHOUL               "An evil creature of legend said to feed upon human corpses"
 GHOULS
-GIBBER
+GIBBER              "To speak inarticulately or meaninglessly"
 GIBBERED
-GIBBERING
-GIBBERISH
 GIBBERS
-GIBBOUS
-GLIMPSES
+GIBBOUS             "Used to describe the moon when it is more than half illuminated, but not yet a full moon"
 GRIM
-GRIMOIRE
-GRIMOIRES
-GRUESOME
-HAUNTER
+GRUESOME            "Instilling great horror; grisly"
+HAUNTER             "One who lingers in a place as a spirit or a ghost. Lovecraft authored a short story, 'The Haunter of the Dark'"
 HAUNTERS
 HIDEOUS
 HIDEOUSLY
+HIEROGLYPHIC        "Relating to a pictographic script used by Ancient Egyptians, or difficult to decipher"
 HIEROGLYPHICS
-HITHERTO
-HOARSENESS
 HORRIFIED
-HORRIFY
-HORROR
+HORRIFY             "To strike one with horror"
+HORROR              "Intense fear; terror; incapacitating shock or worry"
 HORRORS
-HOWLING
-IDOL
+HOWL                "To utter a loud, prolonged, mournful cry"
+HOWLS
+IDOL                "An image or physical object representing a deity or god"
 IDOLS
-IMMEASURABLE
-IMMEASURABLY
-INCANTATION
+INCANTATION         "The chanting or uttering of words believed to have a psychic power"
 INCANTATIONS
-INCESSANT
-INCHOATE
-INFERNAL
+INCESSANT           "Unending; continuing repetitively without interruption"
+INCHOATE            "Disorganized, or having just begun"
+INFERNAL            "Fiendish; diabolical; of or relating to hell"
 INFINITIES
-INFINITY
-INSANE
+INFINITY            "An endless quantity, distance, or depth of thought"
+INSANE              "Lacking in sanity or rational thought"
 INSANITY
-INTENSITY
-INUNDATION
-JUMBLE
-LANDSCAPE
+LANDSCAPE           "'the landscape oppressed me with a nauseating fear' - Dagon"
 LANDSCAPES
-LATENT
-LOATHING
+LOATHE              "To feel extreme disgust or aversion for; abhor"
 LOATHSOME
-LORE
+LORE                "The body of knowledge, usually traditional or anecdotal, on a particular subject"
 LORES
-LUCID
-LUCUBRATION
-LUMINOUS
-MAD
-MADNESS
+LUCID               "Sane; rational; having clear perception"
+MAD                 "Insane, or angry"
+MADNESS             "Insanity"
 MADNESSES
-MANIA
+MANIA               "Excessive, irrational excitement"
 MANIAC
 MANIAS
-MANUSCRIPT
+MANUSCRIPT          "The original, handwritten version of a book"
 MANUSCRIPTS
-MENTAL
-MISCREANTS
-MIST
-MONOLITH
+MIST                "'One dwells therein who talks with the morning mists that come up from the deep' - The Strange House in High Mist"
+MISTS
+MONOLITH            "An obelisk or statue formed of a single block of stone"
 MONOLITHS
-MONOTONOUSLY
 MONSTER
 MONSTROUS
-MURKY
-NAMELESS
+MURKY               "Vague, unclear, or dark, gloomy"
+NAMELESS            "Unknown, terrible creatures which have no name"
 NOCTURNAL
-NOISOME
-NONEUCLIDEAN
-OBELISK
+NOISOME             "Quite unpleasant or disagreeable, or having an offensive smell"
+NONEUCLIDEAN        "Incompatible with the postulates of Euclidean geometry: 'the geometry of the dream-place he saw was abnormal, non-Euclidean' - The Call of Cthulhu"
+OBELISK             "A stone monument with four sides, having a pyramid shape at the top"
 OBELISKS
-OOZE
+OOZE                "To move or flow slowly, as a liquid through a small opening"
 OOZES
-OOZING
 PANIC
-PHANTASM
+PHANTASM            "An apparition; ghost; specter, or a creation of the imagination"
 PHANTASMS
-PILLAR
-PILLARS
-POETIC
-PSYCHIC
-PSYCHICALLY
-PURGATION
-RAMBLING
+PSYCHIC             "Of or relating to some nonphysical force or agency"
+REANIMATE           "'We could not get bodies fresh enough to shew any trace of reason when reanimated, so had perforce created nameless horrors' - Herbert West, Reanimator"
 REVELATION
-RUGOSE
+RUGOSE              "Having wrinkles or ridges: 'The Great Race’s members were immense rugose cones' - The Shadow out of Time"
 RUTHLESS
+SCALE               "Thin plates covering certain reptiles"
 SCALES
-SCALY
-SCREAMING
-SCREAMINGS
-SCULPTOR
-SEA
-SEIZURE
-SENSATION
-SHAMBLER
+SCALY               "Covered in scales"
+SEA                 "A large body of water or ocean: 'We live on a placid island of ignorance in the midst of black seas of infinity' - The Call of Cthulhu"
 SHRIEK
-SHRIEKING
 SHRIEKS
-SINGULAR
 SINISTER
-SKYFLUNG
-SLEEPING
+SKYFLUNG            "'he had had an unprecedented dream of great Cyclopean cities of titan blocks and sky-flung monoliths' - The Call of Cthulhu"
 SLIMY
-SQUAMOUS
-STRANGE
-STYGIAN
-SUBTERRENE
-SWARTHY
-SWINEHERD
+SQUAMOUS            "Covered with or formed of scales"
+STYGIAN             "Infernal; hellish; of Hades or the River Styx"
+SUBTERRENE          "A cave or subterranean room"
+SWARTHY             "Having dark complexion"
+SWINEHERD           "A person who tends swine: 'the swineherd with his unmentionable fungous beasts wallowing in filth' - The Rats in the Walls"
 SWINEHERDS
-SYLLABICALLY
-TALE
-TALES
-TELEPATHY
+TELEPATHY           "Communication between minds by some psychic mechanism"
 TENTACLE
 TENTACLES
-TERRESTRIAL
-TERRIFYING
-THEOSOPHIST
-THEOSOPHISTS
-THING
-THINGS
-TITANIC
-TORCHLIGHT
-TRANSMUTE
-TRANSMUTES
-UNINSCRIBABLE
+TERRESTRIAL         "Pertaining to the earth or land"
+TERRIFY
+TITANIC             "Having enormous size, strength, or power"
+UNINSCRIBABLE       "Speech so profoundly gibberish as to be impossible to write down. Found in 'The Call of Cthulhu'"
 UNMENTIONABLE
-UNNAMABLE
+UNNAMABLE           "Unable to be named"
 UNNAMABLES
-UNSPEAKABLE
+UNSPEAKABLE         "Unable to be expressed with speech; unutterable; indescribable"
 UNSPEAKABLES
-UNUTTERABLE
+UNUTTERABLE         "A thing so terrible or incomprehensible that its name cannot be spoken"
 UNUTTERABLES
-VAGUE
-VAGUELY
-VENOMOUS
-VIOLENTLY
-VISION
+VAGUE               "Indefinite or indistinct in nature, not definitely known"
+VISION              "A vivid mental conception of a thing, place, or idea"
 VISIONS
-VISTA
+VISTA               "A view, esp. through a long row of trees, or a mental view of a distant time or series of events"
 VISTAS
-YE
