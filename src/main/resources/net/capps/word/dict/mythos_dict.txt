@@ -1,19 +1,13 @@
-ABADDON
-ABDUL
-ABHOLOS
-ALALA
-ALHAZRED
-AONIAN
-ARKHAM
-AZATHOTH
-BABYLON
-BOKRUG
-CHAUGNAR
-CHAUGNARFAUGN
-CHTHONIAN
-CHTHONIANS
-CTHULHU
-CTHULHUFHTAGN
+ABDUL              "Abdul Alhazred; see entry for Alhazred"
+ABHOLOS            "The Devourer in the Mist, a grey festering blob of infinite malevolence. From Eddy C. Bertin, 'Darkness, My Name Is'"
+ALALA              "Herald of S'glhuo. From Ramsey Campbell, 'The Plain of Sound'"
+ALHAZRED           "Abdul Alhazred, the 'mad Arab' of 8th century A.D. who is the fictional author of the Necronomicon"
+ARKHAM             "Fictional city in Essex County, Massachusetts. The home of Miskatonic University."
+AZATHOTH           "A deity in Lovecraft's work, known as the 'daemon-sultan' who resides in the central void, and 'gnaws shapeless and ravenous amidst the muffled, maddening beat of vile drums and the thin, monotonous whine of accursed flutes'"
+BOKRUG             "The water-lizard god whose idol is worshipped by the denizens of Sarnath, and previously by the toad-like creatures of Ib"
+CARTER             "Randolph Carter is the central character of The Dream-Quest of Unknown Kadath, in which he searches for the marvellous city of Kadath"
+CTHULHU            "One of the Great Old Ones. Cthulhu was once a priest in the city of R'lyeh, but now lies dormant in his dark house under the Pacific Ocean"
+CTHULHUFHTAGN      "Abbreviation of a phrase chanted by the Ctuhlhu cult: `Ph’nglui mglw’nafh Cthulhu R’lyeh wgah’nagl fhtagn,` or `In his house at R'lyeh dead Cthulhu waits dreaming`"
 DAGON
 DEEPONE
 DEEPONES
