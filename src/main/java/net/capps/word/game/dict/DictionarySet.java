@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class DictionarySet {
     // ---------------- Static ----------------
     private static final Pattern WORD_PATTERN = Pattern.compile("[a-zA-Z]+");
-    private static final Pattern WORD_WITH_DEFINITION_PATTERN = Pattern.compile("([a-zA-Z]+) +\"([^\"]+)\" *");
+    private static final Pattern WORD_WITH_DEFINITION_PATTERN = Pattern.compile("([a-zA-Z]+) +\"((?:[^\"]|\\\\\")+)\" *");
     private static final Logger LOG = LoggerFactory.getLogger(DictionarySet.class);
 
     // ---------------- Constructor -----------
@@ -101,7 +101,8 @@ public class DictionarySet {
                     ++wordIndex;
                 }
                 if (definition != null) {
-                    definitionsBuilder.put(word, definition);
+                    String unescapedDef = definition.replace("\\\"", "\"");
+                    definitionsBuilder.put(word, unescapedDef);
                 }
             }
             wordSet = setBuilder.build();
