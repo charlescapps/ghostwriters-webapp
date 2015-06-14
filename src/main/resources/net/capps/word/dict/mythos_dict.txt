@@ -15,29 +15,29 @@ ELDERONE           "Also known as Elder Things or Old Ones. Elder Ones are extra
 ELDERONES
 ELDERTHING         "See Elder Ones"
 ELDERTHINGS
-ELTDOWN
-FAUGN
-FHTAGN
-GAUNT
+ELTDOWN            "The Eltdown Shards are fictitious fragments of baked clay inscribed with ancient writings. Invented by Richard F. Searight, a contemporary of Lovecraft, then referenced by Lovecraft in \"The Shadow out of Time\" as \"the disturbing and debatable Eltdown Shards.\""
+FHTAGN             "See CthulhuFhtagn"
+GAUNT              "See Nightgaunt"
 GAUNTS
 GHAST              "Creatures who reside in the Vaults of Zin in lower Dreamland. They have sharp hooves and hop like kangaroos. Ghasts eat humans, each other, and the various creatures in the Dreamland."
 GHASTS
-HASTUR
-HSAN
-IB
-INNSMOUTH
-IREM
-KADATH
-KADIPHONEK
-LENG
-LOMAR
-MGLWNAFH
-MIGO
-MISKATONIC
+GHOUL              "Dog-like humanoid creatures who travel between Dreamland and our world. Corpse-eaters. Ghouls are not entirely disagreeable, as they aided Randolph Carter in his travels: \"A greenish elderly ghoul offered to conduct him to Pickman’s present habitation.\""
+GHOULS
+HASTUR             "\"The god of shepherds\" invented by Ambrose Bierce, a contemporary of Lovecraft. Mentioned in passing by Lovecraft in \"The Whisperer in Darkness.\""
+HSAN               "The seven cryptical books of Hsan are ancient wisdom-texts that Randolph Carter consults at the Temple of the Elder Ones in Ulthar to learn about the location of Kadath."
+IB                 "Long ago, Ib was a stone city on the short of a vast lake in the land of Mnar. The inhabitants of Ib were green, toad-like creatures with bulging eyes and flabby lips who worshipped an idol of Bokrug. The people of Sarnath later massacred the toad-creatures of Ib."
+INNSMOUTH          "A fictitious port city in Massachusetts. In \"The Shadow over Innsmouth,\" an evil cult of fish-men reside in Innsmouth and gradually turn its human inhabitants into fish-men. They worship Dagon, the \"Fish-God.\""
+IREM               "Irem, or \"The City of Pillars\" is an ancient man-made city somewhere \"amid the pathless deserts of Arabia.\" Lovecraft likely learned of Irem, which is mentioned in the Koran, from the 9th edition of Encyclopedia Britannica."
+KADATH             "Kadath is the sunset city which appears to Randolph Carter in his dreams. Kadath is a retreat for earth's gods from human curiosity. Kadath is described as being \"veiled in cloud and crowned with unimagined stars, holds secret and nocturnal the onyx castle of the Great Ones.\""
+KADIPHONEK         "A fictitious mountain mentioned in \"Polaris.\""
+LENG               "The cold plains of Leng are described in \"The Dream Quest of Unknown Kadath.\" They are \"a grey barren plain...[with] low huts of granite and bleak stone villages...Around the feeble fires dark forms were dancing...they had hooves instead of feet, and seemed to wear a sort of headpiece with small horns.\""
+LOMAR              "A prehistoric human civilization near the North Pole from when the climate was much warmer there."
+MIGO               "Mi-Go are crab-like creatures from outer space. They are the origin of the \"Abominable Snow-Men\" who \"lurk hideously amidst the ice and rock pinnacles of the Himalayan summits.\""
+MISKATONIC         "Miskatonic University is one of Lovecraft's most popular inventions. It possesses one of the few copies of the dreaded \"Necronomicon.\" It also has a medical school from which Herbert West, the Reanimator, graudated in 1904. Miskatonic University launches the expedition to explore the Antarctic in \"At the Mountains of Madness.\""
 MNAR
 MYSTERIIS
 NECRONOMICON
-NIGHTGAUNT
+NIGHTGAUNT         "Night-gaunts are strange harpy-like creatures in Dreamland who lack faces but possess nasty claws, bat-wings, and barbed tails."
 NIGHTGAUNTS
 NODENS
 NOTON

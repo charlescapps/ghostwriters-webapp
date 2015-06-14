@@ -70,8 +70,6 @@ FORMULA             "A particular set of words or symbols, used in religious cer
 FORMULAE            "Plural form of formula"
 FULGUROUS           "Characteristic or resembling lightning"
 FUNGOID             "Funguslike; resembling a fungus"
-GHOUL               "An evil creature of legend said to feed upon human corpses. In Lovecraft's tales, they traveled between the Dreamland and our world."
-GHOULS
 GIBBER              "To speak inarticulately or meaninglessly"
 GIBBERED
 GIBBERS
