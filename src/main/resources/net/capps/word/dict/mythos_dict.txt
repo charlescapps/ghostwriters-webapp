@@ -1,26 +1,27 @@
 ABDUL              "Abdul Alhazred; see entry for Alhazred"
 ALHAZRED           "Abdul Alhazred, the \"mad Arab\" of 8th century A.D. who is the fictional author of the Necronomicon"
 ARKHAM             "Fictional city in Essex County, Massachusetts. The home of Miskatonic University."
-AZATHOTH           "A deity in Lovecraft's work, known as the \"daemon-sultan\" who resides in the central void, and \"gnaws shapeless and ravenous amidst the muffled, maddening beat of vile drums and the thin, monotonous whine of accursed flutes\""
-BOKRUG             "The water-lizard god whose idol is worshipped by the denizens of Sarnath, and previously by the toad-like creatures of Ib"
-CARTER             "Randolph Carter is the central character of \"The Dream-Quest of Unknown Kadath,\" in which he searches for the marvellous sunset city of Kadath."
-CTHULHU            "A prime member of the Great Old Ones. Cthulhu was once a priest in the city of R'lyeh, but now lies dormant in his dark house under the Pacific Ocean. Described as having \"an octopus-like head, whose face was a mass of feelers.\""
-CTHULHUFHTAGN      "Abbreviation of a phrase chanted by the Ctuhlhu cult: \"Ph’nglui mglw’nafh Cthulhu R’lyeh wgah’nagl fhtagn,\" or \"In his house at R'lyeh dead Cthulhu waits dreaming\""
-DAGON
-DEEPONE
+AZATHOTH           "Azathoth was an \"Other God\" or \"Outer God\". Known as the \"daemon-sultan\" who resides in the central void, and \"gnaws shapeless and ravenous amidst the muffled, maddening beat of vile drums and the thin, monotonous whine of accursed flutes.\""
+BOKRUG             "The water-lizard god whose idol was worshipped by the denizens of Sarnath, in the land of Mnar. Before the founding of Sarnath, Bokrug was worshipped by the toad-like creatures of Ib."
+CARTER             "Randolph Carter is the central character of \"The Dream-Quest of Unknown Kadath,\" in which he searches for the marvellous sunset city of Kadath in the Dreamland."
+CTHULHU            "A prime member of the Great Old Ones. Cthulhu was once a priest in the city of R'lyeh, but now lies dormant in his dark house in the ruins of R'lyeh. Described as having \"an octopus-like head, whose face was a mass of feelers.\""
+CTHULHUFHTAGN      "Abbreviation of a phrase chanted by the Ctuhlhu cult: \"Ph’nglui mglw’nafh Cthulhu R’lyeh wgah’nagl fhtagn,\" or \"In his house at R'lyeh dead Cthulhu waits dreaming.\""
+DAGON              "The Fish-God, worshipped by the Deep Ones in Innsmouth. Referred to as \"Deathless Father Dagon.\""
+DEEPONE            "Intelligent creatures who live at the bottom of the ocean and worship Dagon. They are human-like, but have gills, webbed feet, and scaly skin."
 DEEPONES
-DOMDANIEL
-DUNWICH
-EIBON
-ELDERONE
+DUNWICH            "Fictitious village in northern Massachusetts. The inhabitants are \"repellently decadent\" and ignorant due to inbreeding and isolation. The inhabitants practice witchcraft and other unmentionable things."
+EIBON              "A book of forgotten lore invented by Clark Ashton Smith, a friend of Lovecraft. Referred to in \"The Shadow out of Time\" as \"The Puzzling Book of Eibon.\""
+ELDERONE           "Also known as Elder Things or Old Ones. Elder Ones are extraterrestrial beings described in much detail in \"At the Mountains of Madness.\" They are barrel-like creatures with starfish-like appendages at both ends and giant wings."
 ELDERONES
-ELDERTHING
+ELDERTHING         "See Elder Ones"
 ELDERTHINGS
 ELTDOWN
 FAUGN
 FHTAGN
 GAUNT
 GAUNTS
+GHAST              "Creatures who reside in the Vaults of Zin in lower Dreamland. They have sharp hooves and hop like kangaroos. Ghasts eat humans, each other, and the various creatures in the Dreamland."
+GHASTS
 HASTUR
 HSAN
 IB
