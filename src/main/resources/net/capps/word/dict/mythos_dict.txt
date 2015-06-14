@@ -25,7 +25,9 @@ GHOUL              "Dog-like humanoid creatures who travel between Dreamland and
 GHOULS
 HASTUR             "\"The god of shepherds\" invented by Ambrose Bierce, a contemporary of Lovecraft. Mentioned in passing by Lovecraft in \"The Whisperer in Darkness.\""
 HSAN               "The seven cryptical books of Hsan are ancient wisdom-texts that Randolph Carter consults at the Temple of the Elder Ones in Ulthar to learn about the location of Kadath."
-IB                 "Long ago, Ib was a stone city on the short of a vast lake in the land of Mnar. The inhabitants of Ib were green, toad-like creatures with bulging eyes and flabby lips who worshipped an idol of Bokrug. The people of Sarnath later massacred the toad-creatures of Ib."
+IB                 "Long ago, Ib was a stone city on the shore of a vast lake in the land of Mnar. The inhabitants of Ib were green, toad-like creatures with bulging eyes and flabby lips who worshipped an idol of Bokrug. The people of Sarnath later massacred the toad-creatures of Ib."
+IBITE              "A toad-like denzien of the city of Ib"
+IBITES
 INNSMOUTH          "A fictitious port city in Massachusetts. In \"The Shadow over Innsmouth,\" an evil cult of fish-men reside in Innsmouth and gradually turn its human inhabitants into fish-men. They worship Dagon, the \"Fish-God.\""
 IREM               "Irem, or \"The City of Pillars\" is an ancient man-made city somewhere \"amid the pathless deserts of Arabia.\" Lovecraft likely learned of Irem, which is mentioned in the Koran, from the 9th edition of Encyclopedia Britannica."
 KADATH             "Kadath is the sunset city which appears to Randolph Carter in his dreams. Kadath is a retreat for earth's gods from human curiosity. Kadath is described as being \"veiled in cloud and crowned with unimagined stars, holds secret and nocturnal the onyx castle of the Great Ones.\""
@@ -34,28 +36,26 @@ LENG               "The cold plains of Leng are described in \"The Dream Quest o
 LOMAR              "A prehistoric human civilization near the North Pole from when the climate was much warmer there."
 MIGO               "Mi-Go are crab-like creatures from outer space. They are the origin of the \"Abominable Snow-Men\" who \"lurk hideously amidst the ice and rock pinnacles of the Himalayan summits.\""
 MISKATONIC         "Miskatonic University is one of Lovecraft's most popular inventions. It possesses one of the few copies of the dreaded \"Necronomicon.\" It also has a medical school from which Herbert West, the Reanimator, graudated in 1904. Miskatonic University launches the expedition to explore the Antarctic in \"At the Mountains of Madness.\""
-MNAR
-MYSTERIIS
-NECRONOMICON
+MNAR               "Mnar is the land where the toad-like creatures built the city of Ib, and later the city of Sarnath was founded in Mnar by humans."
+MYSTERIIS          "De Vermis Mysteriis, or Mysteries of the Worm, is a fictional grimoire invented by Robert Bloch and later referred to by Lovecraft in \"The Shadow out of Time\" and \"The Haunter in the Dark.\""
+NECRONOMICON       "The most beloved fictional book invented by Lovecraft, which means literally \"An Image of the Law of the Dead.\" In \"The Call of Cthulhu,\" a couplet from the Necronomicon cryptically describes the nature of Cthulhu: \"That is not dead which can eternal lie, And with strange aeons even death may die.\""
 NIGHTGAUNT         "Night-gaunts are strange harpy-like creatures in Dreamland who lack faces but possess nasty claws, bat-wings, and barbed tails."
 NIGHTGAUNTS
-NODENS
-NOTON
-NYARLOTHOTEP
-OLATHOE
-PHNGLUI
-PNAKOTIC
-RLYEH
-SARNATH
-SHOGGOTH
+NODENS             "Known as \"hoary and immemorial Nodens, Lord of the Great Abyss,\" one of the few benevolent deities in Lovecraft's work. He appears to Olney in \"The Strange High House in the Mist\" upon dolphin's backs and inside a \"vast crenulate shell.\""
+NOTON              "A fictional mountain peak which can be viewed from the ancient city of Olathoe."
+NYARLATHOTEP       "Known as the \"crawling chaos,\" Nyarlathotep is the messenger or deputy of Azathoth. He appears to Randolph Carter as \"a tall, slim figure with the young face of an antique Pharoah.\""
+OLATHOE            "A grand city built of marble, between the peaks of Noton and Kadiphonek, in the land of Lomar. It is attacked by the yellow-skinned Inutos in \"Polaris.\""
+PNAKOTIC           "The Pnakotic Manuscripts are mysterious texts originating in Lomar. In \"The Dream Quest of Unknown Kadath,\" it is unveiled that they now reside in Ulthar: \"those inconceivably old Pnakotic Manuscripts made by waking men in forgotten boreal kingdoms and borne into the land of dreams when the hairy cannibal Gnophkehs overcame many-templed Olathoë and slew all the heroes of the land of Lomar.\""
+RLYEH              "An ancient, prehistoric city that sunk under the South Pacific during a great cataclysm. In his house at R'lyeh dead Cthulhu waits dreaming. In \"The Call of Cthulhu,\" Wilcox describes R'lyeh as \"abnormal, non-Euclidean, and loathsomely redolent of spheres and dimensions apart from ours.\""
+SARNATH            "A human city in the land of Mnar, founded by dark-haired shepherd people who annihilated the toad-like creatures of Ib. The inhabitants of Sarnath arrogantly spurn the idol of Bokrug, and are exterminated by the long-dead Ibites on the 1000th anniversary of Sarnath."
+SHOGGOTH           "Shoggoths were created by the Elder Things described in \"At the Mountains of Madness\" out of inorganic matter as beasts of burden. They are described as \"shapeless entities composed of a viscous jelly which looked like an agglutination of bubbles, and each averaged about fifteen feet in diameter when a sphere.\""
 SHOGGOTHS
-SHUBNIGGURATH
-SPHINX
-TSATHOGGUA
-TYRE
-ULTHAR
-VERMIS
-WGAHNAGL
-YIG
-YOGSOTHOTH
-YUGGOTH
+SHUBNIGGURATH      "A deity or creature described in \"The Whisperer in Darkness\" by a chant played on a phonograph: \"Iä! Shub-Niggurath! The Black Goat of the Woods with a Thousand Young!\""
+SPHINX             "In the story, \"Imprisoned with the Pharoahs,\" Houdini glimpses the horrific creature that is the true origin for the Sphinx monument in Egypt. The Sphinx is \"the unknown God of the Dead, which licks its colossal chops in the unsuspected abyss, fed hideous morsels by soulless absurdities that should not exist...the five headed monster - and that of which it is the merest forepaw.\""
+TSATHOGGUA         "An \"amorphous, toad-like god-creature mentioned in the Pnakotic Manuscripts and the Necronomicon" with Hyperborean worshippers from Kythanil, a double-planet around the star Arcturus."
+TYRE               "Tyre was an actual island city off the coast of modern Lebanon that is mentioned in the Bible. Lovecraft mentions Tyre in passing in \"The Call of Cthulhu\": \"dreams are older than brooding Tyre, or the contemplative Sphinx, or garden-girdled Babylon.\""
+ULTHAR             "A town in Dreamland, featured in \"The Cats of Ulthar.\" That story opens, \"It is said that in Ulthar, which lies beyond the river Skai, no man may kill a cat; and this I can verily believe as I gaze upon him who sitteth purring before the fire.\""
+VERMIS             "De Vermis Mysteriis, see Mysteriis"
+YIG                "Lovecraft essentially authored \"The Curse of Yig\" for his client Zealia B. Reed, though it was published under her name. It is a tale of a pioneer couple in the West who anger the snake-god Yig when the wife kills a nest of baby rattlesnakes. Yig is mentioned briefly in \"The Whisperer in Darkness\" as the \"Father of Serpents.\""
+YOGSOTHOTH         "A deity known as the \"key to the gate\" to let the Old Ones enter our world. Numerous characters babble about Yog-Sothoth when not in their right minds, such as Charles Dexter Ward."
+YUGGOTH            "Yuggoth is an alias for Pluto, which was discovered in 1930. The Mi-Go who infest the Himalayas and Vermont's hills come from Yuggoth. In \"The Whisperer in Darkness,\" Lovecraft writes: \"The blasphemies which appeared on earth, it was hinted, came from the dark planet Yuggoth, at the rim of the solar system.\""
