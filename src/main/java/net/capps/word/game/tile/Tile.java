@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 public class Tile {
     public static final char ABSENT_TILE = '_';
     public static final char WILD_TILE = '*'; // Only used when serializing / deserializing tile sets.
-    public static final String WILD_TILE_STR = "*";
 
     private final boolean startTile;
     private final boolean wild;
@@ -29,10 +28,6 @@ public class Tile {
 
     public static Tile startTile(char letter) {
         return new Tile(letter, true, false);
-    }
-
-    public static Tile wildStartTile(char letter) {
-        return new Tile(letter, true, true);
     }
 
     public static Tile playedTile(char letter) {

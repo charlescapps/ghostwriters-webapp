@@ -95,7 +95,7 @@ public class GamesDAO {
         }
         stmt.setInt(4, validatedInputGame.getPlayer1());
         stmt.setInt(5, validatedInputGame.getPlayer2());
-        stmt.setString(6, "");
+        stmt.setString(6, validatedInputGame.getPlayer1Rack() == null ? "" : validatedInputGame.getPlayer1Rack());
         stmt.setString(7, "");
         stmt.setInt(8, 0); // Player 1 starts with 0 points
         stmt.setInt(9, 0); // Player 2 starts with 0 points

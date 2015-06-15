@@ -54,10 +54,9 @@ public class MovesService {
         }
         ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
 
-        Optional<ErrorModel> errorOpt = errorOrResult.getError();
-        if (errorOpt.isPresent()) {
+        if (errorOrResult.isError()) {
             return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOpt.get())
+                    .entity(errorOrResult.getError().get())
                     .build();
         }
 

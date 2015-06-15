@@ -21,6 +21,7 @@ import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Created by charlescapps on 1/18/15.
@@ -31,6 +32,7 @@ public class GamesProvider {
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
+    public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{1,4}");
 
     // -------------- Errors ------------
     private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The \"gameId\" field should not be specified.");
@@ -46,7 +48,7 @@ public class GamesProvider {
     private static final ErrorModel ERR_MISSING_BOARD_SIZE = new ErrorModel("Missing \"boardSize\" field.");
     private static final ErrorModel ERR_MISSING_BONUSES_TYPE = new ErrorModel("Missing \"bonusesType\" field.");
     private static final ErrorModel ERR_MISSING_GAME_DENSITY = new ErrorModel("Missing \"gameDensity\" field.");
-    private static final ErrorModel ERR_INVALID_DICT_TYPE = new ErrorModel("Invalid \"specialDict\" field.");
+    private static final ErrorModel ERR_INVALID_PLAYER1_RACK = new ErrorModel("Invalid \"player1Rack\" field. If present, can only contain 1-4 blank tiles ('*') initially.");
 
     private static final ErrorModel ERR_INVALID_ACCEPT_OR_REJECT_USER = new ErrorModel("You can't accept/reject this game.");
 
@@ -99,6 +101,12 @@ public class GamesProvider {
         }
         if (input.getGameDensity() == null) {
             return Optional.of(ERR_MISSING_GAME_DENSITY);
+        }
+        if (input.getPlayer1Rack() != null) {
+            String initialRack = input.getPlayer1Rack();
+            if (!INITIAL_RACK_PATTERN.matcher(initialRack).matches()) {
+                return Optional.of(ERR_INVALID_PLAYER1_RACK);
+            }
         }
 
         return Optional.empty();

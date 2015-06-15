@@ -12,6 +12,7 @@ import javax.ws.rs.BadRequestException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 import static java.lang.String.format;
 
@@ -71,8 +72,8 @@ public class TokensProvider {
     }
 
     public Optional<ErrorModel> getCanAffordGameError(UserModel authUser, GameModel validatedInputGame) {
-        int currentTokens = authUser.getTokens();
         int requiredTokens = computeCreateGameTokenCost(validatedInputGame);
+        int currentTokens = authUser.getTokens();
 
         if (requiredTokens > currentTokens) {
             return Optional.of(new ErrorModel(
@@ -89,6 +90,17 @@ public class TokensProvider {
             cost += specialDict.getTokenCost();
         }
 
+        String initialRack = inputGame.getPlayer1Rack();
+        if (initialRack != null) {
+            Matcher m = GamesProvider.INITIAL_RACK_PATTERN.matcher(initialRack);
+            if (!m.matches()) {
+                throw new IllegalStateException(format("Invalid initial rack: '%s'", initialRack));
+            }
+            int numBlankTiles = initialRack.length();
+            cost += numBlankTiles; // Add the cost of 1 book per blank tile.
+        }
+
+        // Add the cost of the board size.
         return cost + inputGame.getBoardSize().getTokenCost();
     }
 }
