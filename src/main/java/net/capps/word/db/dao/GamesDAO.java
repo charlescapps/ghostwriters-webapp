@@ -1,6 +1,7 @@
 package net.capps.word.db.dao;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
@@ -95,7 +96,7 @@ public class GamesDAO {
         }
         stmt.setInt(4, validatedInputGame.getPlayer1());
         stmt.setInt(5, validatedInputGame.getPlayer2());
-        stmt.setString(6, validatedInputGame.getPlayer1Rack() == null ? "" : validatedInputGame.getPlayer1Rack());
+        stmt.setString(6, Strings.isNullOrEmpty(validatedInputGame.getPlayer1Rack()) ? "" : validatedInputGame.getPlayer1Rack());
         stmt.setString(7, "");
         stmt.setInt(8, 0); // Player 1 starts with 0 points
         stmt.setInt(9, 0); // Player 2 starts with 0 points

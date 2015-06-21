@@ -177,7 +177,7 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public void playWordMove(Move move, SquareSet squareSet) {
+    public void playWordMove(Move move) {
         Preconditions.checkArgument(move.getMoveType() == MoveType.PLAY_WORD, "Move type must be Play Word.");
         Dir dir = move.getDir();
         Pos start = move.getStart();

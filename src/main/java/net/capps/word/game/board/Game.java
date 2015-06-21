@@ -248,7 +248,7 @@ public class Game {
 
     private int playWordMove(Move validatedMove) {
         int numPoints = computePoints(validatedMove);
-        tileSet.playWordMove(validatedMove, squareSet);
+        tileSet.playWordMove(validatedMove);
         getCurrentPlayerRack().removeTiles(validatedMove.getTiles());
         if (player1Turn) {
             player1Points += numPoints;

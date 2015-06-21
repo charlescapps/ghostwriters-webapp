@@ -1,5 +1,6 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Strings;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.UsersDAO;
@@ -102,7 +103,7 @@ public class GamesProvider {
         if (input.getGameDensity() == null) {
             return Optional.of(ERR_MISSING_GAME_DENSITY);
         }
-        if (input.getPlayer1Rack() != null) {
+        if (!Strings.isNullOrEmpty(input.getPlayer1Rack())) {
             String initialRack = input.getPlayer1Rack();
             if (!INITIAL_RACK_PATTERN.matcher(initialRack).matches()) {
                 return Optional.of(ERR_INVALID_PLAYER1_RACK);

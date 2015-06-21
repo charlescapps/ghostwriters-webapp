@@ -1,5 +1,6 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Strings;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.iap.InAppPurchaseProduct;
@@ -91,7 +92,7 @@ public class TokensProvider {
         }
 
         String initialRack = inputGame.getPlayer1Rack();
-        if (initialRack != null) {
+        if (!Strings.isNullOrEmpty(initialRack)) {
             Matcher m = GamesProvider.INITIAL_RACK_PATTERN.matcher(initialRack);
             if (!m.matches()) {
                 throw new IllegalStateException(format("Invalid initial rack: '%s'", initialRack));
