@@ -25,15 +25,19 @@ public class EloRankingComputer {
         final double ratingB = (double) dbRatingB;
         final double actualScoreA = computeActualScore(result);
         final double expectedScoreA = computeExpectedScore(ratingA, ratingB);
-        double ratingChangeA = boardSize.getRatingK() * (actualScoreA - expectedScoreA);
+        double ratingChangeA = boardSize.getRatingK() * result.getKScale() * (actualScoreA - expectedScoreA);
         return (int) Math.round(ratingChangeA);
     }
 
     // ----------- Private -------------
     private static double computeActualScore(GameResult gameResult) {
         switch (gameResult) {
-            case PLAYER1_WIN: return 1.0d;
-            case PLAYER2_WIN: return 0.0d;
+            case PLAYER1_WIN:
+            case PLAYER2_RESIGN:
+                return 1.0d;
+            case PLAYER2_WIN:
+            case PLAYER1_RESIGN:
+                return 0.0d;
             case TIE: return 0.5d;
         }
         throw new IllegalArgumentException("Can only compute ratings for games that are PLAYER1_WIN, PLAYER2_WIN or TIE");

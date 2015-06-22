@@ -53,9 +53,11 @@ public class MovesProvider {
             return ErrorOrResult.ofError(errorOpt.get());
         }
 
-        errorOpt = isValidLettersField(inputMoveModel.getLetters());
-        if (errorOpt.isPresent()) {
-            return ErrorOrResult.ofError(errorOpt.get());
+        if (!inputMoveModel.getMoveType().isSimpleMove()) {
+            errorOpt = isValidLettersField(inputMoveModel.getLetters());
+            if (errorOpt.isPresent()) {
+                return ErrorOrResult.ofError(errorOpt.get());
+            }
         }
 
         Integer gameId = inputMoveModel.getGameId();
@@ -211,7 +213,7 @@ public class MovesProvider {
         if (inputMoveModel.getMoveType() == null) {
             return Optional.of(new ErrorModel("Must provide valid \"moveType\" field."));
         }
-        if (inputMoveModel.getMoveType() != MoveType.PASS) {
+        if (!inputMoveModel.getMoveType().isSimpleMove()) {
             if (inputMoveModel.getDir() == null) {
                 return Optional.of(new ErrorModel("Must provide \"dir\" field"));
             }

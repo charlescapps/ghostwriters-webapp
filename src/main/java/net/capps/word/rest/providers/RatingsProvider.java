@@ -41,12 +41,14 @@ public class RatingsProvider {
         final BoardSize boardSize = gameModel.getBoardSize();
         switch (gameResult) {
             case PLAYER1_WIN:
-                if (gameResult == GameResult.PLAYER1_WIN) {
+            case PLAYER2_RESIGN:
+                if (gameResult == GameResult.PLAYER1_WIN || gameResult == GameResult.PLAYER2_RESIGN) {
                     player1.setWins(player1.getWins() + 1);
                     player2.setLosses(player2.getLosses() + 1);
                 }
             case PLAYER2_WIN:
-                if (gameResult == GameResult.PLAYER2_WIN) {
+            case PLAYER1_RESIGN:
+                if (gameResult == GameResult.PLAYER2_WIN || gameResult == GameResult.PLAYER1_RESIGN) {
                     player2.setWins(player2.getWins() + 1);
                     player1.setLosses(player1.getLosses() + 1);
                 }
@@ -61,9 +63,16 @@ public class RatingsProvider {
                 // Compute the idealized elo rating change if we were using Chess ratings
                 final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
 
-                // Modify rating change to always be positive, based on a minimum incease per-boardsize
-                int player1ActualRatingChange = Math.max(player1EloRatingChange, boardSize.getMinimumRatingIncrease());
-                int player2ActualRatingChange = Math.max(-player1EloRatingChange, boardSize.getMinimumRatingIncrease());
+                // Modify rating change to always be positive, based on a minimum increase per-boardsize
+
+                int player1ActualRatingChange = gameResult == GameResult.PLAYER1_RESIGN ? 0 : Math.max(
+                        player1EloRatingChange, boardSize.getMinimumRatingIncrease()
+                );
+
+                int player2ActualRatingChange = gameResult == GameResult.PLAYER2_RESIGN ? 0 : Math.max(
+                        -player1EloRatingChange,
+                         boardSize.getMinimumRatingIncrease()
+                );
 
                 // Don't let a player earn more than 1000 rating points in one game.
                 player1ActualRatingChange = Math.min(player1ActualRatingChange, MAX_RATING_INCREASE);

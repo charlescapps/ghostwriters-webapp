@@ -151,6 +151,8 @@ public class Game {
                 return getGrabTilesError(move);
             case PASS:
                 return Optional.empty();
+            case RESIGN:
+                return Optional.empty();
         }
         throw new IllegalStateException();
     }
@@ -166,6 +168,8 @@ public class Game {
                 return playGrabTilesMove(validatedMove);
             case PASS:
                 return playPassMove(validatedMove);
+            case RESIGN:
+                return playResignMove(validatedMove);
             default:
                 throw new IllegalStateException();
         }
@@ -277,6 +281,13 @@ public class Game {
 
     private int playPassMove(Move validatedMove) {
         gameResult = checkForGameEnd(validatedMove);
+        player1Turn = !player1Turn;
+        previousMoveOpt = Optional.of(validatedMove);
+        return 0;
+    }
+
+    private int playResignMove(Move validatedMove) {
+        gameResult = player1Turn ? GameResult.PLAYER1_RESIGN : GameResult.PLAYER2_RESIGN;
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
         return 0;
