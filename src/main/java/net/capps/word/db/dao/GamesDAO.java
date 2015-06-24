@@ -197,8 +197,8 @@ public class GamesDAO {
         }
     }
 
-    public void acceptGame(int gameId, Connection dbConn) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+    public GameModel acceptGame(int gameId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT, Statement.RETURN_GENERATED_KEYS);
         stmt.setShort(1, (short) GameResult.IN_PROGRESS.ordinal());
         stmt.setInt(2, gameId);
 
@@ -207,6 +207,11 @@ public class GamesDAO {
         if (numUpdated != 1) {
             throw new SQLException("Expected 1 row to be updated when accepting game, but the number updated = " + numUpdated);
         }
+
+        ResultSet resultSet = stmt.getGeneratedKeys();
+        resultSet.next();
+
+        return getGameWithPlayersByResultSetRow(resultSet);
     }
 
     public void rejectGame(int gameId, Connection dbConn) throws SQLException {

@@ -184,7 +184,7 @@ public class GamesService {
 
     @POST
     @Path("/{id}/accept")
-    public Response acceptGameOffer(@Context HttpServletRequest request, @PathParam("id") int id) throws Exception {
+    public Response acceptGameOffer(@Context HttpServletRequest request, @PathParam("id") int id, @QueryParam("rack") String rack) throws Exception {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
@@ -198,9 +198,9 @@ public class GamesService {
                         .build();
             }
 
-            gamesDAO.acceptGame(id, dbConn);
+            GameModel updatedGame = gamesDAO.acceptGame(id, dbConn);
+            return Response.ok(updatedGame).build();
         }
-        return Response.ok(OK_ACCEPTED_GAME).build();
     }
 
     @POST
