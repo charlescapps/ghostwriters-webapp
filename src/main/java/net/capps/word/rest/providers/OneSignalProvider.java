@@ -87,6 +87,10 @@ public class OneSignalProvider {
         PushData pushData = new PushData(Integer.toString(updatedGame.getId()));
         if (isGameOffer) {
             pushData.setIsGameOffer(Boolean.TRUE.toString()); // Only strings are allowed for this additional data...
+            pushData.setBoardSize(toStringOrNull(updatedGame.getBoardSize()));
+            pushData.setSpecialDict(toStringOrNull(updatedGame.getSpecialDict()));
+            pushData.setGameDensity(toStringOrNull(updatedGame.getGameDensity()));
+            pushData.setBonusesType(toStringOrNull(updatedGame.getBonusesType()));
         }
 
         notification.setData(pushData);
@@ -109,6 +113,10 @@ public class OneSignalProvider {
             LOG.info("SUCCESS - Received 200 response from sending push notification to player {} ({})", currentUser.getUsername(), currentUser.getId());
         }
         LOG.info("Response body: {}", responseBody);
+    }
+
+    private static String toStringOrNull(Object o) {
+        return o == null ? null : o.toString();
     }
 
     private static Client createOneSignalClient() {

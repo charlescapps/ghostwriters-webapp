@@ -6,6 +6,11 @@ package net.capps.word.rest.models;
 public class PushData {
     private String updatedGameId;
     private String isGameOffer;
+    // These are used for game offer push notifications, since this is the data needed to populate the accept game scene.
+    private String boardSize;
+    private String specialDict;
+    private String gameDensity;
+    private String bonusesType;
 
     public PushData() {
 
@@ -29,5 +34,37 @@ public class PushData {
 
     public void setIsGameOffer(String isGameOffer) {
         this.isGameOffer = isGameOffer;
+    }
+
+    public String getBoardSize() {
+        return boardSize;
+    }
+
+    public void setBoardSize(String boardSize) {
+        this.boardSize = boardSize;
+    }
+
+    public String getSpecialDict() {
+        return specialDict;
+    }
+
+    public void setSpecialDict(String specialDict) {
+        this.specialDict = specialDict;
+    }
+
+    public String getGameDensity() {
+        return gameDensity;
+    }
+
+    public void setGameDensity(String gameDensity) {
+        this.gameDensity = gameDensity;
+    }
+
+    public String getBonusesType() {
+        return bonusesType;
+    }
+
+    public void setBonusesType(String bonusesType) {
+        this.bonusesType = bonusesType;
     }
 }
