@@ -47,8 +47,10 @@ public class GamesDAO {
             "SELECT word_games.*, " +
                     "p1.username AS p1_username, p1.email AS p1_email, p1.is_system_user AS p1_is_system_user, p1.date_joined AS p1_date_joined, p1.rating AS p1_rating, " +
                     "p1.wins AS p1_wins, p1.losses AS p1_losses, p1.ties AS p1_ties, " +
+                    "p1.tokens AS p1_tokens, p1.infinite_books AS p1_infinite_books, " +
                     "p2.username AS p2_username, p2.email AS p2_email, p2.is_system_user AS p2_is_system_user, p2.date_joined AS p2_date_joined, p2.rating AS p2_rating, " +
-                    "p2.wins AS p2_wins, p2.losses AS p2_losses, p2.ties AS p2_ties " +
+                    "p2.wins AS p2_wins, p2.losses AS p2_losses, p2.ties AS p2_ties, " +
+                    "p2.tokens AS p2_tokens, p2.infinite_books AS p2_infinite_books, " +
                     "FROM word_games JOIN word_users AS p1 ON (player1 = p1.id) " +
                     "JOIN word_users AS p2 ON (player2 = p2.id) ";
 
@@ -371,6 +373,8 @@ public class GamesDAO {
         int p1Wins = result.getInt("p1_wins");
         int p1Losses = result.getInt("p1_losses");
         int p1Ties = result.getInt("p1_ties");
+        int p1Tokens = result.getInt("p1_tokens");
+        boolean p1InfiniteBooks = result.getBoolean("p1_infinite_books");
 
         int p2Id = result.getInt("player2");
         String p2Username = result.getString("p2_username");
@@ -381,6 +385,8 @@ public class GamesDAO {
         int p2Wins = result.getInt("p2_wins");
         int p2Losses = result.getInt("p2_losses");
         int p2Ties = result.getInt("p2_ties");
+        int p2Tokens = result.getInt("p2_tokens");
+        boolean p2InfiniteBooks = result.getBoolean("p2_infinite_books");
         Object player1RatingIncrease = result.getObject("player1_rating_increase");
         Object player2RatingIncrease = result.getObject("player2_rating_increase");
 
@@ -390,6 +396,8 @@ public class GamesDAO {
         player1Model.setWins(p1Wins);
         player1Model.setLosses(p1Losses);
         player1Model.setTies(p1Ties);
+        player1Model.setTokens(p1Tokens);
+        player1Model.setInfiniteBooks(p1InfiniteBooks);
 
         UserModel player2Model = new UserModel(p2Id, p2Username, p2Email, null, null, p2IsSystemUser);
         player2Model.setDateJoined(p2DateJoined.getTime());
@@ -397,6 +405,8 @@ public class GamesDAO {
         player2Model.setWins(p2Wins);
         player2Model.setLosses(p2Losses);
         player2Model.setTies(p2Ties);
+        player2Model.setTokens(p2Tokens);
+        player2Model.setInfiniteBooks(p2InfiniteBooks);
 
         game.setPlayer1Model(player1Model);
         game.setPlayer2Model(player2Model);
