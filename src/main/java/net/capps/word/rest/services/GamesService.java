@@ -199,7 +199,7 @@ public class GamesService {
             }
 
             gamesDAO.acceptGame(id, dbConn);
-            Optional<GameModel> updatedGame = gamesDAO.getGameById(id, dbConn);
+            Optional<GameModel> updatedGame = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
             if (!updatedGame.isPresent()) {
                 return Response.serverError().build();
             }
