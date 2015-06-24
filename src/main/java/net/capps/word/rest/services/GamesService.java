@@ -198,8 +198,12 @@ public class GamesService {
                         .build();
             }
 
-            GameModel updatedGame = gamesDAO.acceptGame(id, dbConn);
-            return Response.ok(updatedGame).build();
+            gamesDAO.acceptGame(id, dbConn);
+            Optional<GameModel> updatedGame = gamesDAO.getGameById(id, dbConn);
+            if (!updatedGame.isPresent()) {
+                return Response.serverError().build();
+            }
+            return Response.ok(updatedGame.get()).build();
         }
     }
 
