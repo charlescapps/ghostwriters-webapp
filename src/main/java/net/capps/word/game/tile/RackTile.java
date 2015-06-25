@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 
 public class RackTile {
     public static final char WILD_RACK_TILE = '*'; // letter takes on this value for "Wildcard" RackTiles
+    public static final char SCRY_RACK_TILE = '^';
     private static final LetterPoints LETTER_POINTS = LetterPoints.getInstance();
 
     private final char letter;
@@ -21,7 +22,7 @@ public class RackTile {
     }
 
     public static boolean isValidRackTile(char letter) {
-        return letter == WILD_RACK_TILE || LetterUtils.isUppercase(letter);
+        return letter == WILD_RACK_TILE || letter == SCRY_RACK_TILE || LetterUtils.isUppercase(letter);
     }
 
     public static RackTile of(char letter) {
@@ -30,6 +31,10 @@ public class RackTile {
 
     public static RackTile wild() {
         return new RackTile(WILD_RACK_TILE);
+    }
+    
+    public static RackTile scry() {
+        return new RackTile(SCRY_RACK_TILE);
     }
 
     // ---------- Public ----------
@@ -48,6 +53,13 @@ public class RackTile {
      */
     public boolean isWild() {
         return WILD_RACK_TILE == letter;
+    }
+
+    /**
+     * Whether the tile is a "scry" bonus tile
+     */
+    public boolean isScry() {
+        return SCRY_RACK_TILE == letter;
     }
 
     public Tile toTile(char c) {

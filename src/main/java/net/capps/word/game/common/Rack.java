@@ -29,7 +29,7 @@ public class Rack implements Iterable<RackTile> {
     public static List<RackTile> lettersToTiles(String letters) {
         Preconditions.checkNotNull(letters);
         List<RackTile> tiles = new ArrayList<>(letters.length());
-        for (int i = 0; i < letters.length(); i++) {
+        for (int i = 0; i < letters.length(); ++i) {
             char c = letters.charAt(i);
             RackTile tile = RackTile.of(c);
             tiles.add(tile);

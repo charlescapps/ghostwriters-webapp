@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 /**
  * Created by charlescapps on 1/21/15.
  */
@@ -32,6 +34,14 @@ public class GamesDAO {
     private static final String UPDATE_GAME_QUERY =
             "UPDATE word_games SET (player1_rack, player2_rack, player1_points, player2_points, squares, tiles, game_result, player1_turn, move_num, last_activity) " +
                     " = (?, ?, ?, ?, ?, ?, ?, ?, move_num + 1, ?) " +
+                    "WHERE id = ?;";
+
+    private static final String UPDATE_PLAYER1_RACK_QUERY =
+            "UPDATE word_games SET player1_rack = ? " +
+                    "WHERE id = ?;";
+
+    private static final String UPDATE_PLAYER2_RACK_QUERY =
+            "UPDATE word_games SET player2_rack = ? " +
                     "WHERE id = ?;";
 
     private static final String UPDATE_GAME_RESULT =
@@ -196,6 +206,32 @@ public class GamesDAO {
         } catch (Exception e) {
             dbConn.rollback();
             throw e;
+        }
+    }
+
+    public void updatePlayer1Rack(int gameId, String updatedRack, Connection dbConn) throws SQLException {
+        Preconditions.checkNotNull(updatedRack);
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_PLAYER1_RACK_QUERY);
+        stmt.setString(1, updatedRack);
+        stmt.setInt(2, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException(format("Expected 1 row to be updated, but %d row(s) were updated.", numUpdated));
+        }
+    }
+
+    public void updatePlayer2Rack(int gameId, String updatedRack, Connection dbConn) throws SQLException {
+        Preconditions.checkNotNull(updatedRack);
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_PLAYER2_RACK_QUERY);
+        stmt.setString(1, updatedRack);
+        stmt.setInt(2, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException(format("Expected 1 row to be updated, but %d row(s) were updated.", numUpdated));
         }
     }
 

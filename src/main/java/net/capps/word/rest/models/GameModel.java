@@ -1,5 +1,6 @@
 package net.capps.word.rest.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.*;
 import net.capps.word.game.dict.SpecialDict;
@@ -259,6 +260,22 @@ public class GameModel {
 
     public void setSpecialDict(SpecialDict specialDict) {
         this.specialDict = specialDict;
+    }
+
+    @JsonIgnore
+    public int getCurrentPlayerId() {
+        if (player1Turn == null) {
+            throw new IllegalStateException("player1Turn field is null!");
+        }
+        return player1Turn ? player1 : player2;
+    }
+
+    @JsonIgnore
+    public String getCurrentPlayerRack() {
+        if (player1Turn == null) {
+            throw new IllegalStateException("player1Turn field is null!");
+        }
+        return player1Turn ? player1Rack : player2Rack;
     }
 
     @Override

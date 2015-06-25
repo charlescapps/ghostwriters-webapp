@@ -58,7 +58,6 @@ public class Move {
         }
     }
 
-
     public Integer getGameId() {
         return gameId;
     }

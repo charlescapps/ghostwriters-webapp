@@ -4,8 +4,6 @@ import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.util.ErrorOrResult;
 
-import java.util.Optional;
-
 import static java.lang.String.format;
 
 /**

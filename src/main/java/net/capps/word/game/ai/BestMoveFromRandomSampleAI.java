@@ -9,11 +9,11 @@ import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
-import net.capps.word.game.dict.*;
+import net.capps.word.game.dict.DictType;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
-import net.capps.word.game.tile.Tile;
 import net.capps.word.util.RandomUtil;
 
 import java.util.*;
@@ -29,8 +29,6 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class BestMoveFromRandomSampleAI implements GameAI {
-    private static final DictionarySet SET = Dictionaries.getEnglishDictSet();
-    private static final DictionaryTrie TRIE = Dictionaries.getEnglishDictTrie();
     private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
 
     private final float fractionOfPositionsToSearch;
@@ -93,12 +91,22 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             return Optional.empty();
         }
 
-        final DictType dictTypeForMove = selectDictionaryForMove(game);
+        final DictType[] dictionaryOrder = selectDictionaryOrderForMove(game);
 
         // Search the possible start positions in a random order.
         final List<Pos> randomOrderPositions = RandomUtil.shuffleList(unoccupiedPositions);
         final int numPositionsToCheck = (int)Math.ceil(fractionOfPositionsToSearch * randomOrderPositions.size());
 
+        for (DictType dictType: dictionaryOrder) {
+            Optional<Move> moveOptional = getBestMoveForDictType(dictType, game, rack, tileSet, randomOrderPositions, numPositionsToCheck);
+            if (moveOptional.isPresent()) {
+                return moveOptional;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Move> getBestMoveForDictType(DictType dictType, Game game, Rack rack, TileSet tileSet, List<Pos> randomOrderPositions, int numPositionsToCheck) {
         Move bestMove = null;
         int numChecked = 0;
 
@@ -108,7 +116,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             }
             Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
             for (Dir dir: randomOrderDirs) {
-                Optional<Move> bestMoveForPositionOpt = getBestMoveFromStartPos(game, dictTypeForMove, tileSet, rack, p, dir);
+                Optional<Move> bestMoveForPositionOpt = getBestMoveFromStartPos(game, dictType, tileSet, rack, p, dir);
                 if (bestMoveForPositionOpt.isPresent()) {
                     if (bestMove == null || bestMoveForPositionOpt.get().getPoints() > bestMove.getPoints()) {
                         bestMove = bestMoveForPositionOpt.get();
@@ -121,11 +129,11 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         return Optional.ofNullable(bestMove);
     }
 
-    private DictType selectDictionaryForMove(Game game) {
+    private DictType[] selectDictionaryOrderForMove(Game game) {
         final SpecialDict specialDict = game.getSpecialDict();
 
         if (specialDict == null) {
-            return DictType.ENGLISH_WORDS;
+            return new DictType[] { DictType.ENGLISH_WORDS };
         }
 
         final Random random = ThreadLocalRandom.current();
@@ -133,10 +141,10 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         // Select the dictionary to use for this move
         float coinFlipToUseSpecialDict = random.nextFloat();
         if (coinFlipToUseSpecialDict < probabilityToSelectWordFromSpecialDict) {
-            return specialDict.getDictType();
+            return new DictType[] { specialDict.getDictType(), DictType.ENGLISH_WORDS };
         }
 
-        return DictType.ENGLISH_WORDS;
+        return new DictType[] { DictType.ENGLISH_WORDS, specialDict.getDictType() };
     }
 
     private Optional<Move> getBestGrabMoveFromSubsetOfPositions(Game game) {
@@ -174,48 +182,6 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         }
 
         return Optional.of(bestMove); // Should be impossible for bestMove to be null.
-    }
-
-    private Move getGrabMoveFromStartPos(Pos start, Game game, int maxToGrab) {
-        List<Dir> occupiedDirs = new ArrayList<>();
-        final TileSet tileSet = game.getTileSet();
-
-        // Find the directions that have occupied tiles
-        for (Pos p: start.adjacents()) {
-            if (tileSet.isValid(p) && tileSet.get(p).isStartTile()) {
-                occupiedDirs.add(start.getDirTo(p));
-            }
-        }
-
-        // If no adjacent tiles are occupied, just grab a single tile
-        if (occupiedDirs.isEmpty()) {
-            char letter = tileSet.getLetterAt(start);
-            String letters = Character.toString(letter);
-            return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, start, Dir.E, Lists.newArrayList(RackTile.of(letter)));
-        }
-
-        // Else grab all tiles in BOTH directions
-        int dirIndex = ThreadLocalRandom.current().nextInt(occupiedDirs.size());
-        final Dir dir = occupiedDirs.get(dirIndex);
-
-        // Get the grab start position by finding the first occupied tile
-        Dir reverseDir = dir.negate();
-        final Pos grabStart = tileSet.getEndOfStartTiles(start.go(reverseDir), reverseDir);
-
-        StringBuilder sb = new StringBuilder();
-        List<RackTile> grabbedTiles = new ArrayList<>();
-
-        for (Pos p = grabStart; tileSet.isValid(p) && tileSet.get(p).isStartTile(); p = p.go(dir)) {
-            Tile tile = tileSet.get(p);
-            sb.append(tile.getLetter());
-            grabbedTiles.add(tile.toRackTile());
-            if (sb.length() >= maxToGrab) {
-                break;
-            }
-        }
-
-        String letters = sb.toString();
-        return new Move(game.getGameId(), MoveType.GRAB_TILES, letters, grabStart, dir, grabbedTiles);
     }
 
     private Optional<Move> getBestMoveFromStartPos(Game game, DictType dictType, TileSet tileSet, Rack rack, Pos start, Dir dir) {
@@ -273,11 +239,11 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
     private void generateMoves(int gameId, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves) {
 
-        if (!TRIE.isPrefix(prefix)) {
+        if (!isPrefix(prefix, dictType)) {
             return;
         }
 
-        if (placements.size() >= minPlacements && SET.contains(prefix)) {
+        if (placements.size() >= minPlacements && isWord(prefix, dictType)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
             if (!tileSet.getPlayWordMoveError(move, null).isPresent()) {
@@ -304,6 +270,14 @@ public class BestMoveFromRandomSampleAI implements GameAI {
                 generateMoves(gameId, dictType, word, minPlacements, tileSet, start, nextPos, dir, newPlacements, newRemaining, moves);
             }
         }
+    }
+
+    private static boolean isPrefix(String word, DictType dictType) {
+        return dictType.getDictionaryTrie().isPrefix(word);
+    }
+
+    private static boolean isWord(String word, DictType dictType) {
+        return dictType.getDictionary().contains(word);
     }
 
 }
