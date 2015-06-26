@@ -16,6 +16,7 @@ import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.services.GamesService;
+import net.capps.word.util.ErrorOrResult;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
@@ -33,7 +34,8 @@ public class GamesProvider {
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
-    public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{1,4}");
+    private static final TokensProvider tokensProvider = TokensProvider.getInstance();
+    public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,2}");
 
     // -------------- Errors ------------
     private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The \"gameId\" field should not be specified.");
@@ -49,7 +51,8 @@ public class GamesProvider {
     private static final ErrorModel ERR_MISSING_BOARD_SIZE = new ErrorModel("Missing \"boardSize\" field.");
     private static final ErrorModel ERR_MISSING_BONUSES_TYPE = new ErrorModel("Missing \"bonusesType\" field.");
     private static final ErrorModel ERR_MISSING_GAME_DENSITY = new ErrorModel("Missing \"gameDensity\" field.");
-    private static final ErrorModel ERR_INVALID_PLAYER1_RACK = new ErrorModel("Invalid \"player1Rack\" field. If present, can only contain 1-4 blank tiles ('*') initially.");
+    private static final ErrorModel ERR_INVALID_PLAYER1_RACK = new ErrorModel("Invalid \"player1Rack\" field. If present, can only contain 0-4 blank tiles ('*') and 0-2 scry tiles ('^')");
+    private static final ErrorModel ERR_INVALID_RACK_PARAM = new ErrorModel("Invalid \"rack\" param. If present, can only contain 0-4 blank tiles ('*') and 0-2 scry tiles ('^')");
 
     private static final ErrorModel ERR_INVALID_ACCEPT_OR_REJECT_USER = new ErrorModel("You can't accept/reject this game.");
 
@@ -103,7 +106,7 @@ public class GamesProvider {
         if (input.getGameDensity() == null) {
             return Optional.of(ERR_MISSING_GAME_DENSITY);
         }
-        if (!Strings.isNullOrEmpty(input.getPlayer1Rack())) {
+        if (input.getPlayer1Rack() != null) {
             String initialRack = input.getPlayer1Rack();
             if (!INITIAL_RACK_PATTERN.matcher(initialRack).matches()) {
                 return Optional.of(ERR_INVALID_PLAYER1_RACK);
@@ -113,18 +116,46 @@ public class GamesProvider {
         return Optional.empty();
     }
 
-    public Optional<ErrorModel> validateAcceptOrRejectGameOffer(int gameId, UserModel authUser, Connection dbConn) throws SQLException {
+    public ErrorOrResult<GameModel> validateAcceptGameOffer(int gameId, String rack, UserModel authUser, Connection dbConn) throws SQLException {
         Optional<GameModel> gameOpt = gamesDAO.getGameById(gameId, dbConn);
         if (!gameOpt.isPresent()) {
-            return Optional.of(ERR_INVALID_GAME_ID);
+            return ErrorOrResult.ofError(ERR_INVALID_GAME_ID);
         }
 
         GameModel game = gameOpt.get();
         if (!game.getPlayer2().equals(authUser.getId()) || game.getGameResult() != GameResult.OFFERED) {
-            return Optional.of(ERR_INVALID_ACCEPT_OR_REJECT_USER);
+            return ErrorOrResult.ofError(ERR_INVALID_ACCEPT_OR_REJECT_USER);
         }
 
-        return Optional.empty();
+        if (rack != null && !INITIAL_RACK_PATTERN.matcher(rack).matches()) {
+            return ErrorOrResult.ofError(ERR_INVALID_RACK_PARAM);
+        }
+
+        return ErrorOrResult.ofResult(game);
+    }
+
+    public ErrorOrResult<GameModel> validateRejectGameOffer(int gameId, UserModel authUser, Connection dbConn) throws SQLException {
+        Optional<GameModel> gameOpt = gamesDAO.getGameById(gameId, dbConn);
+        if (!gameOpt.isPresent()) {
+            return ErrorOrResult.ofError(ERR_INVALID_GAME_ID);
+        }
+
+        GameModel game = gameOpt.get();
+        if (!game.getPlayer2().equals(authUser.getId()) || game.getGameResult() != GameResult.OFFERED) {
+            return ErrorOrResult.ofError(ERR_INVALID_ACCEPT_OR_REJECT_USER);
+        }
+
+        return ErrorOrResult.ofResult(game);
+    }
+
+    public void acceptGameOfferAndUpdateRack(GameModel gameModel, String rack, Connection dbConn)
+            throws Exception {
+
+        if (!Strings.isNullOrEmpty(rack)) {
+            gamesDAO.updatePlayer2Rack(gameModel.getId(), rack, dbConn);
+        }
+
+        gamesDAO.acceptGame(gameModel.getId(), dbConn);
     }
 
     public URI getGameURI(int gameId, UriInfo uriInfo) {

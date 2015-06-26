@@ -9,6 +9,7 @@ import net.capps.word.rest.providers.GamesProvider;
 import net.capps.word.rest.providers.GamesSearchProvider;
 import net.capps.word.rest.providers.MovesProvider;
 import net.capps.word.rest.providers.TokensProvider;
+import net.capps.word.util.ErrorOrResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -61,7 +62,7 @@ public class GamesService {
                     .build();
         }
 
-        errorOpt = tokensProvider.getCanAffordGameError(player1, input);
+        errorOpt = tokensProvider.validateCanAffordCreateGameError(player1, input);
         if (errorOpt.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
                     .entity(errorOpt.get())
@@ -191,18 +192,33 @@ public class GamesService {
         }
 
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            Optional<ErrorModel> validationErrorOpt = gamesProvider.validateAcceptOrRejectGameOffer(id, authUser, dbConn);
-            if (validationErrorOpt.isPresent()) {
+            // Turn off auto-commit
+            dbConn.setAutoCommit(false);
+
+            ErrorOrResult<GameModel> gameOrError = gamesProvider.validateAcceptGameOffer(id, rack, authUser, dbConn);
+            if (gameOrError.isError()) {
                 return Response.status(Status.BAD_REQUEST)
-                        .entity(validationErrorOpt.get())
+                        .entity(gameOrError.getError().get())
                         .build();
             }
 
-            gamesDAO.acceptGame(id, dbConn);
+            GameModel gameModel = gameOrError.getResult().get();
+
+            Optional<ErrorModel> canAffordError = tokensProvider.validateCanAffordAcceptGameError(authUser, rack);
+            if (canAffordError.isPresent()) {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(canAffordError.get())
+                        .build();
+            }
+
+            gamesProvider.acceptGameOfferAndUpdateRack(gameModel, rack, dbConn);
+            tokensProvider.spendTokensForAcceptGame(authUser, rack, dbConn);
             Optional<GameModel> updatedGame = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
             if (!updatedGame.isPresent()) {
                 return Response.serverError().build();
             }
+
+            dbConn.commit();
             return Response.ok(updatedGame.get()).build();
         }
     }
@@ -216,10 +232,10 @@ public class GamesService {
         }
 
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            Optional<ErrorModel> validationErrorOpt = gamesProvider.validateAcceptOrRejectGameOffer(id, authUser, dbConn);
-            if (validationErrorOpt.isPresent()) {
+            ErrorOrResult<GameModel> validationErrorOpt = gamesProvider.validateRejectGameOffer(id, authUser, dbConn);
+            if (validationErrorOpt.isError()) {
                 return Response.status(Status.BAD_REQUEST)
-                        .entity(validationErrorOpt.get())
+                        .entity(validationErrorOpt.getError().get())
                         .build();
             }
 

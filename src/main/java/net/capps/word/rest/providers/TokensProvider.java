@@ -1,6 +1,6 @@
 package net.capps.word.rest.providers;
 
-import com.google.common.base.Strings;
+import com.google.common.base.Preconditions;
 import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.iap.InAppPurchaseProduct;
@@ -56,6 +56,10 @@ public class TokensProvider {
     }
 
     public UserModel spendTokens(UserModel userModel, int numTokens, Connection dbConn) throws SQLException {
+        Preconditions.checkArgument(numTokens >= 0, "Error - attempt to spend a negative number of tokens: " + numTokens);
+        if (numTokens == 0) {
+            return userModel;
+        }
         if (userModel.getTokens() < numTokens) {
             throw new BadRequestException(
                     format("You only have %d tokens, you cannot afford to spend {} tokens!", userModel.getTokens(), numTokens));
@@ -72,13 +76,42 @@ public class TokensProvider {
         return spendTokens(authUser, cost, dbConn);
     }
 
-    public Optional<ErrorModel> getCanAffordGameError(UserModel authUser, GameModel validatedInputGame) {
+    public UserModel spendTokensForAcceptGame(UserModel authUser, String rack, Connection dbConn) throws SQLException {
+        // If the user has purchased infinite_books, then do nothing; the game is free!
+        if (Boolean.TRUE.equals(authUser.getInfiniteBooks())) {
+            return authUser;
+        }
+        int cost = computeCostForBonusTiles(rack);
+        return spendTokens(authUser, cost, dbConn);
+    }
+
+    public Optional<ErrorModel> validateCanAffordCreateGameError(UserModel authUser, GameModel validatedInputGame) {
+        if (Boolean.TRUE.equals(authUser.getInfiniteBooks())) {
+            return Optional.empty();
+        }
         int requiredTokens = computeCreateGameTokenCost(validatedInputGame);
         int currentTokens = authUser.getTokens();
 
         if (requiredTokens > currentTokens) {
             return Optional.of(new ErrorModel(
                     String.format("You can't afford to spend %d tokens creating this game.", requiredTokens)));
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<ErrorModel> validateCanAffordAcceptGameError(UserModel authUser, String rack) {
+        if (rack == null) {
+            return Optional.empty();
+        }
+        if (Boolean.TRUE.equals(authUser.getInfiniteBooks())) {
+            return Optional.empty();
+        }
+
+        final int cost = computeCostForBonusTiles(rack);
+        if (authUser.getTokens() < cost) {
+            return Optional.of(new ErrorModel(
+                    String.format("You can't afford to spend %d tokens creating this game.", cost)));
         }
 
         return Optional.empty();
@@ -91,17 +124,20 @@ public class TokensProvider {
             cost += specialDict.getTokenCost();
         }
 
-        String initialRack = inputGame.getPlayer1Rack();
-        if (!Strings.isNullOrEmpty(initialRack)) {
-            Matcher m = GamesProvider.INITIAL_RACK_PATTERN.matcher(initialRack);
-            if (!m.matches()) {
-                throw new IllegalStateException(format("Invalid initial rack: '%s'", initialRack));
-            }
-            int numBlankTiles = initialRack.length();
-            cost += numBlankTiles; // Add the cost of 1 book per blank tile.
-        }
+        int bonusTilesCost = computeCostForBonusTiles(inputGame.getPlayer1Rack());
 
         // Add the cost of the board size.
-        return cost + inputGame.getBoardSize().getTokenCost();
+        return cost + inputGame.getBoardSize().getTokenCost() + bonusTilesCost;
+    }
+
+    private int computeCostForBonusTiles(String initialRack) {
+        if (initialRack == null) {
+            return 0;
+        }
+        Matcher m = GamesProvider.INITIAL_RACK_PATTERN.matcher(initialRack);
+        if (!m.matches()) {
+            throw new IllegalStateException(format("Invalid initial rack: '%s'", initialRack));
+        }
+        return initialRack.length();
     }
 }
