@@ -22,7 +22,7 @@ public class ScryTileAI implements GameAI {
         return INSTANCE;
     }
 
-    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(.9f, 0f, 1f);
+    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(1f, 0f, 1f);
 
     @Override
     public Move getNextMove(Game game) {

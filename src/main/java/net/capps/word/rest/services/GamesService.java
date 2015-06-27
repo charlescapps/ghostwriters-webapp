@@ -198,11 +198,11 @@ public class GamesService {
             ErrorOrResult<GameModel> gameOrError = gamesProvider.validateAcceptGameOffer(id, rack, authUser, dbConn);
             if (gameOrError.isError()) {
                 return Response.status(Status.BAD_REQUEST)
-                        .entity(gameOrError.getError().get())
+                        .entity(gameOrError.getErrorOpt().get())
                         .build();
             }
 
-            GameModel gameModel = gameOrError.getResult().get();
+            GameModel gameModel = gameOrError.getResultOpt().get();
 
             Optional<ErrorModel> canAffordError = tokensProvider.validateCanAffordAcceptGameError(authUser, rack);
             if (canAffordError.isPresent()) {
@@ -235,7 +235,7 @@ public class GamesService {
             ErrorOrResult<GameModel> validationErrorOpt = gamesProvider.validateRejectGameOffer(id, authUser, dbConn);
             if (validationErrorOpt.isError()) {
                 return Response.status(Status.BAD_REQUEST)
-                        .entity(validationErrorOpt.getError().get())
+                        .entity(validationErrorOpt.getErrorOpt().get())
                         .build();
             }
 

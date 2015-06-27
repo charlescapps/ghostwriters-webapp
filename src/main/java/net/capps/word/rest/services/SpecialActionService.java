@@ -45,17 +45,23 @@ public class SpecialActionService {
             // Validate the game against the authenticated user
             if (errorOrGame.isError()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity(errorOrGame.getError().get())
+                        .entity(errorOrGame.getErrorOpt().get())
                         .build();
             }
 
-            GameModel gameModel = errorOrGame.getResult().get();
+            GameModel gameModel = errorOrGame.getResultOpt().get();
 
-            MoveModel scryMove = specialActionsProvider.getScryMoveAndUpdateUserRack(gameModel, authUser, dbConn);
+            ErrorOrResult<MoveModel> scryMoveOrError = specialActionsProvider.getScryMoveAndUpdateUserRack(gameModel, authUser, dbConn);
+
+            if (scryMoveOrError.isError()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(scryMoveOrError.getErrorOpt().get())
+                        .build();
+            }
 
             dbConn.commit();
 
-            return Response.ok(scryMove).build();
+            return Response.ok(scryMoveOrError.getResultOpt().get()).build();
         }
 
     }

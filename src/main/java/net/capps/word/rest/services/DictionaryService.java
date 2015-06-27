@@ -44,10 +44,10 @@ public class DictionaryService {
         ErrorOrResult<SpecialDict> errorOrResult = dictionaryProvider.validateSpecialDictionary(dictName);
         if (errorOrResult.isError()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(errorOrResult.getError().get())
+                    .entity(errorOrResult.getErrorOpt().get())
                     .build();
         }
-        SpecialDict specialDict = errorOrResult.getResult().get();
+        SpecialDict specialDict = errorOrResult.getResultOpt().get();
 
         List<WordModel> sortedWords = playedWordsProvider.getPlayedWordsForSpecialDict(authUser.getId(), specialDict);
         DictionaryModel dictionaryModel = new DictionaryModel(specialDict, sortedWords);

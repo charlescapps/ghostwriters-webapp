@@ -55,11 +55,11 @@ public class MovesService {
 
         if (errorOrResult.isError()) {
             return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOrResult.getError().get())
+                    .entity(errorOrResult.getErrorOpt().get())
                     .build();
         }
 
-        final GameModel originalGame = errorOrResult.getResult().get();
+        final GameModel originalGame = errorOrResult.getResultOpt().get();
 
         // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {

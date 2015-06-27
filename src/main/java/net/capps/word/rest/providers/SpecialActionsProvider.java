@@ -4,6 +4,7 @@ import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.game.ai.ScryTileAI;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.move.Move;
+import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
@@ -27,6 +28,8 @@ public class SpecialActionsProvider {
     private static final ErrorModel ERR_INVALID_GAME_STATE = new ErrorModel("The game specified isn't in progress.");
     private static final ErrorModel ERR_INVALID_USER = new ErrorModel("It isn't your turn in the game specified.");
     private static final ErrorModel ERR_NO_SCRY_TILE = new ErrorModel("The current player doesn't have any scry tiles!");
+
+    private static final ErrorModel ERR_NO_PLAY_WORD_MOVE_FOUND = new ErrorModel("No words found! Try grabbing tiles from the board or passing.");
 
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
 
@@ -76,7 +79,7 @@ public class SpecialActionsProvider {
         return ErrorOrResult.ofResult(gameModel);
     }
 
-    public MoveModel getScryMoveAndUpdateUserRack(GameModel validatedGame, UserModel authUser, Connection dbConn)
+    public ErrorOrResult<MoveModel> getScryMoveAndUpdateUserRack(GameModel validatedGame, UserModel authUser, Connection dbConn)
             throws Exception {
         Game game = new Game(validatedGame, Optional.empty());
 
@@ -84,6 +87,11 @@ public class SpecialActionsProvider {
         final String updatedRack = currentRack.replaceFirst("[\\^]", "");
         if (updatedRack.length() != currentRack.length() - 1) {
             throw new IllegalStateException("Player's rack didn't contain '^' -- a Scry Tile");
+        }
+
+        Move scryMove = SCRY_TILE_AI.getNextMove(game);
+        if (scryMove.getMoveType() != MoveType.PLAY_WORD) {
+            return ErrorOrResult.ofError(ERR_NO_PLAY_WORD_MOVE_FOUND);
         }
 
         if (authUser.getId().equals(validatedGame.getPlayer1())) {
@@ -94,8 +102,8 @@ public class SpecialActionsProvider {
             throw new IllegalStateException();
         }
 
-        Move scryMove = SCRY_TILE_AI.getNextMove(game);
-        return scryMove.toMoveModel(authUser.getId(), 0);
+        MoveModel moveModel = scryMove.toMoveModel(authUser.getId(), 0);
+        return ErrorOrResult.ofResult(moveModel);
     }
 
 

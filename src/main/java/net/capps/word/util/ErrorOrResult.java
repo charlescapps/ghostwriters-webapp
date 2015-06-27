@@ -27,7 +27,7 @@ public class ErrorOrResult<T> {
         return new ErrorOrResult<>(null, result);
     }
 
-    public Optional<ErrorModel> getError() {
+    public Optional<ErrorModel> getErrorOpt() {
         return Optional.ofNullable(error);
     }
 
@@ -35,7 +35,7 @@ public class ErrorOrResult<T> {
         return error != null;
     }
 
-    public Optional<T> getResult() {
+    public Optional<T> getResultOpt() {
         return Optional.ofNullable(result);
     }
 }
