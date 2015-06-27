@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static net.capps.word.game.common.Dir.S;
 
@@ -29,10 +30,12 @@ public class SpecialDictGameGenerator implements GameGenerator {
     private final SpecialDict specialDict;
     private final DictionaryWordSets primaryWordSets;
     private final Set<String> usedWords = new HashSet<>();
+    private final float probabilityPlayFromSpecialDict;
 
-    public SpecialDictGameGenerator(SpecialDict specialDict) {
+    public SpecialDictGameGenerator(SpecialDict specialDict, float probabilityPlayFromSpecialDict) {
         this.specialDict = specialDict;
         this.primaryWordSets = specialDict.getDictType().getDictionaryWordSets();
+        this.probabilityPlayFromSpecialDict = probabilityPlayFromSpecialDict;
     }
 
     @Override
@@ -80,9 +83,12 @@ public class SpecialDictGameGenerator implements GameGenerator {
 
     @Override
     public Optional<Placement> findFirstValidPlacementInRandomSearch(TileSet tileSet, int maxWordSize) {
-        Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, primaryWordSets);
-        if (placementOpt.isPresent()) {
-            return placementOpt;
+        final float coinFlip = ThreadLocalRandom.current().nextFloat();
+        if (coinFlip < probabilityPlayFromSpecialDict) {
+            Optional<Placement> placementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize, primaryWordSets);
+            if (placementOpt.isPresent()) {
+                return placementOpt;
+            }
         }
         return DEFAULT_GAME_GENERATOR.findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
     }

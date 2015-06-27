@@ -1,7 +1,6 @@
 package net.capps.word.game.common;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.capps.word.game.tile.RackTile;
 
