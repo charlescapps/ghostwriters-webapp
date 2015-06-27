@@ -187,7 +187,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private Optional<Move> getBestMoveFromStartPos(Game game, DictType dictType, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
+        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
             firstOccupiedOrAdjacent = Optional.of(start); // Try playing a word off in space
@@ -210,11 +210,11 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             prefix = sb.toString();
         }
 
-        List<RackTile> rackCopy = rack.getRackCopy();
+        List<RackTile> rackCopy = rack.getLetterTiles();
         List<RackTile> placements = new ArrayList<>();
         List<Move> foundMoves = new ArrayList<>();
 
-        final int diff = occOrAdj.minus(start);
+        final int diff = occOrAdj.minus(originalStart);
 
         generateMoves(game.getGameId(), dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 

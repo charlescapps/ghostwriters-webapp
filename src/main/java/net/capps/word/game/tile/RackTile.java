@@ -48,6 +48,10 @@ public class RackTile {
         return letter;
     }
 
+    public boolean isLetter() {
+        return LetterUtils.isUppercase(letter);
+    }
+
     /**
      * Whether the tile is an unplayed "wildcard" tile in a player's rack
      */

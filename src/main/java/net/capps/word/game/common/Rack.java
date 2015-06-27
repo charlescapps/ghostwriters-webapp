@@ -1,6 +1,7 @@
 package net.capps.word.game.common;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.capps.word.game.tile.RackTile;
 
@@ -14,7 +15,7 @@ import static java.lang.String.format;
  * Created by charlescapps on 1/24/15.
  */
 public class Rack implements Iterable<RackTile> {
-    private List<RackTile> tiles;
+    private final List<RackTile> tiles;
 
     public static final int MAX_TILES_IN_RACK = 20;
 
@@ -53,6 +54,16 @@ public class Rack implements Iterable<RackTile> {
         return Lists.newArrayList(tiles);
     }
 
+    public List<RackTile> getLetterTiles() {
+        List<RackTile> letterTiles = new ArrayList<>();
+        for (RackTile tile: tiles) {
+            if (tile.isLetter()) {
+                letterTiles.add(tile);
+            }
+        }
+        return letterTiles;
+    }
+
     public boolean hasTiles(List<RackTile> tilesToPlay) {
         List<RackTile> copyTilesToPlay = Lists.newArrayList(tilesToPlay);
         List<RackTile> copyTiles = Lists.newArrayList(tiles);
@@ -82,6 +93,16 @@ public class Rack implements Iterable<RackTile> {
         for (RackTile tileToRemove: tilesToRemove) {
             tiles.remove(tileToRemove);
         }
+    }
+
+    public int getNumLetterTiles() {
+        int num = 0;
+        for (RackTile tile: tiles) {
+            if (tile.isLetter()) {
+                ++num;
+            }
+        }
+        return num;
     }
 
     public int size() {
