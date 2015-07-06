@@ -223,7 +223,6 @@ public class GameModel {
         this.dateCreated = dateCreated;
     }
 
-    @JsonInclude(JsonInclude.Include.ALWAYS)
     public List<MoveModel> getLastMoves() {
         return lastMoves;
     }

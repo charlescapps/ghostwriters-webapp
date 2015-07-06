@@ -67,9 +67,8 @@ public class MovesService {
 
             GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
 
-            // For single player games, play the AI's move if the turn changed
-            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER && !updatedGame.getPlayer1Turn()) {
-                LOG.info("Playing AI moves...");
+            // For single player games, play the AI's move(s)
+            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
                 updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
             }
 
