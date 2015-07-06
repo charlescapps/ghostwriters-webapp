@@ -127,10 +127,9 @@ public class MovesProvider {
     }
 
     public GameModel playAIMoves(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
-        boolean isPlayer1Turn = gameModel.getPlayer1Turn();
         List<MoveModel> aiMoves = new ArrayList<>();
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
-        while (gameModel.getPlayer1Turn() == isPlayer1Turn && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
+        while (!gameModel.getPlayer1Turn() && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
             gameModel = playOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
         }
 

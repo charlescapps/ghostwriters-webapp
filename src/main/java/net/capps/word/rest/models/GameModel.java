@@ -1,6 +1,7 @@
 package net.capps.word.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.*;
 import net.capps.word.game.dict.SpecialDict;
@@ -222,6 +223,7 @@ public class GameModel {
         this.dateCreated = dateCreated;
     }
 
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public List<MoveModel> getLastMoves() {
         return lastMoves;
     }
