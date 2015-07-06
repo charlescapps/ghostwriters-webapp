@@ -15,7 +15,7 @@ public class RandomUsernamePicker {
     private static final RandomUsernamePicker INSTANCE = new RandomUsernamePicker();
     private static final DictionaryPicker adjectivePicker = Dictionaries.getAdjectivesPicker();
     private static final DictionaryPicker nounPicker = Dictionaries.getNounsPicker();
-    private static final int MAX_TRIES = 5;
+    private static final int MAX_TRIES = 10;
 
     public static RandomUsernamePicker getInstance() {
         return INSTANCE;
@@ -25,7 +25,7 @@ public class RandomUsernamePicker {
         String username;
         Optional<UserModel> conflictUser;
         for (int i = 0; i < MAX_TRIES; i++ ) {
-            String adjective = adjectivePicker.getRandomWordEqualProbabilityByLength(3, 12);
+            String adjective = adjectivePicker.getRandomWordBetweenLengths(2, 13);
             int remainingLen = UsersProvider.MAX_USERNAME_LEN - adjective.length();
             String noun = nounPicker.getRandomWordEqualProbabilityByLength(3, remainingLen);
             username = uppercase(adjective) + uppercase(noun);
@@ -37,9 +37,9 @@ public class RandomUsernamePicker {
 
         // Last resort - add random numbers
         for (int i = 0; i < MAX_TRIES; i++) {
-            String adjective = adjectivePicker.getRandomWordBetweenLengths(3, 12);
+            String adjective = adjectivePicker.getRandomWordBetweenLengths(2, 12);
             int remainingLen = UsersProvider.MAX_USERNAME_LEN - adjective.length();
-            String noun = nounPicker.getRandomWordBetweenLengths(3, remainingLen - 3);
+            String noun = nounPicker.getRandomWordBetweenLengths(2, remainingLen - 3);
             int randomNum = ThreadLocalRandom.current().nextInt(1000);
             username = uppercase(adjective) + uppercase(noun) + randomNum;
             conflictUser = UsersDAO.getInstance().getUserByUsername(username, false);

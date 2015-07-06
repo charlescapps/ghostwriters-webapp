@@ -140,7 +140,6 @@ RUTHLESS
 SCALE               "Thin plates covering certain reptiles"
 SCALES
 SCALY               "Covered in scales"
-SEA                 "A large body of water or ocean: 'We live on a placid island of ignorance in the midst of black seas of infinity' - The Call of Cthulhu"
 SHRIEK
 SHRIEKS
 SINISTER
