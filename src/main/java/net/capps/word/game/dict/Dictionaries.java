@@ -55,10 +55,10 @@ public class Dictionaries {
         MYTHOS_DICT_TRIE.loadDictionary(MYTHOS_DICT_SET.getWordSet());
         MYTHOS_WORD_SETS.loadDictionarySets(MYTHOS_DICT_SET.getWordSet());
 
-        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), false);
+        ADJECTIVES_SET.loadDictionary(DictType.ADJECTIVES.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), true);
         ADJECTIVES_PICKER.loadDictionary(ADJECTIVES_SET.getWordSet());
 
-        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), false);
+        NOUNS_SET.loadDictionary(DictType.NOUNS.getResourcePath(), MIN_WORD_LEN, MAX_WORD_LEN, Optional.of(BANNED_SET), true);
         NOUNS_PICKER.loadDictionary(NOUNS_SET.getWordSet());
     }
 

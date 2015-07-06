@@ -95,7 +95,6 @@ public class DictionarySet {
                 word = word.intern(); // Avoid duplicate strings being stored elsewhere in the JVM
                 setBuilder.add(word);
                 if (storeList) {
-                    LOG.info("Index = {}, Adding word '{}' to word list", wordIndex, word);
                     listBuilder.add(word);
                     wordToIndexBuilder.put(word, wordIndex);
                     ++wordIndex;
