@@ -52,7 +52,7 @@ SHOGGOTH           "Shoggoths were created by the Elder Things described in \"At
 SHOGGOTHS
 SHUBNIGGURATH      "A deity or creature described in \"The Whisperer in Darkness\" by a chant played on a phonograph: \"Iä! Shub-Niggurath! The Black Goat of the Woods with a Thousand Young!\""
 SPHINX             "In the story, \"Imprisoned with the Pharoahs,\" Houdini glimpses the horrific creature that is the true origin for the Sphinx monument in Egypt. The Sphinx is \"the unknown God of the Dead, which licks its colossal chops in the unsuspected abyss, fed hideous morsels by soulless absurdities that should not exist...the five headed monster - and that of which it is the merest forepaw.\""
-TSATHOGGUA         "An \"amorphous, toad-like god-creature mentioned in the Pnakotic Manuscripts and the Necronomicon" with Hyperborean worshippers from Kythanil, a double-planet around the star Arcturus."
+TSATHOGGUA         "An \"amorphous, toad-like god-creature mentioned in the Pnakotic Manuscripts and the Necronomicon\" with Hyperborean worshippers from Kythanil, a double-planet around the star Arcturus."
 TYRE               "Tyre was an actual island city off the coast of modern Lebanon that is mentioned in the Bible. Lovecraft mentions Tyre in passing in \"The Call of Cthulhu\": \"dreams are older than brooding Tyre, or the contemplative Sphinx, or garden-girdled Babylon.\""
 ULTHAR             "A town in Dreamland, featured in \"The Cats of Ulthar.\" That story opens, \"It is said that in Ulthar, which lies beyond the river Skai, no man may kill a cat; and this I can verily believe as I gaze upon him who sitteth purring before the fire.\""
 VERMIS             "De Vermis Mysteriis, see Mysteriis"

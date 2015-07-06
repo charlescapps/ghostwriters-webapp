@@ -57,7 +57,7 @@ GELATINOUS
 GENII               "Genie; a magic spirit serving the person who summons it."
 GHEE                "A liquid butter made clear by boiling"
 GIMLET              "A small tool for boring holes"
-GIRT                "To encircle or surround, alternate spelling of 'gird'"
+GIRT                "To encircle or surround, alternate spelling of \"gird\""
 GUNWALE             "Topmost planking of a boat"
 HESSIAN             "German mercenary hired by the British during the American Revolution"
 HOGSHEAD            "A large cask or barrel"
@@ -122,7 +122,7 @@ SAGE                   "A wise person"
 SALLY
 SANGUINE               "Blood-red color, or bloody"
 SARCOPHAGUS            "A coffin"
-SATE                   "Old fashioned spelling of 'sat', past tense of 'sit'"
+SATE                   "Old fashioned spelling of \"sat\", past tense of \"sit\""
 SATYR                  "Deity in Greek mythology with the torso of a man and the body of a horse or goat"
 SATYRS
 SCIMITAR               "A saber with a curved blade used chiefly by Arabs and Turks"
@@ -144,7 +144,7 @@ SYLPH                            "An immortal yet soulless (elemental) being tha
 TARN                             "A bog or marsh"
 TARNS
 TREPIDATION
-TYPHUS                           "A disease causing headache, fever, chills, exhaustion, and rash. Also known as 'prison fever' and 'ship fever'"
+TYPHUS                           "A disease causing headache, fever, chills, exhaustion, and rash. Also known as \"prison fever\" and \"ship fever\""
 VIAND                            "An article of food"
 WAYLAID                          "Ambushed, attacked by surprise"
 WONT                             "A habitual way of doing something"

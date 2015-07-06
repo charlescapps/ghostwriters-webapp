@@ -1,10 +1,10 @@
-ABBADON             "Means 'destruction' in Hebrew; The king of locusts from the Book of Revelations"
+ABBADON             "Means \"destruction\" in Hebrew; The king of locusts from the Book of Revelations"
 ABERRATION          "Diverging from the ordinary or what is known to be true"
 ABERRATIONS
 ABNORMAL            "Quite unusual; seemingly impossible"
 ACCURSED            "Damnable; detestable"
 AEON                "Eon; an indefinitely long period of time; one billion years"
-AEONS               "'In the Land of Sona-Nyl there is neither time nor space, neither suffering nor death; and there I dwelt for many aeons.' - The White Ship"
+AEONS               "\"In the Land of Sona-Nyl there is neither time nor space, neither suffering nor death; and there I dwelt for many aeons.\" - The White Ship"
 ALIENATE            "To cause someone to be withdrawn from society or objective reality"
 ALIENATED
 ALIENATES
@@ -25,7 +25,7 @@ BIZARRE
 BLASPHEMIES
 BLASPHEMOUS         "Being offensive towards anything held to be sacred"
 BLASPHEMY           "Offensive speech or behavior towards anything held to be sacred"
-CAT                 "Our feline friends, featured in 'The Dream-Quest of Unknown Kadath' and 'The Cats of Ulthar'"
+CAT                 "Our feline friends, featured in \"The Dream-Quest of Unknown Kadath\" and \"The Cats of Ulthar\""
 CATS
 CHAOTIC             "Unruly; disorganized; characterized by chaos"
 CHARNEL             "ghastly; sepulchral; deathly"
@@ -42,7 +42,7 @@ CRYPTS
 CULT                "A group of people bound together by the veneration of the same deity, idol, or belief"
 CULTS
 CYCLOPEAN           "gigantic; relating to a style of Greek architecture characterized by large, undressed blocks of stone"
-DAEMON              "Antiquated spelling of 'demon'"
+DAEMON              "Antiquated spelling of \"demon\""
 DAEMONIAC           "Evil, sinister, or possessed by a daemon"
 DANK
 DELIRIUM            "Temporary disorder of the mind, characterized by restlessness, excitement, or delusions"
@@ -50,7 +50,7 @@ DELIRIUMS
 DENIZEN             "An inhabitant; resident; frequenter"
 DENIZENS
 DREAD               "Intense fear or apprehension; reluctance"
-DREAM               "'In his house at R’lyeh dead Cthulhu waits dreaming' - The Call of Cthulhu"
+DREAM               "\"In his house at R’lyeh dead Cthulhu waits dreaming\" - The Call of Cthulhu"
 DREAMING
 ECCENTRIC           "Deviating from social norms or practices"
 EFFULGENCE          "An intense brightness or radiance"
@@ -76,7 +76,7 @@ GIBBERS
 GIBBOUS             "Used to describe the moon when it is more than half illuminated, but not yet a full moon"
 GRIM
 GRUESOME            "Instilling great horror; grisly"
-HAUNTER             "One who lingers in a place as a spirit or a ghost. Lovecraft authored a short story, 'The Haunter of the Dark'"
+HAUNTER             "One who lingers in a place as a spirit or a ghost. Lovecraft authored a short story, \"The Haunter of the Dark\""
 HAUNTERS
 HIDEOUS
 HIDEOUSLY
@@ -99,7 +99,7 @@ INFINITIES
 INFINITY            "An endless quantity, distance, or depth of thought"
 INSANE              "Lacking in sanity or rational thought"
 INSANITY
-LANDSCAPE           "'the landscape oppressed me with a nauseating fear' - Dagon"
+LANDSCAPE           "\"the landscape oppressed me with a nauseating fear\" - Dagon"
 LANDSCAPES
 LOATHE              "To feel extreme disgust or aversion for; abhor"
 LOATHSOME
@@ -114,7 +114,7 @@ MANIAC
 MANIAS
 MANUSCRIPT          "The original, handwritten version of a book"
 MANUSCRIPTS
-MIST                "'One dwells therein who talks with the morning mists that come up from the deep' - The Strange House in High Mist"
+MIST                "\"One dwells therein who talks with the morning mists that come up from the deep\" - The Strange House in High Mist"
 MISTS
 MONOLITH            "An obelisk or statue formed of a single block of stone"
 MONOLITHS
@@ -124,7 +124,7 @@ MURKY               "Vague, unclear, or dark, gloomy"
 NAMELESS            "Unknown, terrible creatures which have no name"
 NOCTURNAL
 NOISOME             "Quite unpleasant or disagreeable, or having an offensive smell"
-NONEUCLIDEAN        "Incompatible with the postulates of Euclidean geometry: 'the geometry of the dream-place he saw was abnormal, non-Euclidean' - The Call of Cthulhu"
+NONEUCLIDEAN        "Incompatible with the postulates of Euclidean geometry: \"the geometry of the dream-place he saw was abnormal, non-Euclidean\" - The Call of Cthulhu"
 OBELISK             "A stone monument with four sides, having a pyramid shape at the top"
 OBELISKS
 OOZE                "To move or flow slowly, as a liquid through a small opening"
@@ -133,9 +133,9 @@ PANIC
 PHANTASM            "An apparition; ghost; specter, or a creation of the imagination"
 PHANTASMS
 PSYCHIC             "Of or relating to some nonphysical force or agency"
-REANIMATE           "'We could not get bodies fresh enough to shew any trace of reason when reanimated, so had perforce created nameless horrors' - Herbert West, Reanimator"
+REANIMATE           "\"We could not get bodies fresh enough to shew any trace of reason when reanimated, so had perforce created nameless horrors\" - Herbert West, Reanimator"
 REVELATION
-RUGOSE              "Having wrinkles or ridges: 'The Great Race’s members were immense rugose cones' - The Shadow out of Time"
+RUGOSE              "Having wrinkles or ridges: \"The Great Race’s members were immense rugose cones\" - The Shadow out of Time"
 RUTHLESS
 SCALE               "Thin plates covering certain reptiles"
 SCALES
@@ -143,13 +143,13 @@ SCALY               "Covered in scales"
 SHRIEK
 SHRIEKS
 SINISTER
-SKYFLUNG            "'he had had an unprecedented dream of great Cyclopean cities of titan blocks and sky-flung monoliths' - The Call of Cthulhu"
+SKYFLUNG            "\"He had had an unprecedented dream of great Cyclopean cities of titan blocks and sky-flung monoliths\" - The Call of Cthulhu"
 SLIMY
 SQUAMOUS            "Covered with or formed of scales"
 STYGIAN             "Infernal; hellish; of Hades or the River Styx"
 SUBTERRENE          "A cave or subterranean room"
 SWARTHY             "Having dark complexion"
-SWINEHERD           "A person who tends swine: 'the swineherd with his unmentionable fungous beasts wallowing in filth' - The Rats in the Walls"
+SWINEHERD           "A person who tends swine: \"the swineherd with his unmentionable fungous beasts wallowing in filth\" - The Rats in the Walls"
 SWINEHERDS
 TELEPATHY           "Communication between minds by some psychic mechanism"
 TENTACLE
@@ -157,7 +157,7 @@ TENTACLES
 TERRESTRIAL         "Pertaining to the earth or land"
 TERRIFY
 TITANIC             "Having enormous size, strength, or power"
-UNINSCRIBABLE       "Speech so profoundly gibberish as to be impossible to write down. Found in 'The Call of Cthulhu'"
+UNINSCRIBABLE       "Speech so profoundly gibberish as to be impossible to write down. Found in \"The Call of Cthulhu\""
 UNMENTIONABLE
 UNNAMABLE           "Unable to be named"
 UNNAMABLES
