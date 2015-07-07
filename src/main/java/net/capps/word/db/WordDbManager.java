@@ -27,13 +27,12 @@ public class WordDbManager {
 
     private WordDbManager() {
         final String databaseUrl = getDatabaseUrl();
-        LOG.info("HEROKU_POSTGRESQL_RED_URL: " + System.getenv("HEROKU_POSTGRESQL_RED_URL"));
         LOG.info("DATABASE_URL: " + databaseUrl);
         DATABASE_URI = URI.create(databaseUrl);
         LOG.info("DATABASE_URL=" + DATABASE_URI);
         username = DATABASE_URI.getUserInfo().split(":")[0];
         password = DATABASE_URI.getUserInfo().split(":")[1];
-        dbUrl = "jdbc:postgresql://" + DATABASE_URI.getHost() + DATABASE_URI.getPath();
+        dbUrl = "jdbc:postgresql://" + DATABASE_URI.getHost() + ":" + DATABASE_URI.getPort() + DATABASE_URI.getPath();
     }
 
     public static WordDbManager getInstance() {
