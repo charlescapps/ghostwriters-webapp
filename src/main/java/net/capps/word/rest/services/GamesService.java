@@ -42,7 +42,6 @@ public class GamesService {
     private static final TokensProvider tokensProvider = TokensProvider.getInstance();
 
     // ------ OK results ------
-    private static final GenericOkModel OK_ACCEPTED_GAME = new GenericOkModel("Game accepted!");
     private static final GenericOkModel OK_REJECTED_GAME = new GenericOkModel("Game rejected!");
 
     @Context

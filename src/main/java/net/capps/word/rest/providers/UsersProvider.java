@@ -49,10 +49,11 @@ public class UsersProvider {
 
     //------------- Public --------------
     public Optional<ErrorModel> validateInputUser(UserModel userModel) {
-        if (Strings.isNullOrEmpty(userModel.getUsername())) {
+        String inputUsername = userModel.getUsername();
+        if (Strings.isNullOrEmpty(inputUsername)) {
             return Optional.of(new ErrorModel("Missing username"));
         }
-        userModel.setUsername(userModel.getUsername().trim());
+        userModel.setUsername(preProcessUsername(inputUsername));
         if (Strings.isNullOrEmpty(userModel.getDeviceId())) {
             return Optional.of(new ErrorModel("Missing device ID"));
         }
@@ -162,19 +163,23 @@ public class UsersProvider {
 
     //------- Validation helpers -------
     private Optional<ErrorModel> isValidUsername(String username) {
-        username = username.trim();
         if (username.length() < MIN_USERNAME_LEN || username.length() > MAX_USERNAME_LEN) {
             return Optional.of(new ErrorModel(
                     format("Username must be between %d and %d characters in length.", MIN_USERNAME_LEN, MAX_USERNAME_LEN)));
         }
         Matcher m = USERNAME_PATTERN.matcher(username);
         if (!m.matches()) {
-            return Optional.of(new ErrorModel("Username must start with an alphanumeric character and can have letters, numbers, spaces, '_', and '-'"));
+            return Optional.of(new ErrorModel("Username can only use letters, numbers, spaces, -, or _."));
         }
         if (username.contains("  ")) {
-            return Optional.of(new ErrorModel("Username cannot contain 2 consecutive spaces"));
+            return Optional.of(new ErrorModel("Username can't have 2 spaces in a row."));
         }
         return Optional.empty();
+    }
+
+    private String preProcessUsername(String username) {
+        username = username.trim();
+        return username.replaceAll("  +", " ");
     }
 
     private Optional<ErrorModel> isValidPassword(String password) {
