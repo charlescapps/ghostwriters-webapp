@@ -57,6 +57,6 @@ public class WordServletContextListener implements ServletContextListener {
     private void startScheduledTaskToIncreaseTokens() {
         LOG.info("Scheduling task to increment user tokens!");
         incrementUserTokensService = Executors.newSingleThreadScheduledExecutor();
-        incrementUserTokensService.scheduleAtFixedRate(new IncrementTokensRunnable(), 1, 1, TimeUnit.MINUTES);
+        incrementUserTokensService.scheduleAtFixedRate(new IncrementTokensRunnable(), 1, 60, TimeUnit.MINUTES);
     }
 }
