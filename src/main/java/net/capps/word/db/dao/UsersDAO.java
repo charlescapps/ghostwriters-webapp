@@ -34,6 +34,9 @@ public class UsersDAO {
     private static final String UPDATE_USER_PASSWORD =
             "UPDATE word_users SET (hashpass, salt) = (?, ?) WHERE id = ?";
 
+    private static final String IS_USER_PASSWORD_DEFINED =
+            "SELECT (hashpass IS NOT NULL) AS is_pass_defined FROM word_users WHERE id = ?";
+
     private static final String UPDATE_USER_RATING_WIN =
             "UPDATE word_users SET (rating, wins) = (?, wins + 1) WHERE id = ?";
 
@@ -205,7 +208,7 @@ public class UsersDAO {
         }
     }
 
-    public UserModel updateUserPassword(int userId, String hashPassBase64, String saltBase64) throws SQLException {
+    public UserModel updateUserPassword(Connection dbConn, int userId, String hashPassBase64, String saltBase64) throws SQLException {
         if (Strings.isNullOrEmpty(hashPassBase64) || Strings.isNullOrEmpty(saltBase64)) {
             throw new IllegalArgumentException();
         }
@@ -213,18 +216,28 @@ public class UsersDAO {
         if (!user.isPresent()) {
             throw new IllegalArgumentException("No user exists with the given ID of " + userId);
         }
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(UPDATE_USER_PASSWORD, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, hashPassBase64);
-            stmt.setString(2, saltBase64);
-            stmt.setInt(3, userId);
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_USER_PASSWORD, Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, hashPassBase64);
+        stmt.setString(2, saltBase64);
+        stmt.setInt(3, userId);
 
-            stmt.executeUpdate();
-            ResultSet resultSet = stmt.getGeneratedKeys();
-            resultSet.next();
+        stmt.executeUpdate();
+        ResultSet resultSet = stmt.getGeneratedKeys();
+        resultSet.next();
 
-            return getUserFromResultSet(resultSet);
+        return getUserFromResultSet(resultSet);
+    }
+
+    public boolean isUserPasswordDefined(Connection dbConn, int userId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(IS_USER_PASSWORD_DEFINED);
+        stmt.setInt(1, userId);
+
+        ResultSet resultSet = stmt.executeQuery();
+        if (!resultSet.next()) {
+            throw new SQLException("0 results returned checking if password is defined for user id = " + userId);
         }
+
+        return resultSet.getBoolean("is_pass_defined");
     }
 
     public void updateUserRating(Connection dbConn, int userId, int newRating, UserRecordChange userRecordChange) throws SQLException {

@@ -33,13 +33,16 @@ public class UsersProvider {
     public static final int MAX_USERNAME_LEN = 16;
 
     private static final int MIN_PASSWORD_LEN = 4;
-    private static final int MAX_PASSWORD_LEN = 32;
+    private static final int MAX_PASSWORD_LEN = 20;
 
     private static final int SALT_BYTES = 8;
 
     private static final UsersDAO usersDao = UsersDAO.getInstance();
 
     private static final UsersProvider INSTANCE = new UsersProvider();
+
+    // -------- ErrorModels -------
+    private static final ErrorModel ERR_PASSWORD_ALREADY_SET = new ErrorModel("You have already set a password.");
 
     private UsersProvider() { }
 
@@ -84,15 +87,10 @@ public class UsersProvider {
         return usersDao.insertNewUser(validatedInput);
     }
 
-    public Optional<ErrorModel> updateUserPassword(int userId, String password) throws Exception {
-        Optional<ErrorModel> errorOpt = isValidPassword(password);
-        if (errorOpt.isPresent()) {
-            return errorOpt;
-        }
+    public void updateUserPassword(int userId, String validatedPass, Connection dbConn) throws Exception {
         byte[] salt = generateSalt();
-        byte[] hashPass = hashPassUsingSha256(password, salt);
-        usersDao.updateUserPassword(userId, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
-        return Optional.empty();
+        byte[] hashPass = hashPassUsingSha256(validatedPass, salt);
+        usersDao.updateUserPassword(dbConn, userId, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
     }
 
     public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {
@@ -182,7 +180,7 @@ public class UsersProvider {
         return username.replaceAll("  +", " ");
     }
 
-    private Optional<ErrorModel> isValidPassword(String password) {
+    public Optional<ErrorModel> isValidPassword(String password) {
         if (password.length() < MIN_PASSWORD_LEN || password.length() > MAX_PASSWORD_LEN) {
             return Optional.of(new ErrorModel(
                     format("Password length must be between %d and %d characters", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)
@@ -190,7 +188,15 @@ public class UsersProvider {
         }
         Matcher m = PASSWORD_PATTERN.matcher(password);
         if (!m.matches()) {
-            return Optional.of(new ErrorModel("Password can only contain letters, numbers, or !,@,#,$,%,^,&,*,(,),-,_,+,=,{,},[,]"));
+            return Optional.of(new ErrorModel("Password can contain letters, numbers, or !,@,#,$,%,^,&,*,(,),-,_,+,=,{,},[,]"));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ErrorModel> canUpdatePassword(int userId, Connection dbConn) throws SQLException {
+        boolean isPasswordDefined = usersDao.isUserPasswordDefined(dbConn, userId);
+        if (isPasswordDefined) {
+            return Optional.of(ERR_PASSWORD_ALREADY_SET);
         }
         return Optional.empty();
     }

@@ -274,6 +274,36 @@ public class UsersService {
         }
     }
 
+    @Path("setPassword")
+    @POST
+    @Filters.RegularUserAuthRequired
+    public Response setPassword(@Context HttpServletRequest request, @QueryParam("pass") String pass) throws Exception {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Optional<ErrorModel> errorOpt = usersProvider.isValidPassword(pass);
+        if (errorOpt.isPresent()) {
+            return Response.status(BAD_REQUEST)
+                    .entity(errorOpt.get())
+                    .build();
+        }
+
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            errorOpt = usersProvider.canUpdatePassword(authUser.getId(), dbConn);
+            if (errorOpt.isPresent()) {
+                return Response.status(BAD_REQUEST)
+                        .entity(errorOpt.get())
+                        .build();
+            }
+
+            usersProvider.updateUserPassword(authUser.getId(), pass, dbConn);
+        }
+
+        return Response.ok().build();
+    }
+
     // ------ Helpers ----
     public URI getWordUserURI(int id) {
         return uriInfo.getAbsolutePathBuilder()
