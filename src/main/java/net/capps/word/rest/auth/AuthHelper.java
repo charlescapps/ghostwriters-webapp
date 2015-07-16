@@ -1,5 +1,6 @@
 package net.capps.word.rest.auth;
 
+import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
 import net.capps.word.constants.WordConstants;
 import net.capps.word.crypto.CryptoUtils;
@@ -38,6 +39,7 @@ public class AuthHelper {
     private static final String MISSING_AUTHZ_HEADER_MSG = "Missing Authorization header";
     private static final String INVALID_AUTHZ_HEADER_MSG = "Invalid Basic Auth header";
     private static final String INVALID_USERNAME_OR_PASS_MSG = "Invalid username or password";
+    private static final String PASSWORD_NOT_DEFINED = "User hasn't set a password";
 
     private AuthHelper() {}
 
@@ -112,6 +114,12 @@ public class AuthHelper {
         }
 
         UserHashInfo hashInfo = user.get().getUserHashInfo();
+
+        // If the UserHashInfo doesn't have a hash pass & a salt, this means the user hasn't defined a password yet.
+        if (!isValidUserHashInfo(hashInfo)) {
+            throw new WordAuthException(PASSWORD_NOT_DEFINED, AuthError.INVALID_PASSWORD);
+        }
+
         byte[] salt = CryptoUtils.base64ToByte(hashInfo.getSalt());
         byte[] hashInputPass = UsersProvider.hashPassUsingSha256(password, salt);
         byte[] storedHashPass = CryptoUtils.base64ToByte(hashInfo.getHashPass());
@@ -145,5 +153,11 @@ public class AuthHelper {
         }
         int userId = session.get().getUserId();
         return usersDAO.getUserById(userId);
+    }
+
+    private boolean isValidUserHashInfo(UserHashInfo userHashInfo) {
+        return userHashInfo != null &&
+               !Strings.isNullOrEmpty(userHashInfo.getHashPass()) &&
+               !Strings.isNullOrEmpty(userHashInfo.getSalt());
     }
 }
