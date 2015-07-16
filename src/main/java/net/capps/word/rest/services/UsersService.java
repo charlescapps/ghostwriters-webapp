@@ -60,7 +60,7 @@ public class UsersService {
                             .build();
                 } else {
                     return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(new ErrorModel("A username is already associated with your device. Please enter this username."))
+                            .entity(new ErrorModel("A username is already associated with your device."))
                             .build();
                 }
             }
@@ -301,7 +301,7 @@ public class UsersService {
             usersProvider.updateUserPassword(authUser.getId(), pass, dbConn);
         }
 
-        return Response.ok().build();
+        return Response.ok(new GenericOkModel("Password set successfully")).build();
     }
 
     // ------ Helpers ----
