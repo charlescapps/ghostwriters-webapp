@@ -4,12 +4,9 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.dict.DictType;
 import net.capps.word.game.move.MoveType;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Created by charlescapps on 1/16/15.
  */
-@XmlRootElement
 public class MoveModel {
     private Integer gameId;
     private Integer playerId;

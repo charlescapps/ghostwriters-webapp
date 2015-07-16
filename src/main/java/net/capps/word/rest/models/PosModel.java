@@ -2,12 +2,9 @@ package net.capps.word.rest.models;
 
 import net.capps.word.game.common.Pos;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Created by charlescapps on 2/22/15.
  */
-@XmlRootElement
 public class PosModel {
     private int r;
     private int c;
