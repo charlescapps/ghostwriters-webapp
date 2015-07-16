@@ -27,7 +27,7 @@ import static java.lang.String.format;
  * Created by charlescapps on 12/27/14.
  */
 public class UsersProvider {
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_ \\-]*");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_\\-]*");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("[a-zA-Z0-9!@#$%^&*\\(\\)\\-_=\\+\\[\\]\\{\\}]+");
     public static final int MIN_USERNAME_LEN = 4;
     public static final int MAX_USERNAME_LEN = 16;
@@ -167,10 +167,7 @@ public class UsersProvider {
         }
         Matcher m = USERNAME_PATTERN.matcher(username);
         if (!m.matches()) {
-            return Optional.of(new ErrorModel("Username can only use letters, numbers, spaces, -, or _."));
-        }
-        if (username.contains("  ")) {
-            return Optional.of(new ErrorModel("Username can't have 2 spaces in a row."));
+            return Optional.of(new ErrorModel("Username can only use letters, numbers, -, or _."));
         }
         return Optional.empty();
     }
