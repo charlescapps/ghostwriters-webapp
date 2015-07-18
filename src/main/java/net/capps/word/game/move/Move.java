@@ -18,8 +18,6 @@ import java.util.List;
  * Created by charlescapps on 1/16/15.
  */
 public class Move {
-    private static final LetterPoints LETTER_POINTS = LetterPoints.getInstance();
-
     private final Integer gameId;
     private final String letters;
     private final Pos start;

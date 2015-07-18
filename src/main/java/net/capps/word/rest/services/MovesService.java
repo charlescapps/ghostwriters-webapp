@@ -51,19 +51,18 @@ public class MovesService {
                     .entity(new ErrorModel("You must login to send a move."))
                     .build();
         }
-        ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser);
-
-        if (errorOrResult.isError()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOrResult.getErrorOpt().get())
-                    .build();
-        }
-
-        final GameModel originalGame = errorOrResult.getResultOpt().get();
-
         // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             dbConn.setAutoCommit(false);
+            ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser, dbConn);
+
+            if (errorOrResult.isError()) {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(errorOrResult.getErrorOpt().get())
+                        .build();
+            }
+
+            final GameModel originalGame = errorOrResult.getResultOpt().get();
 
             GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
 

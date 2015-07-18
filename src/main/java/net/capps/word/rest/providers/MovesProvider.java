@@ -46,7 +46,7 @@ public class MovesProvider {
 
     private MovesProvider() { } // Singleton pattern
 
-    public ErrorOrResult<GameModel> validateMove(MoveModel inputMoveModel, UserModel authUser) throws Exception {
+    public ErrorOrResult<GameModel> validateMove(MoveModel inputMoveModel, UserModel authUser, Connection dbConn) throws Exception {
 
         Optional<ErrorModel> errorOpt = validateFieldsArePresent(inputMoveModel);
         if (errorOpt.isPresent()) {
@@ -60,10 +60,10 @@ public class MovesProvider {
             }
         }
 
-        Integer gameId = inputMoveModel.getGameId();
+        int gameId = inputMoveModel.getGameId();
 
         // Get the full Game using the gameId
-        Optional<GameModel> gameOpt = gamesDAO.getGameWithPlayerModelsById(gameId);
+        Optional<GameModel> gameOpt = gamesDAO.getGameWithPlayerModelsById(gameId, dbConn);
         if (!gameOpt.isPresent()) {
             return ErrorOrResult.ofError(new ErrorModel(format("gameId %d is not a valid game.", gameId)));
         }
@@ -88,7 +88,10 @@ public class MovesProvider {
             }
         }
 
-        // Create a Board object
+        // Set the playerId as the currently authenticated user.
+        inputMoveModel.setPlayerId(authUser.getId());
+
+        // Create a Game object
         Game gameState = new Game(game, Optional.empty());
         Move move = new Move(inputMoveModel);
 
@@ -98,8 +101,13 @@ public class MovesProvider {
             return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
         }
 
-        // Set the playerId as the currently authenticated user.
-        inputMoveModel.setPlayerId(authUser.getId());
+        // Check if player is playing the same tiles they just grabbed
+        List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
+        moveErrorOpt = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
+
+        if (moveErrorOpt.isPresent()) {
+            return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
+        }
 
         return ErrorOrResult.ofResult(game);
     }

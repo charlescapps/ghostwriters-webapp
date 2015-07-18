@@ -140,12 +140,6 @@ public class GamesDAO {
         return getGameByResultSetRow(result);
     }
 
-    public Optional<GameModel> getGameById(int gameId) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getGameById(gameId, dbConn);
-        }
-    }
-
     public Optional<GameModel> getGameById(int gameId, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID);
         stmt.setInt(1, gameId);

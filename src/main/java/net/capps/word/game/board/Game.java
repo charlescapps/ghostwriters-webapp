@@ -14,10 +14,12 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.Tile;
 import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.MoveModel;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -29,7 +31,8 @@ public class Game {
     private static final LetterPoints letterPoints = LetterPoints.getInstance();
 
     // --------- Errors ---------
-    private static final Optional<String> ERR_CANNOT_PLAY = Optional.of("Cannot play more moves, game is complete!");
+    private static final Optional<String> ERR_CANNOT_PLAY = Optional.of("You can't play a move, game is complete!");
+    private static final Optional<String> ERR_CANNOT_PLAY_GRABBED_TILES = Optional.of("You can't play the letters you just grabbed in the same place!");
 
     private final int gameId;
     private final SpecialDict specialDict;
@@ -157,8 +160,60 @@ public class Game {
         throw new IllegalStateException();
     }
 
+    public Optional<String> getReplayGrabbedTilesError(MoveModel moveModel, List<MoveModel> prevMoves) {
+        if (moveModel.getMoveType() != MoveType.PLAY_WORD) {
+            return Optional.empty();
+        }
+        if (prevMoves.size() < 2) {
+            return Optional.empty();
+        }
+
+        MoveModel prevMove = prevMoves.get(0);
+        MoveModel prevPrevMove = prevMoves.get(1);
+        final int currentPlayerId = moveModel.getPlayerId();
+
+        // Check if player is playing the the same tiles they grabbed 2 turns ago.
+        if (prevPrevMove.getPlayerId() == currentPlayerId &&
+                prevPrevMove.getMoveType() == MoveType.GRAB_TILES &&
+                prevMove.getPlayerId() != currentPlayerId) {
+
+            if (didPlaySameTilesAsGrab(prevPrevMove, moveModel)) {
+                return ERR_CANNOT_PLAY_GRABBED_TILES;
+            }
+        }
+
+        // Check if player is playing the the same tiles they grabbed 1 turn ago,
+        // in the case that it's the end-of-the-game and they get an extra turn since opponent is out of tiles.
+        if (prevMove.getPlayerId() == currentPlayerId && prevMove.getMoveType() == MoveType.GRAB_TILES) {
+            if (didPlaySameTilesAsGrab(prevMove, moveModel)) {
+                return ERR_CANNOT_PLAY_GRABBED_TILES;
+            }
+        }
+
+        return Optional.empty();
+    }
+    
+    private boolean didPlaySameTilesAsGrab(MoveModel grabMove, MoveModel playMove) {
+        if (playMove.getStart().equals(grabMove.getStart()) &&
+                playMove.getDir() == grabMove.getDir() &&
+                playMove.getLetters().equals(grabMove.getLetters())) {
+            return true;
+        }
+
+        if (playMove.getDir().negate().equals(grabMove.getDir())) {
+            final Pos end = playMove.getStart().toPos().go(playMove.getDir(), playMove.getLetters().length() - 1);
+            if (end.equals(grabMove.getStart().toPos())) {
+                final String reverseLetters = new StringBuilder(playMove.getLetters()).reverse().toString();
+                if (reverseLetters.equals(grabMove.getLetters())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int playMove(Move validatedMove) {
-        if(gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
+        if (gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
             throw new IllegalStateException("Can't play a move for a finished game!");
         }
         switch (validatedMove.getMoveType()) {
@@ -246,8 +301,8 @@ public class Game {
         // If there are tiles left to grab, OR the other player's rack isn't empty, then swap whose turn it is
         // Otherwise, it remains the same player's turn.
         return getOpponentPlayerRack().hasPlayableTile() ||
-               gameResult != GameResult.IN_PROGRESS ||
-               !tileSet.areAllTilesPlayed() ;
+                gameResult != GameResult.IN_PROGRESS ||
+                !tileSet.areAllTilesPlayed();
     }
 
 
@@ -299,7 +354,7 @@ public class Game {
             case PLAY_WORD:
                 // End game if both player's racks are empty and all tiles are played
                 if (player1Turn && !player2Rack.hasPlayableTile() ||
-                   !player1Turn && !player1Rack.hasPlayableTile()) {
+                        !player1Turn && !player1Rack.hasPlayableTile()) {
                     if (tileSet.areAllTilesPlayed()) {
                         return computeGameResultFromFinalPoints();
                     }
