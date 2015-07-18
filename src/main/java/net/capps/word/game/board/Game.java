@@ -245,8 +245,9 @@ public class Game {
     private boolean doChangeTurn() {
         // If there are tiles left to grab, OR the other player's rack isn't empty, then swap whose turn it is
         // Otherwise, it remains the same player's turn.
-        boolean areAllTilesPlayed = tileSet.areAllTilesPlayed();
-        return !areAllTilesPlayed || !getOpponentPlayerRack().isEmpty() || gameResult != GameResult.IN_PROGRESS;
+        return getOpponentPlayerRack().hasPlayableTile() ||
+               gameResult != GameResult.IN_PROGRESS ||
+               !tileSet.areAllTilesPlayed() ;
     }
 
 
@@ -261,9 +262,7 @@ public class Game {
         }
         gameResult = checkForGameEnd(validatedMove);
 
-        if (doChangeTurn()) {
-            player1Turn = !player1Turn;
-        }
+        player1Turn = !player1Turn;
 
         previousMoveOpt = Optional.of(validatedMove);
         return numPoints;
@@ -299,7 +298,8 @@ public class Game {
                 return gameResult; // Game cannot end immediately after grabbing tiles
             case PLAY_WORD:
                 // End game if both player's racks are empty and all tiles are played
-                if (player1Rack.isEmpty() && player2Rack.isEmpty()) {
+                if (player1Turn && !player2Rack.hasPlayableTile() ||
+                   !player1Turn && !player1Rack.hasPlayableTile()) {
                     if (tileSet.areAllTilesPlayed()) {
                         return computeGameResultFromFinalPoints();
                     }
@@ -314,11 +314,11 @@ public class Game {
                     }
                 }
                 // If the current player is passing,
-                // and the board has no more grabbable tiles
-                // opponent's rack is empty
+                // and the board has no more grabbable tiles,
+                // and opponent's rack is empty,
                 // then the game is over
-                if (isPlayer1Turn() && player2Rack.isEmpty() && tileSet.areAllTilesPlayed() ||
-                   !isPlayer1Turn() && player1Rack.isEmpty() && tileSet.areAllTilesPlayed()) {
+                if ((isPlayer1Turn() && !player2Rack.hasPlayableTile() || !isPlayer1Turn() && !player1Rack.hasPlayableTile())
+                        && tileSet.areAllTilesPlayed()) {
                     return computeGameResultFromFinalPoints();
                 }
                 return gameResult;

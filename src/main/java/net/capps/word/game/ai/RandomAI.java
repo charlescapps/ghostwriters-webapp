@@ -93,7 +93,7 @@ public class RandomAI implements GameAI {
     // --------------- Private ----------------
 
     private Optional<Move> getRandomPlayMove(int gameId, Rack rack, TileSet tileSet) {
-        if (rack.isEmpty()) {
+        if (!rack.hasLetterTile()) {
             return Optional.empty();
         }
         final int N = tileSet.N;
@@ -145,7 +145,7 @@ public class RandomAI implements GameAI {
     private Optional<Move> getFirstValidMoveFromUnoccupiedStartTile(int gameId, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.size());
+        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
 
         if (!firstOccupiedOrAdjacent.isPresent()) {
             firstOccupiedOrAdjacent = Optional.of(originalStart); // Try placing tiles off in space, not connected.
@@ -168,7 +168,7 @@ public class RandomAI implements GameAI {
             prefix = sb.toString();
         }
 
-        final List<RackTile> rackCopy = rack.getRackCopy();
+        final List<RackTile> rackCopy = rack.getLetterTiles();
         final List<RackTile> placements = new ArrayList<>();
         final List<Move> foundMoves = new ArrayList<>();
 

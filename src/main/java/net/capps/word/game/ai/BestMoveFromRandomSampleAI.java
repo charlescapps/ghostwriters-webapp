@@ -85,7 +85,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     // --------------- Private ----------------
 
     private Optional<Move> getBestMoveFromRandomSubsetOfPositions(Game game, Rack rack, TileSet tileSet) {
-        if (rack.isEmpty()) {
+        if (!rack.hasLetterTile()) {
             return Optional.empty();
         }
 

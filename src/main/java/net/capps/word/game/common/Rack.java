@@ -41,16 +41,22 @@ public class Rack implements Iterable<RackTile> {
         return tiles.isEmpty();
     }
 
-    public int getSumOfPoints() {
-        int points = 0;
-        for (RackTile rackTile: tiles) {
-            points += rackTile.getLetterPointValue();
+    public boolean hasPlayableTile() {
+        for (RackTile tile: tiles) {
+            if (tile.isLetter() || tile.isWild()) {
+                return true;
+            }
         }
-        return points;
+        return false;
     }
 
-    public List<RackTile> getRackCopy() {
-        return Lists.newArrayList(tiles);
+    public boolean hasLetterTile() {
+        for (RackTile tile: tiles) {
+            if (tile.isLetter()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<RackTile> getLetterTiles() {
