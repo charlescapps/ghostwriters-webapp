@@ -10,6 +10,7 @@ import net.capps.word.rest.providers.GamesSearchProvider;
 import net.capps.word.rest.providers.MovesProvider;
 import net.capps.word.rest.providers.TokensProvider;
 import net.capps.word.util.ErrorOrResult;
+import net.capps.word.util.RestUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -56,20 +57,22 @@ public class GamesService {
 
         Optional<ErrorModel> errorOpt = gamesProvider.validateInputForCreateGame(input, player1);
         if (errorOpt.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOpt.get())
-                    .build();
+            return RestUtil.badRequest(errorOpt.get());
         }
 
         errorOpt = tokensProvider.validateCanAffordCreateGameError(player1, input);
         if (errorOpt.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(errorOpt.get())
-                    .build();
+            return RestUtil.badRequest(errorOpt.get());
         }
 
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             dbConn.setAutoCommit(false);
+
+            Optional<ErrorModel> canCreateGamesErrorOpt = gamesProvider.validateUserCanCreateGame(player1, dbConn);
+            if (canCreateGamesErrorOpt.isPresent()) {
+                return RestUtil.badRequest(canCreateGamesErrorOpt.get());
+            }
+
             GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
 
             UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);

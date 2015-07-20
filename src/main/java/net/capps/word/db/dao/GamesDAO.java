@@ -85,8 +85,28 @@ public class GamesDAO {
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
                     "WHERE player1 = ? AND game_result = ? ORDER BY last_activity DESC LIMIT ?;";
 
+    private static final String GET_NUM_ACTIVE_GAMES =
+            "SELECT COUNT(*) AS num_active_games FROM word_games WHERE " +
+                    "((player1 = ? OR player2 = ?) AND game_result = ?) OR " +
+                    "(player1 = ? AND game_result = ?);";
+
     public static GamesDAO getInstance() {
         return INSTANCE;
+    }
+
+    public int getNumActiveGames(Connection dbConn, int playerId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_ACTIVE_GAMES);
+        stmt.setInt(1, playerId);
+        stmt.setInt(2, playerId);
+        stmt.setShort(3, (short)GameResult.IN_PROGRESS.ordinal());
+        stmt.setInt(4, playerId);
+        stmt.setShort(5, (short)GameResult.OFFERED.ordinal());
+
+        ResultSet resultSet = stmt.executeQuery();
+        if (!resultSet.next()) {
+            throw new SQLException("Expected 1 row of results from querying to get the number of active games, received 0");
+        }
+        return resultSet.getInt("num_active_games");
     }
 
     public GameModel createNewGame(Connection dbConn, GameModel validatedInputGame, TileSet tileSet, SquareSet squareSet) throws Exception {
