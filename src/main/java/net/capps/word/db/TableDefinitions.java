@@ -89,6 +89,12 @@ public class TableDefinitions {
                       "date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
                     ");";
 
+    public static final String CREATE_GAME_ID_FOR_MOVES_TABLE_IDX =
+            "CREATE INDEX idx_moves_game_id ON word_moves (game_id);";
+
+    public static final String DROP_GAME_ID_FOR_MOVES_TABLE_IDX =
+            "DROP INDEX IF EXISTS idx_moves_game_id;";
+
     public static final String CREATE_SESSION_TABLE =
             "CREATE TABLE IF NOT EXISTS word_sessions " +
                     "( id BIGSERIAL PRIMARY KEY," +

@@ -79,6 +79,14 @@ public class SetupHelper {
             stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
 
             stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_GAME_ID_FOR_MOVES_TABLE_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_GAME_ID_FOR_MOVES_TABLE_IDX);
+
+            // -------- word_sessions table
+
+            stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
 
             // --------- played_words table ------
