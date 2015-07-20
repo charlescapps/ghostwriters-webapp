@@ -7,7 +7,6 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
-import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
