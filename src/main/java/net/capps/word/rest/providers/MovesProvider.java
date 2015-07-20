@@ -102,11 +102,13 @@ public class MovesProvider {
         }
 
         // Check if player is playing the same tiles they just grabbed
-        List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
-        moveErrorOpt = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
+        if (inputMoveModel.getMoveType() == MoveType.PLAY_WORD) {
+            List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
+            moveErrorOpt = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
 
-        if (moveErrorOpt.isPresent()) {
-            return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
+            if (moveErrorOpt.isPresent()) {
+                return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
+            }
         }
 
         return ErrorOrResult.ofResult(game);

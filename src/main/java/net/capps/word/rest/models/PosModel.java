@@ -37,4 +37,19 @@ public class PosModel {
     public Pos toPos() {
         return Pos.of(r, c);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof PosModel)) {
+            return false;
+        }
+        PosModel otherPosModel = (PosModel)o;
+        return otherPosModel.r == r &&
+               otherPosModel.c == c;
+    }
+
+    @Override
+    public int hashCode() {
+        return r ^ (c >> 8);
+    }
 }
