@@ -124,6 +124,6 @@ public class Pos {
 
     @Override
     public int hashCode() {
-        return r + (c >> 8);
+        return r ^ (c >> 8);
     }
 }

@@ -15,6 +15,8 @@ import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.Tile;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -194,22 +196,50 @@ public class Game {
     }
     
     private boolean didPlaySameTilesAsGrab(MoveModel grabMove, MoveModel playMove) {
-        if (playMove.getStart().equals(grabMove.getStart()) &&
+
+        Pair<Pos, Pos> startAndEnd = getStartAndEndOfPlayTiles(playMove);
+        if (startAndEnd == null) {
+            return false;
+        }
+
+        if (startAndEnd.getLeft().equals(grabMove.getStart().toPos()) &&
                 playMove.getDir() == grabMove.getDir() &&
-                playMove.getLetters().equals(grabMove.getLetters())) {
+                playMove.getTiles().equals(grabMove.getLetters())) {
             return true;
         }
 
-        if (playMove.getDir().negate().equals(grabMove.getDir())) {
-            final Pos end = playMove.getStart().toPos().go(playMove.getDir(), playMove.getLetters().length() - 1);
+        if (playMove.getDir().negate() == grabMove.getDir()) {
+            final Pos end = startAndEnd.getRight();
             if (end.equals(grabMove.getStart().toPos())) {
-                final String reverseLetters = new StringBuilder(playMove.getLetters()).reverse().toString();
-                if (reverseLetters.equals(grabMove.getLetters())) {
+                final String reverseTiles = new StringBuilder(playMove.getTiles()).reverse().toString();
+                if (reverseTiles.equals(grabMove.getLetters())) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private Pair<Pos, Pos> getStartAndEndOfPlayTiles(MoveModel moveModel) {
+        Pos p = moveModel.getStart().toPos();
+        while (tileSet.isValid(p) && !tileSet.get(p).isAbsent()) {
+            p = p.go(moveModel.getDir(), 1);
+        }
+
+        if (!tileSet.isValid(p)) {
+            return null;
+        }
+
+        final Pos startPlayTiles = p;
+
+        for (int i = 0; i < moveModel.getTiles().length() - 1; ++i) {
+            p = p.go(moveModel.getDir(), 1);
+            if (!tileSet.isValid(p) || tileSet.isOccupied(p)) {
+                return null;
+            }
+        }
+
+        return ImmutablePair.of(startPlayTiles, p);
     }
 
     public int playMove(Move validatedMove) {
