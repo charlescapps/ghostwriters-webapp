@@ -36,7 +36,7 @@ public class GamesProvider {
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
-    private static final int MAX_ACTIVE_GAMES = 100;
+    private static final int MAX_ACTIVE_GAMES = 5;
     public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,2}");
 
     // -------------- Errors ------------

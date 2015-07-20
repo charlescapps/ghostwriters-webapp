@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class WordServletContextListener implements ServletContextListener {
     private InitDictionariesThread initDictionariesThread;
     private ScheduledExecutorService incrementUserTokensService;
+    private ScheduledExecutorService timeOutInactiveGamesService;
     private static final Logger LOG = LoggerFactory.getLogger(WordServletContextListener.class);
 
     @Override
@@ -24,6 +25,10 @@ public class WordServletContextListener implements ServletContextListener {
         }
         if (incrementUserTokensService == null || incrementUserTokensService.isShutdown() || incrementUserTokensService.isTerminated()) {
             startScheduledTaskToIncreaseTokens();
+        }
+
+        if (timeOutInactiveGamesService == null || timeOutInactiveGamesService.isShutdown() || timeOutInactiveGamesService.isTerminated()) {
+            startScheduledTaskToTimeOutInactiveGames();
         }
     }
 
@@ -58,5 +63,12 @@ public class WordServletContextListener implements ServletContextListener {
         LOG.info("Scheduling task to increment user tokens!");
         incrementUserTokensService = Executors.newSingleThreadScheduledExecutor();
         incrementUserTokensService.scheduleAtFixedRate(new IncrementTokensRunnable(), 1, 60, TimeUnit.MINUTES);
+    }
+
+    private void startScheduledTaskToTimeOutInactiveGames() {
+        LOG.info("Scheduling task to time out inactive games!");
+        timeOutInactiveGamesService = Executors.newSingleThreadScheduledExecutor();
+        // Attempt to timeout inactive days once per day
+        timeOutInactiveGamesService.scheduleAtFixedRate(new TimeOutInactiveGamesRunnable(), 1, 1, TimeUnit.DAYS);
     }
 }

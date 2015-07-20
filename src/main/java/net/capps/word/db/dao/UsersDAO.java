@@ -437,7 +437,7 @@ public class UsersDAO {
 
     public void incrementAllUserTokens() throws SQLException {
         final int BATCH_SIZE = 1000;
-        LOG.info("Starting to increment tokens for all users in batches of 1,000 users...");
+        LOG.info("[START TASK] Starting to increment tokens for all users in batches of 1,000 users...");
         final long START = System.currentTimeMillis();
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             final int MAX_ID = getMaximumId(dbConn);
@@ -453,7 +453,7 @@ public class UsersDAO {
             }
         }
         final long END = System.currentTimeMillis();
-        LOG.warn("Duration to increment all users' tokens by 1: {}s", TimeUnit.MILLISECONDS.toSeconds(END - START));
+        LOG.warn("[END TASK] Duration to increment all users' tokens by 1: {}s", TimeUnit.MILLISECONDS.toSeconds(END - START));
     }
 
     public UserModel increaseUsersTokensForPurchase(int userId, int numTokens) throws SQLException {

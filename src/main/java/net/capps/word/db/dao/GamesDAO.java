@@ -11,11 +11,14 @@ import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.UserModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
@@ -25,6 +28,7 @@ import static java.lang.String.format;
 public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
+    private static final Logger LOG = LoggerFactory.getLogger(GamesDAO.class);
 
     private static final String INSERT_GAME_QUERY =
             "INSERT INTO word_games (game_type, ai_type, special_dict, player1, player2, player1_rack, player2_rack, player1_points, player2_points, " +
@@ -90,6 +94,9 @@ public class GamesDAO {
                     "((player1 = ? OR player2 = ?) AND game_result = ?) OR " +
                     "(player1 = ? AND game_result = ?);";
 
+    private static final String GET_INACTIVE_GAMES =
+            "SELECT id, player1_turn FROM word_games WHERE (game_result = ? OR game_result = ?) AND EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM last_activity) > ?;";
+
     public static GamesDAO getInstance() {
         return INSTANCE;
     }
@@ -98,9 +105,9 @@ public class GamesDAO {
         PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_ACTIVE_GAMES);
         stmt.setInt(1, playerId);
         stmt.setInt(2, playerId);
-        stmt.setShort(3, (short)GameResult.IN_PROGRESS.ordinal());
+        stmt.setShort(3, (short) GameResult.IN_PROGRESS.ordinal());
         stmt.setInt(4, playerId);
-        stmt.setShort(5, (short)GameResult.OFFERED.ordinal());
+        stmt.setShort(5, (short) GameResult.OFFERED.ordinal());
 
         ResultSet resultSet = stmt.executeQuery();
         if (!resultSet.next()) {
@@ -113,7 +120,7 @@ public class GamesDAO {
         final String squares = squareSet.toCompactString();
         final String tiles = tileSet.toCompactString();
         PreparedStatement stmt = dbConn.prepareStatement(INSERT_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
-        stmt.setShort(1, (short)validatedInputGame.getGameType().ordinal());
+        stmt.setShort(1, (short) validatedInputGame.getGameType().ordinal());
         final AiType aiType = validatedInputGame.getAiType();
         if (aiType != null) {
             stmt.setShort(2, (short) aiType.ordinal());
@@ -122,7 +129,7 @@ public class GamesDAO {
         }
         final SpecialDict specialDict = validatedInputGame.getSpecialDict();
         if (specialDict != null) {
-            stmt.setShort(3, (short)specialDict.ordinal());
+            stmt.setShort(3, (short) specialDict.ordinal());
         } else {
             stmt.setNull(3, Types.SMALLINT);
         }
@@ -273,6 +280,19 @@ public class GamesDAO {
         }
     }
 
+    public void timeOutGame(int gameId, boolean player1TimedOut, Connection dbConn) throws SQLException {
+        GameResult gameResult = player1TimedOut ? GameResult.PLAYER1_TIMEOUT : GameResult.PLAYER2_TIMEOUT;
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+        stmt.setShort(1, (short) gameResult.ordinal());
+        stmt.setInt(2, gameId);
+
+        int numUpdated = stmt.executeUpdate();
+
+        if (numUpdated != 1) {
+            throw new SQLException("Expected 1 row to be updated when timing out game, but the number updated = " + numUpdated);
+        }
+    }
+
     public void updateGamePlayerRatingIncreases(int gameId, int player1RatingIncrease, int player2RatingIncrease, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(UPDATE_PLAYER_RATING_INCREASES);
         stmt.setInt(1, player1RatingIncrease);
@@ -345,11 +365,6 @@ public class GamesDAO {
         return games;
     }
 
-    public List<GameModel> getFinishedGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getFinishedGamesForUserLastActivityDesc(userId, count, dbConn);
-        }
-    }
 
     public List<GameModel> getFinishedGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
@@ -379,7 +394,7 @@ public class GamesDAO {
         final AiType aiType = gameType == GameType.TWO_PLAYER ? null : AiType.values()[result.getShort("ai_type")];
         game.setAiType(aiType);
         Object specialDictOrdinal = result.getObject("special_dict");
-        final SpecialDict specialDict = specialDictOrdinal == null ? null : SpecialDict.values() [(Integer) specialDictOrdinal];
+        final SpecialDict specialDict = specialDictOrdinal == null ? null : SpecialDict.values()[(Integer) specialDictOrdinal];
         game.setSpecialDict(specialDict);
         game.setPlayer1(result.getInt("player1"));
         game.setPlayer2(result.getInt("player2"));
@@ -469,5 +484,39 @@ public class GamesDAO {
         }
 
         return game;
+    }
+
+    private List<GameModel> getInactiveGames(Connection dbConn, int numSeconds) throws SQLException {
+        List<GameModel> inactiveGames = new ArrayList<>();
+        PreparedStatement stmt = dbConn.prepareStatement(GET_INACTIVE_GAMES);
+        stmt.setShort(1, (short)GameResult.IN_PROGRESS.ordinal());
+        stmt.setShort(2, (short)GameResult.OFFERED.ordinal());
+        stmt.setInt(3, numSeconds);
+        ResultSet resultSet = stmt.executeQuery();
+
+        while (resultSet.next()) {
+            GameModel gameModel = new GameModel();
+            gameModel.setId(resultSet.getInt("id"));
+            gameModel.setPlayer1Turn(resultSet.getBoolean("player1_turn"));
+            inactiveGames.add(gameModel);
+        }
+        return inactiveGames;
+    }
+
+    public void timeoutInactiveGames(int numSeconds) throws SQLException {
+        LOG.info("[START TASK] Starting to timeout inactive games older than {} days...", TimeUnit.SECONDS.toDays(numSeconds));
+        final long START = System.currentTimeMillis();
+        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
+            List<GameModel> inactiveGames = getInactiveGames(dbConn, numSeconds);
+            for (GameModel inactiveGame : inactiveGames) {
+                try {
+                    timeOutGame(inactiveGame.getId(), inactiveGame.getPlayer1Turn(), dbConn);
+                } catch (Exception e) {
+                    LOG.error(format("Error timing out game with id=%d :", inactiveGame.getId()), e);
+                }
+            }
+            final long DURATION = System.currentTimeMillis() - START;
+            LOG.info("[END TASK] Timed out {} games in {} seconds", inactiveGames.size(), TimeUnit.MILLISECONDS.toSeconds(DURATION));
+        }
     }
 }
