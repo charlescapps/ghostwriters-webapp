@@ -39,55 +39,36 @@ public class RatingsProvider {
         final UserModel player1 = gameModel.getPlayer1Model();
         final UserModel player2 = gameModel.getPlayer2Model();
         final BoardSize boardSize = gameModel.getBoardSize();
+        updateWinLossRecords(player1, player2, gameResult);
+
+        // Results that can affect player rating
         switch (gameResult) {
             case PLAYER1_WIN:
             case PLAYER2_RESIGN:
-                if (gameResult == GameResult.PLAYER1_WIN || gameResult == GameResult.PLAYER2_RESIGN) {
-                    player1.setWins(player1.getWins() + 1);
-                    player2.setLosses(player2.getLosses() + 1);
-                }
             case PLAYER2_WIN:
             case PLAYER1_RESIGN:
-                if (gameResult == GameResult.PLAYER2_WIN || gameResult == GameResult.PLAYER1_RESIGN) {
-                    player2.setWins(player2.getWins() + 1);
-                    player1.setLosses(player1.getLosses() + 1);
-                }
             case TIE:
-                if (gameResult == GameResult.TIE) {
-                    player1.setTies(player1.getTies() + 1);
-                    player2.setTies(player2.getTies() + 1);
-                }
-                final int player1Rating = player1.getRating();
-                final int player2Rating = player2.getRating();
 
-                // Compute the idealized elo rating change if we were using Chess ratings
-                final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1Rating, player2Rating, gameResult, boardSize);
+                final int player1InitialRating = player1.getRating();
+                final int player2InitialRating = player2.getRating();
 
-                // Modify rating change to always be positive, based on a minimum increase per-boardsize
+                // Compute the idealized elo rating change if we were using pure Chess ratings
+                final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1InitialRating, player2InitialRating, gameResult, boardSize);
 
-                int player1ActualRatingChange = gameResult == GameResult.PLAYER1_RESIGN ? 0 : Math.max(
-                        player1EloRatingChange, boardSize.getMinimumRatingIncrease()
-                );
-
-                int player2ActualRatingChange = gameResult == GameResult.PLAYER2_RESIGN ? 0 : Math.max(
-                        -player1EloRatingChange,
-                         boardSize.getMinimumRatingIncrease()
-                );
-
-                // Don't let a player earn more than 1000 rating points in one game.
-                player1ActualRatingChange = Math.min(player1ActualRatingChange, MAX_RATING_INCREASE);
-                player2ActualRatingChange = Math.min(player2ActualRatingChange, MAX_RATING_INCREASE);
+                // Modify rating change to always be positive for human players, based on a minimum increase for the board size
+                int player1ActualRatingChange = computePlayer1RatingChange(player1EloRatingChange, gameResult, boardSize, player1);
+                int player2ActualRatingChange = computePlayer2RatingChange(-player1EloRatingChange, gameResult, boardSize, player2);
 
                 gameModel.setPlayer1RatingIncrease(player1ActualRatingChange);
                 gameModel.setPlayer2RatingIncrease(player2ActualRatingChange);
 
-                final int player1NewRating = player1Rating + player1ActualRatingChange;
-                final int player2NewRating = player2Rating + player2ActualRatingChange;
+                final int player1NewRating = player1InitialRating + player1ActualRatingChange;
+                final int player2NewRating = player2InitialRating + player2ActualRatingChange;
 
-                // Update in the database
+                // Updates in the database
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
-                gamesDAO.updateGamePlayerRatingIncreases(gameModel.getId(), player1ActualRatingChange, player2ActualRatingChange, dbConn);
+                gamesDAO.updateGamePlayerRatingIncreases(dbConn, gameModel.getId(), player1ActualRatingChange, player2ActualRatingChange);
 
                 // Update models to be returned to the app
                 player1.setRating(player1NewRating);
@@ -95,6 +76,62 @@ public class RatingsProvider {
             default:
                 // Do nothing if the game isn't over due to a win or a tie.
         }
+    }
+
+    private void updateWinLossRecords(UserModel player1, UserModel player2, GameResult gameResult) {
+        switch (gameResult) {
+            case PLAYER1_WIN:
+            case PLAYER2_RESIGN:
+                player1.setWins(player1.getWins() + 1);
+                player2.setLosses(player2.getLosses() + 1);
+                break;
+            case PLAYER2_WIN:
+            case PLAYER1_RESIGN:
+                player2.setWins(player2.getWins() + 1);
+                player1.setLosses(player1.getLosses() + 1);
+                break;
+            case TIE:
+                player1.setTies(player1.getTies() + 1);
+                player2.setTies(player2.getTies() + 1);
+        }
+    }
+
+    private int computePlayer1RatingChange(int rawPlayer1RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel) {
+        // 0 rating change for resigning player.
+        if (gameResult == GameResult.PLAYER1_RESIGN) {
+            return 0;
+        }
+
+        // Use the raw ELO chess rating change for the AI
+        if (userModel.isAI()) {
+            return boundRatingChange(rawPlayer1RatingChange);
+        }
+
+        // Make people happy by not allowing negative rating changes
+        int ratingChange = Math.max(boardSize.getMinimumRatingIncrease(), rawPlayer1RatingChange);
+        return boundRatingChange(ratingChange);
+    }
+
+    private int computePlayer2RatingChange(int rawPlayer2RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel) {
+        // 0 rating change for resigning player.
+        if (gameResult == GameResult.PLAYER2_RESIGN) {
+            return 0;
+        }
+
+        // Use the raw ELO chess rating change for the AI
+        if (userModel.isAI()) {
+            return boundRatingChange(rawPlayer2RatingChange);
+        }
+
+        // Make people happy by not allowing negative rating changes
+        int ratingChange = Math.max(boardSize.getMinimumRatingIncrease(), rawPlayer2RatingChange);
+        return boundRatingChange(ratingChange);
+    }
+
+    private int boundRatingChange(int ratingChange) {
+        ratingChange = Math.max(ratingChange, -MAX_RATING_INCREASE);
+        ratingChange = Math.min(ratingChange, MAX_RATING_INCREASE);
+        return ratingChange;
     }
 
     public List<UserModel> getUsersWithRatingsAroundMe(UserModel user, int count) throws SQLException {

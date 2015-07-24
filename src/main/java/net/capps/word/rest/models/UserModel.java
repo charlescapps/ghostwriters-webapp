@@ -2,6 +2,7 @@ package net.capps.word.rest.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
+import net.capps.word.constants.WordConstants;
 import net.capps.word.db.dao.UserHashInfo;
 
 import java.util.Objects;
@@ -150,6 +151,17 @@ public class UserModel {
     @JsonIgnore
     public UserHashInfo getUserHashInfo() {
         return userHashInfo;
+    }
+
+    @JsonIgnore
+    public boolean isAI() {
+        if (id == null) {
+            return false;
+        }
+        return WordConstants.RANDOM_AI_USER.isPresent() && id.equals(WordConstants.RANDOM_AI_USER.get().getId()) ||
+               WordConstants.BOOKWORM_AI_USER.isPresent() && id.equals(WordConstants.BOOKWORM_AI_USER.get().getId()) ||
+               WordConstants.PROFESSOR_AI_USER.isPresent() && id.equals(WordConstants.PROFESSOR_AI_USER.get().getId());
+
     }
 
     @Override

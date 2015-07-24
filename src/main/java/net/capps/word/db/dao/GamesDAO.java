@@ -293,7 +293,7 @@ public class GamesDAO {
         }
     }
 
-    public void updateGamePlayerRatingIncreases(int gameId, int player1RatingIncrease, int player2RatingIncrease, Connection dbConn) throws SQLException {
+    public void updateGamePlayerRatingIncreases(Connection dbConn, int gameId, int player1RatingIncrease, int player2RatingIncrease) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(UPDATE_PLAYER_RATING_INCREASES);
         stmt.setInt(1, player1RatingIncrease);
         stmt.setInt(2, player2RatingIncrease);
@@ -489,8 +489,8 @@ public class GamesDAO {
     private List<GameModel> getInactiveGames(Connection dbConn, int numSeconds) throws SQLException {
         List<GameModel> inactiveGames = new ArrayList<>();
         PreparedStatement stmt = dbConn.prepareStatement(GET_INACTIVE_GAMES);
-        stmt.setShort(1, (short)GameResult.IN_PROGRESS.ordinal());
-        stmt.setShort(2, (short)GameResult.OFFERED.ordinal());
+        stmt.setShort(1, (short) GameResult.IN_PROGRESS.ordinal());
+        stmt.setShort(2, (short) GameResult.OFFERED.ordinal());
         stmt.setInt(3, numSeconds);
         ResultSet resultSet = stmt.executeQuery();
 
