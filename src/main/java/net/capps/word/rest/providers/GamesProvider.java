@@ -36,7 +36,7 @@ public class GamesProvider {
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
-    private static final int MAX_ACTIVE_GAMES = 5;
+    private static final int MAX_ACTIVE_GAMES = 100;
     public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,2}");
 
     // -------------- Errors ------------
@@ -118,7 +118,7 @@ public class GamesProvider {
         return Optional.empty();
     }
 
-    public Optional<ErrorModel> validateUserCanCreateGame(UserModel gameCreator, Connection dbConn) throws SQLException {
+    public Optional<ErrorModel> validateUserCanCreateOrJoinGame(UserModel gameCreator, Connection dbConn) throws SQLException {
         int numActiveGames = gamesDAO.getNumActiveGames(dbConn, gameCreator.getId());
         if (numActiveGames >= MAX_ACTIVE_GAMES) {
             return Optional.of(new ErrorModel(
@@ -141,6 +141,12 @@ public class GamesProvider {
 
         if (rack != null && !INITIAL_RACK_PATTERN.matcher(rack).matches()) {
             return ErrorOrResult.ofError(ERR_INVALID_RACK_PARAM);
+        }
+
+        Optional<ErrorModel> errorOpt = validateUserCanCreateOrJoinGame(authUser, dbConn);
+
+        if (errorOpt.isPresent()) {
+            return ErrorOrResult.ofError(errorOpt.get());
         }
 
         return ErrorOrResult.ofResult(game);

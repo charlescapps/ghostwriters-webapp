@@ -18,7 +18,7 @@ public class GamesSearchProvider {
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
 
-    private static final int MAX_COUNT = 50;
+    private static final int MAX_COUNT = 100;
 
     // --------- Errors -----------
     private static final Optional<ErrorModel> ERR_MISSING_COUNT = Optional.of(new ErrorModel("Missing 'count' query param"));

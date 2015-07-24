@@ -68,7 +68,7 @@ public class GamesService {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             dbConn.setAutoCommit(false);
 
-            Optional<ErrorModel> canCreateGamesErrorOpt = gamesProvider.validateUserCanCreateGame(player1, dbConn);
+            Optional<ErrorModel> canCreateGamesErrorOpt = gamesProvider.validateUserCanCreateOrJoinGame(player1, dbConn);
             if (canCreateGamesErrorOpt.isPresent()) {
                 return RestUtil.badRequest(canCreateGamesErrorOpt.get());
             }
