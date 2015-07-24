@@ -26,6 +26,7 @@ public class RatingsProvider {
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final int MAX_RATING_INCREASE = 1000;
+    private static final int MIN_RATING_DECREASE = -10;
 
     public static RatingsProvider getInstance() {
         return INSTANCE;
@@ -129,7 +130,7 @@ public class RatingsProvider {
     }
 
     private int boundRatingChange(int ratingChange) {
-        ratingChange = Math.max(ratingChange, -MAX_RATING_INCREASE);
+        ratingChange = Math.max(ratingChange, MIN_RATING_DECREASE);
         ratingChange = Math.min(ratingChange, MAX_RATING_INCREASE);
         return ratingChange;
     }
