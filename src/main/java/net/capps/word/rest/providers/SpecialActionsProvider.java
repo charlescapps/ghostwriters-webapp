@@ -25,9 +25,9 @@ public class SpecialActionsProvider {
 
     private static final ErrorModel ERR_MISSING_GAME_ID = new ErrorModel("Missing query param 'gameId'");
     private static final ErrorModel ERR_INVALID_GAME_ID = new ErrorModel("gameId is invalid.");
-    private static final ErrorModel ERR_INVALID_GAME_STATE = new ErrorModel("The game specified isn't in progress.");
-    private static final ErrorModel ERR_INVALID_USER = new ErrorModel("It isn't your turn in the game specified.");
-    private static final ErrorModel ERR_NO_SCRY_TILE = new ErrorModel("The current player doesn't have any scry tiles!");
+    private static final ErrorModel ERR_INVALID_GAME_STATE = new ErrorModel("The game isn't in progress.");
+    private static final ErrorModel ERR_INVALID_USER = new ErrorModel("It isn't your turn.");
+    private static final ErrorModel ERR_NO_SCRY_TILE = new ErrorModel("The current player doesn't have any oracle tiles!");
 
     private static final ErrorModel ERR_NO_PLAY_WORD_MOVE_FOUND = new ErrorModel("No words found! Try grabbing tiles from the board or passing.");
 
