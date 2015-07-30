@@ -83,8 +83,8 @@ public class UsersProvider {
         return Optional.empty();
     }
 
-    public UserModel createNewUser(UserModel validatedInput) throws Exception {
-        return usersDao.insertNewUser(validatedInput);
+    public UserModel createNewUser(Connection dbConn, UserModel validatedInput) throws Exception {
+        return usersDao.insertNewUser(dbConn, validatedInput);
     }
 
     public void updateUserPassword(int userId, String validatedPass, Connection dbConn) throws Exception {
@@ -93,24 +93,24 @@ public class UsersProvider {
         usersDao.updateUserPassword(dbConn, userId, CryptoUtils.byteToBase64(hashPass), CryptoUtils.byteToBase64(salt));
     }
 
-    public Optional<UserModel> createNewUserIfNotExists(UserModel validatedInput) throws Exception {
-        Optional<UserModel> existing = usersDao.getUserByUsername(validatedInput.getUsername(), false);
+    public Optional<UserModel> createNewUserIfNotExists(Connection dbConn, UserModel validatedInput) throws Exception {
+        Optional<UserModel> existing = usersDao.getUserByUsername(dbConn, validatedInput.getUsername(), false);
         if (existing.isPresent()) {
             return Optional.empty();
         }
         if (validatedInput.getEmail() != null) {
-            Optional<UserModel> existingEmail = usersDao.getUserByEmail(validatedInput.getEmail());
+            Optional<UserModel> existingEmail = usersDao.getUserByEmail(dbConn, validatedInput.getEmail());
             if (existingEmail.isPresent()) {
                 return Optional.empty();
             }
         }
-        return Optional.of(createNewUser(validatedInput));
+        return Optional.of(createNewUser(dbConn, validatedInput));
     }
 
-    public List<UserModel> searchUsers(String q, int maxResults) throws Exception {
+    public List<UserModel> searchUsers(Connection dbConn, String q, int maxResults) throws Exception {
         List<UserModel> results = new ArrayList<>();
         // First add the exact match (case insensitive) to the beginning of the list.
-        Optional<UserModel> exactMatch = usersDao.getUserByUsername(q, false);
+        Optional<UserModel> exactMatch = usersDao.getUserByUsername(dbConn, q, false);
         if (exactMatch.isPresent()) {
             results.add(exactMatch.get());
         }
@@ -120,7 +120,7 @@ public class UsersProvider {
         }
 
         // Next add prefix matches
-        List<UserModel> prefixMatches = usersDao.searchUsers(q, UsersDAO.SearchType.PREFIX, maxResults);
+        List<UserModel> prefixMatches = usersDao.searchUsers(dbConn, q, UsersDAO.SearchType.PREFIX, maxResults);
         prefixMatches.removeAll(results); // Eliminate duplicates
         results.addAll(prefixMatches);
 
@@ -129,7 +129,7 @@ public class UsersProvider {
         }
 
         // Next add substring matches
-        List<UserModel> substringMatches = usersDao.searchUsers(q, UsersDAO.SearchType.SUBSTRING, maxResults);
+        List<UserModel> substringMatches = usersDao.searchUsers(dbConn, q, UsersDAO.SearchType.SUBSTRING, maxResults);
         substringMatches.removeAll(results); // Eliminate duplicates
         results.addAll(substringMatches);
 
@@ -137,8 +137,8 @@ public class UsersProvider {
     }
 
     public UserGameSummaryModel getUserSummaryInfoForMainMenu(int userId, Connection dbConn) throws SQLException {
-        final int numGamesMyTurn = usersDao.getNumGamesMyTurn(userId, dbConn);
-        final int numGamesOfferedToMe = usersDao.getNumGamesOfferedToMe(userId, dbConn);
+        final int numGamesMyTurn = usersDao.getNumGamesMyTurn(dbConn, userId);
+        final int numGamesOfferedToMe = usersDao.getNumGamesOfferedToMe(dbConn, userId);
 
         return new UserGameSummaryModel(userId, numGamesMyTurn, numGamesOfferedToMe);
     }

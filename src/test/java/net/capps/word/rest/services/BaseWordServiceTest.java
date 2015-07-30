@@ -1,6 +1,7 @@
 package net.capps.word.rest.services;
 
 import net.capps.word.crypto.CryptoUtils;
+import net.capps.word.db.WordDbManager;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
@@ -18,6 +19,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
+import java.sql.Connection;
 import java.util.Collections;
 import java.util.logging.Level;
 
@@ -47,8 +49,10 @@ public class BaseWordServiceTest extends JerseyTest {
 
         UserModel fooInput = new UserModel(null, fooUsername, fooUsername + "@example.com", null, null, false);
         UserModel barInput = new UserModel(null, barUsername, barUsername + "@example.com", null, null, false);
-        fooUser = UsersProvider.getInstance().createNewUser(fooInput);
-        barUser = UsersProvider.getInstance().createNewUser(barInput);
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            fooUser = UsersProvider.getInstance().createNewUser(dbConn, fooInput);
+            barUser = UsersProvider.getInstance().createNewUser(dbConn, barInput);
+        }
     }
 
     // ---------- Protected ---------

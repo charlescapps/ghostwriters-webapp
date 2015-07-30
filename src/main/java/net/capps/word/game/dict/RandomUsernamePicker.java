@@ -4,6 +4,7 @@ import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.util.RandomUtil;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class RandomUsernamePicker {
         return INSTANCE;
     }
 
-    public Optional<String> generateRandomUsername() throws SQLException {
+    public Optional<String> generateRandomUsername(Connection dbConn) throws SQLException {
         List<String> randomAdjectives = RandomUtil.shuffleList(adjectiveSet.getWordList());
 
         String username;
@@ -38,7 +39,7 @@ public class RandomUsernamePicker {
                 int remainingLen = MAX_USERNAME_LEN - adjective.length();
                 String noun = nounPicker.getRandomWordBetweenLengths(2, remainingLen);
                 username = uppercase(adjective) + uppercase(noun);
-                conflictUser = UsersDAO.getInstance().getUserByUsername(username, false);
+                conflictUser = UsersDAO.getInstance().getUserByUsername(dbConn, username, false);
                 if (!conflictUser.isPresent()) {
                     return Optional.of(username);
                 }
@@ -53,7 +54,7 @@ public class RandomUsernamePicker {
             final String noun = nounPicker.getRandomWordBetweenLengths(2, remainingLen);
 
             username = uppercase(adjective) + uppercase(noun) + randomNum;
-            conflictUser = UsersDAO.getInstance().getUserByUsername(username, false);
+            conflictUser = UsersDAO.getInstance().getUserByUsername(dbConn, username, false);
             if (!conflictUser.isPresent()) {
                 return Optional.of(username);
             }

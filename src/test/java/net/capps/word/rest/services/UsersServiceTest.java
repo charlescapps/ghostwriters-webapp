@@ -1,5 +1,6 @@
 package net.capps.word.rest.services;
 
+import net.capps.word.db.WordDbManager;
 import net.capps.word.rest.filters.InitialUserAuthFilter;
 import net.capps.word.rest.filters.RegularUserAuthFilter;
 import net.capps.word.rest.models.GameListModel;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -39,8 +41,10 @@ public class UsersServiceTest extends BaseWordServiceTest {
         final String username2 = username1 + RandomStringUtils.randomAlphanumeric(8);
         UserModel user1Input = new UserModel(null, username1, username1 + "@example.com", null, null, false);
         UserModel user2Input = new UserModel(null, username2, username2 + "@example.com", null, null, false);
-        user1 = UsersProvider.getInstance().createNewUser(user1Input);
-        user2 = UsersProvider.getInstance().createNewUser(user2Input);
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            user1 = UsersProvider.getInstance().createNewUser(dbConn, user1Input);
+            user2 = UsersProvider.getInstance().createNewUser(dbConn, user2Input);
+        }
     }
 
     @Test

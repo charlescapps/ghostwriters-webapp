@@ -32,22 +32,20 @@ public class SessionsDAO {
 
     private SessionsDAO() { } // Singleton pattern
 
-    public SessionModel insertSession(int userId, String sessionId) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(INSERT_SESSION_QUERY, Statement.RETURN_GENERATED_KEYS);
-            stmt.setInt(1, userId);
-            stmt.setString(2, sessionId);
-            stmt.setTimestamp(3, new Timestamp(new Date().getTime()));
-            int numRows = stmt.executeUpdate();
-            if (numRows != 1) {
-                throw new SQLException("Failed to insert new session, expected 1 row affected, but had: " + numRows);
-            }
-            ResultSet resultSet = stmt.getGeneratedKeys();
-            if (!resultSet.next()) {
-                throw new SQLException("Failed to insert a new session, no results were returned.");
-            }
-            return createSessionFromCurrentRow(resultSet);
+    public SessionModel insertSession(Connection dbConn, int userId, String sessionId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(INSERT_SESSION_QUERY, Statement.RETURN_GENERATED_KEYS);
+        stmt.setInt(1, userId);
+        stmt.setString(2, sessionId);
+        stmt.setTimestamp(3, new Timestamp(new Date().getTime()));
+        int numRows = stmt.executeUpdate();
+        if (numRows != 1) {
+            throw new SQLException("Failed to insert new session, expected 1 row affected, but had: " + numRows);
         }
+        ResultSet resultSet = stmt.getGeneratedKeys();
+        if (!resultSet.next()) {
+            throw new SQLException("Failed to insert a new session, no results were returned.");
+        }
+        return createSessionFromCurrentRow(resultSet);
     }
 
     public Optional<SessionModel> getSessionForUserId(int userId) throws SQLException {
@@ -62,16 +60,14 @@ public class SessionsDAO {
         }
     }
 
-    public Optional<SessionModel> getSessionForSessionId(String sessionId) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_SESSION_FOR_SESSION_ID);
-            stmt.setString(1, sessionId);
-            ResultSet resultSet = stmt.executeQuery();
-            if (resultSet.next()) {
-                return Optional.of(createSessionFromCurrentRow(resultSet));
-            }
-            return Optional.empty();
+    public Optional<SessionModel> getSessionForSessionId(Connection dbConn, String sessionId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_SESSION_FOR_SESSION_ID);
+        stmt.setString(1, sessionId);
+        ResultSet resultSet = stmt.executeQuery();
+        if (resultSet.next()) {
+            return Optional.of(createSessionFromCurrentRow(resultSet));
         }
+        return Optional.empty();
     }
 
     public int deleteSessionForUser(int userId) throws SQLException {

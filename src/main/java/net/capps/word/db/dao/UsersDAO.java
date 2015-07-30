@@ -139,80 +139,76 @@ public class UsersDAO {
         }
     }
 
-    public List<UserModel> searchUsers(String q, SearchType searchType, int maxResults) throws Exception {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            String sql = searchType.getSql();
-            PreparedStatement stmt = dbConn.prepareStatement(sql);
-            stmt.setString(1, q);
-            stmt.setInt(2, maxResults);
+    public List<UserModel> searchUsers(Connection dbConn, String q, SearchType searchType, int maxResults) throws Exception {
+        String sql = searchType.getSql();
+        PreparedStatement stmt = dbConn.prepareStatement(sql);
+        stmt.setString(1, q);
+        stmt.setInt(2, maxResults);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> users = new ArrayList<>();
-            while (resultSet.next()) {
-                users.add(getUserFromResultSet(resultSet));
-            }
-            return users;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> users = new ArrayList<>();
+        while (resultSet.next()) {
+            users.add(getUserFromResultSet(resultSet));
         }
+        return users;
     }
 
-    public UserModel insertNewUser(UserModel validatedUserInput)
+    public UserModel insertNewUser(Connection dbConn, UserModel validatedUserInput)
             throws SQLException, URISyntaxException, WordDbException {
 
         // Check if a user with the same device ID already exists
-        Optional<UserModel> userWithDevice = getUserByDeviceId(validatedUserInput.getDeviceId());
+        Optional<UserModel> userWithDevice = getUserByDeviceId(dbConn, validatedUserInput.getDeviceId());
         if (userWithDevice.isPresent()) {
             throw new ConflictException("deviceId", "A user has already been created for the given device");
         }
 
         // Check if a user with the same username already exists
-        Optional<UserModel> userWithUsername = getUserByUsername(validatedUserInput.getUsername(), false);
+        Optional<UserModel> userWithUsername = getUserByUsername(dbConn, validatedUserInput.getUsername(), false);
         if (userWithUsername.isPresent()) {
             throw new ConflictException("username", String.format("A user with the username '%s' already exists.", validatedUserInput.getUsername()));
         }
         // If an email is given, check if a user with the same email exists.
         if (validatedUserInput.getEmail() != null) {
-            Optional<UserModel> userWithEmail = getUserByEmail(validatedUserInput.getEmail());
+            Optional<UserModel> userWithEmail = getUserByEmail(dbConn, validatedUserInput.getEmail());
             if (userWithEmail.isPresent()) {
                 throw new ConflictException("email", String.format("A user with email '%s' already exists.", validatedUserInput.getEmail()));
             }
         }
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, validatedUserInput.getUsername());
-            // Set the email, which can be null
-            if (Strings.isNullOrEmpty(validatedUserInput.getEmail())) {
-                stmt.setNull(2, Types.VARCHAR);
-            } else {
-                stmt.setString(2, validatedUserInput.getEmail());
-            }
-            // Set the device ID, which can be null
-            if (validatedUserInput.getDeviceId() == null) {
-                stmt.setNull(3, Types.VARCHAR);
-            } else {
-                stmt.setString(3, validatedUserInput.getDeviceId());
-            }
-
-            // Set the current time
-            stmt.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
-            // Set whether it's a system user.
-            boolean isSystemUser = validatedUserInput.getSystemUser() != null && validatedUserInput.getSystemUser();
-            stmt.setBoolean(5, isSystemUser);
-            stmt.setInt(6, EloRankingComputer.getInitialUserRating()); // Users start with default rating of 1500 + a random value in [0, 1)
-            stmt.executeUpdate();
-
-            // Populate the returned user from the result
-            ResultSet result = stmt.getGeneratedKeys();
-            result.next();
-
-            return getUserFromResultSet(result);
+        PreparedStatement stmt = dbConn.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, validatedUserInput.getUsername());
+        // Set the email, which can be null
+        if (Strings.isNullOrEmpty(validatedUserInput.getEmail())) {
+            stmt.setNull(2, Types.VARCHAR);
+        } else {
+            stmt.setString(2, validatedUserInput.getEmail());
         }
+        // Set the device ID, which can be null
+        if (validatedUserInput.getDeviceId() == null) {
+            stmt.setNull(3, Types.VARCHAR);
+        } else {
+            stmt.setString(3, validatedUserInput.getDeviceId());
+        }
+
+        // Set the current time
+        stmt.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
+        // Set whether it's a system user.
+        boolean isSystemUser = validatedUserInput.getSystemUser() != null && validatedUserInput.getSystemUser();
+        stmt.setBoolean(5, isSystemUser);
+        stmt.setInt(6, EloRankingComputer.getInitialUserRating()); // Users start with default rating of 1500 + a random value in [0, 1)
+        stmt.executeUpdate();
+
+        // Populate the returned user from the result
+        ResultSet result = stmt.getGeneratedKeys();
+        result.next();
+
+        return getUserFromResultSet(result);
     }
 
     public UserModel updateUserPassword(Connection dbConn, int userId, String hashPassBase64, String saltBase64) throws SQLException {
         if (Strings.isNullOrEmpty(hashPassBase64) || Strings.isNullOrEmpty(saltBase64)) {
             throw new IllegalArgumentException();
         }
-        Optional<UserModel> user = getUserById(userId);
+        Optional<UserModel> user = getUserById(dbConn, userId);
         if (!user.isPresent()) {
             throw new IllegalArgumentException("No user exists with the given ID of " + userId);
         }
@@ -268,145 +264,125 @@ public class UsersDAO {
         }
     }
 
-    public Optional<UserModel> getUserById(int id) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_ID_QUERY);
-            stmt.setInt(1, id);
-            ResultSet result = stmt.executeQuery();
-            if (!result.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(getUserFromResultSet(result));
+    public Optional<UserModel> getUserById(Connection dbConn, int id) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_ID_QUERY);
+        stmt.setInt(1, id);
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.empty();
         }
+        return Optional.of(getUserFromResultSet(result));
     }
 
-    public Optional<UserModel> getUserByDeviceId(String deviceId) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_DEVICE_ID_QUERY);
-            stmt.setString(1, deviceId);
-            ResultSet result = stmt.executeQuery();
-            if (!result.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(getUserFromResultSet(result));
+    public Optional<UserModel> getUserByDeviceId(Connection dbConn, String deviceId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_DEVICE_ID_QUERY);
+        stmt.setString(1, deviceId);
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.empty();
         }
+        return Optional.of(getUserFromResultSet(result));
     }
 
-    public Optional<UserModel> getUserByUsername(String username, boolean caseSensitive) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            final String sql = caseSensitive ? GET_USER_BY_USERNAME_QUERY : GET_USER_CASE_INSENSITIVE;
-            PreparedStatement stmt = dbConn.prepareStatement(sql);
-            stmt.setString(1, username);
-            ResultSet result = stmt.executeQuery();
-            if (!result.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(getUserFromResultSet(result));
+    public Optional<UserModel> getUserByUsername(Connection dbConn, String username, boolean caseSensitive) throws SQLException {
+        final String sql = caseSensitive ? GET_USER_BY_USERNAME_QUERY : GET_USER_CASE_INSENSITIVE;
+        PreparedStatement stmt = dbConn.prepareStatement(sql);
+        stmt.setString(1, username);
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.empty();
         }
+        return Optional.of(getUserFromResultSet(result));
     }
 
-    public Optional<UserModel> getUserByEmail(String email) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_EMAIL_QUERY);
-            stmt.setString(1, email);
-            ResultSet result = stmt.executeQuery();
-            if (!result.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(getUserFromResultSet(result));
+    public Optional<UserModel> getUserByEmail(Connection dbConn, String email) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_BY_EMAIL_QUERY);
+        stmt.setString(1, email);
+        ResultSet result = stmt.executeQuery();
+        if (!result.next()) {
+            return Optional.empty();
         }
+        return Optional.of(getUserFromResultSet(result));
     }
 
-    public List<UserModel> getUsersWithRatingGEQ(final int userId, final int dbRating, final int limit) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_GEQ);
-            stmt.setInt(1, dbRating);
-            stmt.setInt(2, userId);
-            stmt.setInt(3, limit);
+    public List<UserModel> getUsersWithRatingGEQ(Connection dbConn, final int userId, final int dbRating, final int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_GEQ);
+        stmt.setInt(1, dbRating);
+        stmt.setInt(2, userId);
+        stmt.setInt(3, limit);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> results = new ArrayList<>(limit);
-            while (resultSet.next()) {
-                results.add(getUserFromResultSet(resultSet));
-            }
-            return results;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>(limit);
+        while (resultSet.next()) {
+            results.add(getUserFromResultSet(resultSet));
         }
+        return results;
     }
 
-    public List<UserModel> getUsersWithRatingLT(final int dbRating, final int limit) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_LT);
-            stmt.setInt(1, dbRating);
-            stmt.setInt(2, limit);
+    public List<UserModel> getUsersWithRatingLT(Connection dbConn, final int dbRating, final int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RATING_LT);
+        stmt.setInt(1, dbRating);
+        stmt.setInt(2, limit);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> results = new ArrayList<>(limit);
-            while (resultSet.next()) {
-                results.add(getUserFromResultSet(resultSet));
-            }
-            return results;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>(limit);
+        while (resultSet.next()) {
+            results.add(getUserFromResultSet(resultSet));
         }
+        return results;
     }
 
     // ------- Rank queries -----
-    public Optional<UserModel> getUserWithRank(int userId) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USER_WITH_RANK);
-            stmt.setInt(1, userId);
-            ResultSet resultSet = stmt.executeQuery();
-            if (!resultSet.next()) {
-                return Optional.empty();
-            }
-            UserModel userModel = getUserFromResultSetWithRank(resultSet);
-            return Optional.of(userModel);
+    public Optional<UserModel> getUserWithRank(Connection dbConn, int userId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_WITH_RANK);
+        stmt.setInt(1, userId);
+        ResultSet resultSet = stmt.executeQuery();
+        if (!resultSet.next()) {
+            return Optional.empty();
         }
+        UserModel userModel = getUserFromResultSetWithRank(resultSet);
+        return Optional.of(userModel);
     }
 
-    public List<UserModel> getUsersWithRankLT(final int rating, final int limit) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_LT_BY_RATING);
-            stmt.setInt(1, rating);
-            stmt.setInt(2, limit);
+    public List<UserModel> getUsersWithRankLT(Connection dbConn, final int rating, final int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_LT_BY_RATING);
+        stmt.setInt(1, rating);
+        stmt.setInt(2, limit);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> results = new ArrayList<>(limit);
-            while (resultSet.next()) {
-                results.add(getUserFromResultSetWithRank(resultSet));
-            }
-            return results;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>(limit);
+        while (resultSet.next()) {
+            results.add(getUserFromResultSetWithRank(resultSet));
         }
+        return results;
     }
 
-    public List<UserModel> getUsersWithRankGT(final int rank, final int limit) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GT_BY_RATING);
-            stmt.setInt(1, rank);
-            stmt.setInt(2, limit);
+    public List<UserModel> getUsersWithRankGT(Connection dbConn, final int rank, final int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GT_BY_RATING);
+        stmt.setInt(1, rank);
+        stmt.setInt(2, limit);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> results = new ArrayList<>(limit);
-            while (resultSet.next()) {
-                results.add(getUserFromResultSetWithRank(resultSet));
-            }
-            return results;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>(limit);
+        while (resultSet.next()) {
+            results.add(getUserFromResultSetWithRank(resultSet));
         }
+        return results;
     }
 
-    public List<UserModel> getUsersWithBestRanks(final int limit) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            PreparedStatement stmt = dbConn.prepareStatement(GET_BEST_RANKED_USERS);
-            stmt.setInt(1, limit);
+    public List<UserModel> getUsersWithBestRanks(Connection dbConn, final int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_BEST_RANKED_USERS);
+        stmt.setInt(1, limit);
 
-            ResultSet resultSet = stmt.executeQuery();
-            List<UserModel> results = new ArrayList<>(limit);
-            while (resultSet.next()) {
-                results.add(getUserFromResultSetWithRank(resultSet));
-            }
-            return results;
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>(limit);
+        while (resultSet.next()) {
+            results.add(getUserFromResultSetWithRank(resultSet));
         }
+        return results;
     }
 
-    public int getNumGamesMyTurn(int userId, Connection dbConn) throws SQLException {
+    public int getNumGamesMyTurn(Connection dbConn, int userId) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_GAMES_MY_TURN);
         stmt.setInt(1, userId);
         stmt.setInt(2, userId);
@@ -422,7 +398,7 @@ public class UsersDAO {
         return resultSet.getInt("count");
     }
 
-    public int getNumGamesOfferedToMe(int userId, Connection dbConn) throws SQLException {
+    public int getNumGamesOfferedToMe(Connection dbConn, int userId) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(GET_NUM_GAMES_OFFERED_TO_ME);
         stmt.setInt(1, userId);
         stmt.setShort(2, (short) GameResult.OFFERED.ordinal());

@@ -6,6 +6,7 @@ import net.capps.word.rest.models.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -23,15 +24,15 @@ public class SessionProvider {
 
     private SessionProvider() { } // Singleton pattern
 
-    public SessionModel createNewSession(UserModel user) throws SQLException {
+    public SessionModel createNewSession(Connection dbConn, UserModel user) throws SQLException {
         sessionsDao.deleteSessionForUser(user.getId());
 
         String sessionId;
         do {
             sessionId = UUID.randomUUID().toString();
-        } while (sessionsDao.getSessionForSessionId(sessionId).isPresent());
+        } while (sessionsDao.getSessionForSessionId(dbConn, sessionId).isPresent());
 
-        SessionModel session = sessionsDao.insertSession(user.getId(), sessionId);
+        SessionModel session = sessionsDao.insertSession(dbConn, user.getId(), sessionId);
         LOG.debug("SUCCESS - created new session for user '{}': {}", user.getUsername(), session);
         return session;
     }

@@ -54,18 +54,17 @@ public class GamesService {
         if (player1 == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-
-        Optional<ErrorModel> errorOpt = gamesProvider.validateInputForCreateGame(input, player1);
-        if (errorOpt.isPresent()) {
-            return RestUtil.badRequest(errorOpt.get());
-        }
-
-        errorOpt = tokensProvider.validateCanAffordCreateGameError(player1, input);
-        if (errorOpt.isPresent()) {
-            return RestUtil.badRequest(errorOpt.get());
-        }
-
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            Optional<ErrorModel> errorOpt = gamesProvider.validateInputForCreateGame(dbConn, input, player1);
+            if (errorOpt.isPresent()) {
+                return RestUtil.badRequest(errorOpt.get());
+            }
+
+            errorOpt = tokensProvider.validateCanAffordCreateGameError(player1, input);
+            if (errorOpt.isPresent()) {
+                return RestUtil.badRequest(errorOpt.get());
+            }
+
             dbConn.setAutoCommit(false);
 
             Optional<ErrorModel> canCreateGamesErrorOpt = gamesProvider.validateUserCanCreateOrJoinGame(player1, dbConn);
@@ -148,7 +147,7 @@ public class GamesService {
     @GET
     @Path("offeredToMe")
     public Response getGamesOfferedToMe(@Context HttpServletRequest request,
-                               @QueryParam("count") Integer count) throws SQLException {
+                                        @QueryParam("count") Integer count) throws SQLException {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();

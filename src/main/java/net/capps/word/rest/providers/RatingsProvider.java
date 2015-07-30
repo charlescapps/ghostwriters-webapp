@@ -135,9 +135,9 @@ public class RatingsProvider {
         return ratingChange;
     }
 
-    public List<UserModel> getUsersWithRatingsAroundMe(UserModel user, int count) throws SQLException {
-        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getRating(), count);
-        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getRating(), count);
+    public List<UserModel> getUsersWithRatingsAroundMe(Connection dbConn, UserModel user, int count) throws SQLException {
+        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(dbConn, user.getId(), user.getRating(), count);
+        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(dbConn, user.getRating(), count);
         List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size() + 1);
         resultUsers.addAll(ratingGEQ);
         resultUsers.add(user);
@@ -145,10 +145,10 @@ public class RatingsProvider {
         return resultUsers;
     }
 
-    public UserModel getBestMatch(UserModel user) throws SQLException {
+    public UserModel getBestMatch(Connection dbConn, UserModel user) throws SQLException {
         final int numAdjacentUsers = 10;
-        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(user.getId(), user.getRating(), numAdjacentUsers);
-        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(user.getRating(), numAdjacentUsers);
+        List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(dbConn, user.getId(), user.getRating(), numAdjacentUsers);
+        List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(dbConn, user.getRating(), numAdjacentUsers);
         List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size());
         resultUsers.addAll(ratingGEQ);
         resultUsers.addAll(ratingLT);
@@ -156,14 +156,14 @@ public class RatingsProvider {
         return  resultUsers.get(choice);
     }
 
-    public List<UserModel> getUsersWithRankAroundMe(UserModel centerUser, int count) throws SQLException {
-        Optional<UserModel> userWithRankOpt = usersDAO.getUserWithRank(centerUser.getId());
+    public List<UserModel> getUsersWithRankAroundMe(Connection dbConn, UserModel centerUser, int count) throws SQLException {
+        Optional<UserModel> userWithRankOpt = usersDAO.getUserWithRank(dbConn, centerUser.getId());
         if (!userWithRankOpt.isPresent()) {
             throw new IllegalStateException(format("Error - user %s not found in the ranks view.", centerUser.toString()));
         }
         UserModel userWithRank = userWithRankOpt.get();
-        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(userWithRank.getRank(), count);
-        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGT(userWithRank.getRank(), count);
+        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(dbConn, userWithRank.getRank(), count);
+        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGT(dbConn, userWithRank.getRank(), count);
         List<UserModel> results = new ArrayList<>(usersLT.size() + usersGEQ.size() + 1);
         results.addAll(usersLT);
         results.add(userWithRank);

@@ -1,5 +1,6 @@
 package net.capps.word.rest.filters;
 
+import net.capps.word.db.WordDbManager;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.models.UserModel;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Optional;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -29,8 +31,8 @@ public class RegularUserAuthFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
-        try {
-            Optional<UserModel> authUserOpt = authHelper.validateSession(webRequest);
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            Optional<UserModel> authUserOpt = authHelper.validateSession(dbConn, webRequest);
             if (!authUserOpt.isPresent()) {
                 LOG.warn("Unauthorized {} to {} from IP {}",
                         webRequest.getMethod(),

@@ -107,18 +107,18 @@ public class SetupHelper {
         UserModel bookwormUser = new UserModel(null, WordConstants.BOOKWORM_AI_USERNAME, null, null, null, true);
         UserModel professorUser = new UserModel(null, WordConstants.PROFESSOR_AI_USERNAME, null, null, null, true);
 
-        usersProvider.createNewUserIfNotExists(randomUser);
-        usersProvider.createNewUserIfNotExists(bookwormUser);
-        usersProvider.createNewUserIfNotExists(professorUser);
 
-        Optional<UserModel> createdRandomUser = usersDAO.getUserByUsername(WordConstants.RANDOM_AI_USERNAME, true);
-        Optional<UserModel> createdBookwormUser = usersDAO.getUserByUsername(WordConstants.BOOKWORM_AI_USERNAME, true);
-        Optional<UserModel> createdProfessorUser = usersDAO.getUserByUsername(WordConstants.PROFESSOR_AI_USERNAME, true);
 
-        // They must be present since we just inserted them into the Database!
-        WordConstants.RANDOM_AI_USER.set(createdRandomUser.get());
-        WordConstants.BOOKWORM_AI_USER.set(createdBookwormUser.get());
-        WordConstants.PROFESSOR_AI_USER.set(createdProfessorUser.get());
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            Optional<UserModel> createdRandomUser = usersProvider.createNewUserIfNotExists(dbConn, randomUser);
+            Optional<UserModel> createdBookwormUser = usersProvider.createNewUserIfNotExists(dbConn, bookwormUser);
+            Optional<UserModel> createdProfessorUser = usersProvider.createNewUserIfNotExists(dbConn, professorUser);
+
+            // They must be present since we just inserted them into the Database!
+            WordConstants.RANDOM_AI_USER.set(createdRandomUser.get());
+            WordConstants.BOOKWORM_AI_USER.set(createdBookwormUser.get());
+            WordConstants.PROFESSOR_AI_USER.set(createdProfessorUser.get());
+        }
     }
 
     public void initGameDataStructures() throws Exception {

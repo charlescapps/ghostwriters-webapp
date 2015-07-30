@@ -36,6 +36,7 @@ public class GamesProvider {
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
+    private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final int MAX_ACTIVE_GAMES = 100;
     public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,2}");
 
@@ -68,7 +69,7 @@ public class GamesProvider {
     private GamesProvider() { }
 
     // --------------- Public --------------
-    public Optional<ErrorModel> validateInputForCreateGame(GameModel input, UserModel authUser) throws Exception {
+    public Optional<ErrorModel> validateInputForCreateGame(Connection dbConn, GameModel input, UserModel authUser) throws Exception {
         if (input.getId() != null) {
             return Optional.of(ERR_GAME_ID_PRESENT);
         }
@@ -84,7 +85,7 @@ public class GamesProvider {
             if (input.getPlayer2() == null) {
                 return Optional.of(ERR_MISSING_PLAYER2_ID);
             }
-            Optional<UserModel> player2 = UsersDAO.getInstance().getUserById(input.getPlayer2());
+            Optional<UserModel> player2 = usersDAO.getUserById(dbConn, input.getPlayer2());
             if (!player2.isPresent()) {
                 return Optional.of(ERR_INVALID_PLAYER2_ID);
             }
@@ -200,7 +201,7 @@ public class GamesProvider {
         // Add the system AI user for single player games
         if (validatedInputGame.getGameType() == GameType.SINGLE_PLAYER) {
             String systemUsername = validatedInputGame.getAiType().getSystemUsername();
-            Optional<UserModel> systemUser = UsersDAO.getInstance().getUserByUsername(systemUsername, true);
+            Optional<UserModel> systemUser = usersDAO.getUserByUsername(dbConn, systemUsername, true);
             if (!systemUser.isPresent()) {
                 throw new IllegalStateException("AI users not in the database!");
             }
@@ -208,7 +209,7 @@ public class GamesProvider {
         }
 
         GameModel createdGame = gamesDAO.createNewGame(dbConn, validatedInputGame, tileSet, squareSet);
-        Optional<UserModel> player2Model = UsersDAO.getInstance().getUserById(createdGame.getPlayer2());
+        Optional<UserModel> player2Model = usersDAO.getUserById(dbConn, createdGame.getPlayer2());
         if (!player2Model.isPresent()) {
             throw new Exception("Error - player2 was not found in the database. User ID is: " + createdGame.getPlayer2());
         }

@@ -39,7 +39,8 @@ public class UsersService {
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final SessionProvider sessionProvider = SessionProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
-
+    private static final WordDbManager wordDbManager = WordDbManager.getInstance();
+    
     private static final int MAX_COUNT = 200;
 
     @Context
@@ -49,44 +50,46 @@ public class UsersService {
     @Filters.InitialUserAuthRequired
     public Response createUser(@Context HttpServletRequest request, UserModel inputUser) throws Exception {
 
-        // Check if the device is already registered, then just login as this user.
-        if (!Strings.isNullOrEmpty(inputUser.getDeviceId())) {
-            Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(inputUser.getDeviceId());
-            if (existingUser.isPresent()) {
-                if ( existingUser.get().getUsername().equals(inputUser.getUsername())) {
-                    SessionModel session = sessionProvider.createNewSession(existingUser.get());
-                    return Response.ok(existingUser.get())
-                            .cookie(session.getNewCookie())
-                            .build();
-                } else {
-                    return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(new ErrorModel("A username is already associated with your device."))
-                            .build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            // Check if the device is already registered, then just login as this user.
+            if (!Strings.isNullOrEmpty(inputUser.getDeviceId())) {
+                Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(dbConn, inputUser.getDeviceId());
+                if (existingUser.isPresent()) {
+                    if (existingUser.get().getUsername().equals(inputUser.getUsername())) {
+                        SessionModel session = sessionProvider.createNewSession(dbConn, existingUser.get());
+                        return Response.ok(existingUser.get())
+                                .cookie(session.getNewCookie())
+                                .build();
+                    } else {
+                        return Response.status(Response.Status.BAD_REQUEST)
+                                .entity(new ErrorModel("A username is already associated with your device."))
+                                .build();
+                    }
                 }
             }
-        }
 
-        // Otherwise, proceed with validating the new user input and creating a new user.
-        Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
-        if (validationError.isPresent()) {
-            return Response.status(BAD_REQUEST)
-                    .entity(validationError.get())
-                    .build();
-        }
+            // Otherwise, proceed with validating the new user input and creating a new user.
+            Optional<ErrorModel> validationError = usersProvider.validateInputUser(inputUser);
+            if (validationError.isPresent()) {
+                return Response.status(BAD_REQUEST)
+                        .entity(validationError.get())
+                        .build();
+            }
 
-        try {
-            UserModel createdUser = usersProvider.createNewUser(inputUser);
-            SessionModel session = sessionProvider.createNewSession(createdUser);
+            try {
+                UserModel createdUser = usersProvider.createNewUser(dbConn, inputUser);
+                SessionModel session = sessionProvider.createNewSession(dbConn, createdUser);
 
-            URI uri = getWordUserURI(createdUser.getId());
-            return Response.created(uri)
-                    .entity(createdUser)
-                    .cookie(session.getNewCookie())
-                    .build();
-        } catch (ConflictException e) {
-            return Response.status(CONFLICT)
-                    .entity(new ErrorModel(e.getMessage()))
-                    .build();
+                URI uri = getWordUserURI(createdUser.getId());
+                return Response.created(uri)
+                        .entity(createdUser)
+                        .cookie(session.getNewCookie())
+                        .build();
+            } catch (ConflictException e) {
+                return Response.status(CONFLICT)
+                        .entity(new ErrorModel(e.getMessage()))
+                        .build();
+            }
         }
     }
 
@@ -94,14 +97,16 @@ public class UsersService {
     @GET
     @Filters.RegularUserAuthRequired
     public Response getUser(@PathParam("id") int id) throws Exception {
-        Optional<UserModel> result = usersDAO.getUserById(id);
-        if (!result.isPresent()) {
-            return Response.status(NOT_FOUND)
-                    .entity(new ErrorModel("No user exists with id " + id))
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            Optional<UserModel> result = usersDAO.getUserById(dbConn, id);
+            if (!result.isPresent()) {
+                return Response.status(NOT_FOUND)
+                        .entity(new ErrorModel("No user exists with id " + id))
+                        .build();
+            }
+            return Response.ok(result.get())
                     .build();
         }
-        return Response.ok(result.get())
-                .build();
     }
 
     @Path("/me")
@@ -119,16 +124,19 @@ public class UsersService {
     @GET
     @Filters.InitialUserAuthRequired
     public Response getNextUsername(@QueryParam("deviceId") String deviceId) throws SQLException {
-        if (!Strings.isNullOrEmpty(deviceId)) {
-            Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(deviceId);
-            if (existingUser.isPresent()) {
-                return Response.ok(new NextUsernameModel(existingUser.get().getUsername(), true))
-                        .build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+
+            if (!Strings.isNullOrEmpty(deviceId)) {
+                Optional<UserModel> existingUser = usersDAO.getUserByDeviceId(dbConn, deviceId);
+                if (existingUser.isPresent()) {
+                    return Response.ok(new NextUsernameModel(existingUser.get().getUsername(), true))
+                            .build();
+                }
             }
+            Optional<String> randomUsername = RandomUsernamePicker.getInstance().generateRandomUsername(dbConn);
+            String nextUsername = randomUsername.isPresent() ? randomUsername.get() : null;
+            return Response.ok(new NextUsernameModel(nextUsername, false)).build();
         }
-        Optional<String> randomUsername = RandomUsernamePicker.getInstance().generateRandomUsername();
-        String nextUsername = randomUsername.isPresent() ? randomUsername.get() : null;
-        return Response.ok(new NextUsernameModel(nextUsername, false)).build();
     }
 
     @GET
@@ -145,8 +153,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = usersProvider.searchUsers(q, maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = usersProvider.searchUsers(dbConn, q, maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/similarRating")
@@ -163,8 +173,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRatingsAroundMe(authUser, maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = ratingsProvider.getUsersWithRatingsAroundMe(dbConn, authUser, maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/{id}/similarRank")
@@ -183,8 +195,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(authUser, maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(dbConn, authUser, maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/bestRanked")
@@ -198,8 +212,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = usersDAO.getUsersWithBestRanks(maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = usersDAO.getUsersWithBestRanks(dbConn, maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/professorRank")
@@ -213,8 +229,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.PROFESSOR_AI_USER.get(), maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(dbConn, WordConstants.PROFESSOR_AI_USER.get(), maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/bookwormRank")
@@ -228,8 +246,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.BOOKWORM_AI_USER.get(), maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(dbConn, WordConstants.BOOKWORM_AI_USER.get(), maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/monkeyRank")
@@ -243,8 +263,10 @@ public class UsersService {
                     .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
                     .build();
         }
-        List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(WordConstants.RANDOM_AI_USER.get(), maxResults);
-        return Response.ok(new UserListModel(results)).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(dbConn, WordConstants.RANDOM_AI_USER.get(), maxResults);
+            return Response.ok(new UserListModel(results)).build();
+        }
     }
 
     @Path("/bestMatch")
@@ -256,8 +278,10 @@ public class UsersService {
         if (authUser == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        UserModel bestMatch = ratingsProvider.getBestMatch(authUser);
-        return Response.ok(bestMatch).build();
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            UserModel bestMatch = ratingsProvider.getBestMatch(dbConn, authUser);
+            return Response.ok(bestMatch).build();
+        }
     }
 
     @Path("myGamesSummary")
@@ -268,7 +292,7 @@ public class UsersService {
         if (authUser == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        try(Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try(Connection dbConn = wordDbManager.getConnection()) {
             UserGameSummaryModel userGameSummaryModel = usersProvider.getUserSummaryInfoForMainMenu(authUser.getId(), dbConn);
             return Response.ok(userGameSummaryModel).build();
         }
@@ -290,7 +314,7 @@ public class UsersService {
                     .build();
         }
 
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+        try (Connection dbConn = wordDbManager.getConnection()) {
             errorOpt = usersProvider.canUpdatePassword(authUser.getId(), dbConn);
             if (errorOpt.isPresent()) {
                 return Response.status(BAD_REQUEST)
