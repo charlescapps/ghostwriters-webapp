@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class WordServletContextListener implements ServletContextListener {
     private InitDictionariesThread initDictionariesThread;
     private ScheduledExecutorService incrementUserTokensService;
+    private ScheduledExecutorService rebuildUserRanksService;
     private ScheduledExecutorService timeOutInactiveGamesService;
     private static final Logger LOG = LoggerFactory.getLogger(WordServletContextListener.class);
 
@@ -26,7 +27,9 @@ public class WordServletContextListener implements ServletContextListener {
         if (incrementUserTokensService == null || incrementUserTokensService.isShutdown() || incrementUserTokensService.isTerminated()) {
             startScheduledTaskToIncreaseTokens();
         }
-
+        if (rebuildUserRanksService == null || rebuildUserRanksService.isShutdown() || rebuildUserRanksService.isTerminated()) {
+            startScheduledTaskToRebuildRanks();
+        }
         if (timeOutInactiveGamesService == null || timeOutInactiveGamesService.isShutdown() || timeOutInactiveGamesService.isTerminated()) {
             startScheduledTaskToTimeOutInactiveGames();
         }
@@ -51,6 +54,15 @@ public class WordServletContextListener implements ServletContextListener {
         } catch (Exception ex) {
             LOG.error("Error shutting down scheduled task to increment user tokens:", ex);
         }
+
+        try {
+            if (rebuildUserRanksService != null) {
+                rebuildUserRanksService.shutdown();
+                rebuildUserRanksService = null;
+            }
+        } catch (Exception ex) {
+            LOG.error("Error shutting down scheduled task to rebuild user ranks:", ex);
+        }
     }
 
     private void initializeDictionaries() {
@@ -63,6 +75,12 @@ public class WordServletContextListener implements ServletContextListener {
         LOG.info("Scheduling task to increment user tokens!");
         incrementUserTokensService = Executors.newSingleThreadScheduledExecutor();
         incrementUserTokensService.scheduleAtFixedRate(new IncrementTokensRunnable(), 1, 60, TimeUnit.MINUTES);
+    }
+
+    private void startScheduledTaskToRebuildRanks() {
+        LOG.info("Scheduling task to rebuild the User Ranks!");
+        rebuildUserRanksService = Executors.newSingleThreadScheduledExecutor();
+        rebuildUserRanksService.scheduleAtFixedRate(new RebuildUserRanksRunnable(), 5, 60, TimeUnit.MINUTES);
     }
 
     private void startScheduledTaskToTimeOutInactiveGames() {

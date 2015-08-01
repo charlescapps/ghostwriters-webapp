@@ -32,6 +32,7 @@ public class SetupHelper {
     private static final SetupHelper INSTANCE = new SetupHelper();
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
+    private static final UserRanks userRanks = UserRanks.getInstance();
 
     private SetupHelper() {}
 
@@ -148,16 +149,20 @@ public class SetupHelper {
     }
 
     public void initRankDataStructures() throws SQLException {
+        final long START = System.currentTimeMillis();
+
+        List<UserWithRating> userWithRatings = new ArrayList<>();
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             Statement stmt = dbConn.createStatement();
-            List<UserWithRating> userWithRatings = new ArrayList<>();
             ResultSet resultSet = stmt.executeQuery("SELECT id, rating FROM word_users");
             while (resultSet.next()) {
                 userWithRatings.add(new UserWithRating(resultSet.getInt("id"), resultSet.getInt("rating")));
             }
-
-            UserRanks.getInstance().buildRanks(userWithRatings);
         }
+        UserRanks.getInstance().buildRanks(userWithRatings);
+
+        final long END = System.currentTimeMillis();
+        System.out.println("Total time to initialize RankUsers: " + (END - START) + " milliseconds");
     }
 
     public void initJetty() throws Exception {

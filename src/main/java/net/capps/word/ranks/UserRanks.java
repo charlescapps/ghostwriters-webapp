@@ -22,7 +22,7 @@ public class UserRanks {
     private final Map<Integer, UserWithRating> usersById = new HashMap<>();
     private final TreeSet<UserWithRating> rankTree = new TreeSet<>();
 
-    public void buildRanks(Iterable<UserWithRating> rankedUsers) {
+    public synchronized void buildRanks(Iterable<UserWithRating> rankedUsers) {
         usersById.clear();
         rankTree.clear();
 
@@ -58,7 +58,7 @@ public class UserRanks {
         return rankTree.size();
     }
 
-    public List<UserWithRanking> getUsersWithRankAround(final int centerUserId, int limit) {
+    public synchronized List<UserWithRanking> getUsersWithRankAround(final int centerUserId, int limit) {
         UserWithRating userWithRating = usersById.get(centerUserId);
         if (userWithRating == null) {
             throw new IllegalStateException("User with ID " + centerUserId + " is not in the usersById map in UserRanks.");
