@@ -23,10 +23,22 @@ public class TableDefinitions {
             "infinite_books BOOLEAN NOT NULL DEFAULT FALSE" +
             ");";
 
-    public static final String CREATE_LOWERCASE_USER_IDX =
+    public static final String CREATE_DEVICE_ID_IDX =
+            "CREATE UNIQUE INDEX idx_device_id ON word_users (device_id);";
+
+    public static final String DROP_DEVICE_ID_IDX =
+            "DROP INDEX IF EXISTS idx_device_id;";
+
+    public static final String CREATE_USERNAME_IDX =
+            "CREATE UNIQUE INDEX idx_username ON word_users (username);";
+
+    public static final String DROP_USERNAME_IDX =
+            "DROP INDEX IF EXISTS idx_username;";
+
+    public static final String CREATE_LOWERCASE_USERNAME_IDX =
             "CREATE UNIQUE INDEX idx_username_lower ON word_users (lower(username));";
 
-    public static final String DROP_LOWERCASE_USER_IDX =
+    public static final String DROP_LOWERCASE_USERNAME_IDX =
             "DROP INDEX IF EXISTS idx_username_lower;";
 
     public static final String CREATE_USER_RATING_IDX =
@@ -34,6 +46,12 @@ public class TableDefinitions {
 
     public static final String DROP_USER_RATING_IDX =
             "DROP INDEX IF EXISTS idx_rating;";
+
+    public static final String CREATE_ID_AND_RATING_IDX =
+            "CREATE INDEX idx_id_and_rating ON word_users (rating, id);";
+
+    public static final String DROP_ID_AND_RATING_IDX =
+            "DROP INDEX IF EXISTS idx_id_and_rating;";
 
     // --------- Games table -----------
 

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Created by charlescapps on 7/29/15.
  */
 public class UsersDAOTest {
-    private static final int NUM_USERS = 10000;
+    private static final int NUM_USERS = 90000;
 
     private static final int MIN_RATING = 1000;
     private static final int MAX_RATING = 10000;

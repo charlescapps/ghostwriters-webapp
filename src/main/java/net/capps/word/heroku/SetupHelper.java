@@ -43,20 +43,28 @@ public class SetupHelper {
             stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
 
             stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_LOWERCASE_USER_IDX);
+            stmt.executeUpdate(TableDefinitions.DROP_DEVICE_ID_IDX);
 
             stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_LOWERCASE_USER_IDX);
+            stmt.executeUpdate(TableDefinitions.CREATE_DEVICE_ID_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_USERNAME_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_USERNAME_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_LOWERCASE_USERNAME_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_LOWERCASE_USERNAME_IDX);
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.DROP_USER_RATING_IDX);
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_USER_RATING_IDX);
-
-            // Create user ranking view.
-            stmt = connection.createStatement();
-            stmt.executeUpdate(UsersDAO.CREATE_RANKING_VIEW);
 
             // -------- word_games table --------
             stmt = connection.createStatement();

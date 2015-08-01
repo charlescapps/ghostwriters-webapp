@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -83,16 +82,14 @@ public class UsersDAO {
 
     // Get users with ranking around a given user
     private static final String GET_USER_WITH_RANK =
-            "SELECT * FROM word_user_ranks WHERE id = ?;";
+            "SELECT * FROM " +
+                    "(SELECT *, row_number() OVER (ORDER BY rating DESC) AS word_rank FROM word_users)  my_ranks " +
+             "WHERE id = ?;";
 
-    private static final String GET_USERS_WITH_RANK_LT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE word_rank < ? ORDER BY word_rank DESC LIMIT ?";
-
-    private static final String GET_USERS_WITH_RANK_GT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE word_rank > ? ORDER BY word_rank ASC LIMIT ?";
-
-    private static final String GET_BEST_RANKED_USERS =
-            "SELECT * FROM word_user_ranks ORDER BY word_rank ASC LIMIT ?";
+    private static final String GET_USERS_WITH_RANKS_BETWEEN =
+            "SELECT * FROM " +
+                    "(SELECT *, row_number() OVER (ORDER BY rating DESC) AS word_rank FROM word_users)  my_ranks " +
+             "WHERE word_rank >= ? AND word_rank <= ? ORDER BY word_rank ASC;";
 
     // Return games such that either
     // (1) game is IN_PROGRESS and it's my turn, or
@@ -343,27 +340,13 @@ public class UsersDAO {
         return Optional.of(userModel);
     }
 
-    public List<UserModel> getUsersWithRankLT(Connection dbConn, final int rating, final int limit) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_LT_BY_RATING);
-        stmt.setInt(1, rating);
-        stmt.setInt(2, limit);
+    public List<UserModel> getUsersWithRanksBetween(Connection dbConn, final int minRank, final int maxRank) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANKS_BETWEEN);
+        stmt.setInt(1, minRank);
+        stmt.setInt(2, maxRank);
 
         ResultSet resultSet = stmt.executeQuery();
-        List<UserModel> results = new ArrayList<>(limit);
-        while (resultSet.next()) {
-            results.add(getUserFromResultSetWithRank(resultSet));
-        }
-        Collections.reverse(results);
-        return results;
-    }
-
-    public List<UserModel> getUsersWithRankGT(Connection dbConn, final int rank, final int limit) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANK_GT_BY_RATING);
-        stmt.setInt(1, rank);
-        stmt.setInt(2, limit);
-
-        ResultSet resultSet = stmt.executeQuery();
-        List<UserModel> results = new ArrayList<>(limit);
+        List<UserModel> results = new ArrayList<>(maxRank - minRank + 1);
         while (resultSet.next()) {
             results.add(getUserFromResultSetWithRank(resultSet));
         }
@@ -371,15 +354,7 @@ public class UsersDAO {
     }
 
     public List<UserModel> getUsersWithBestRanks(Connection dbConn, final int limit) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(GET_BEST_RANKED_USERS);
-        stmt.setInt(1, limit);
-
-        ResultSet resultSet = stmt.executeQuery();
-        List<UserModel> results = new ArrayList<>(limit);
-        while (resultSet.next()) {
-            results.add(getUserFromResultSetWithRank(resultSet));
-        }
-        return results;
+        return getUsersWithRanksBetween(dbConn, 1, limit);
     }
 
     public int getNumGamesMyTurn(Connection dbConn, int userId) throws SQLException {

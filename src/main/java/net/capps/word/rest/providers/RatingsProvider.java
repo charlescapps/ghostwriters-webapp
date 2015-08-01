@@ -164,12 +164,9 @@ public class RatingsProvider {
             throw new IllegalStateException(format("Error - user %s not found in the ranks view.", centerUser.toString()));
         }
         UserModel userWithRank = userWithRankOpt.get();
-        List<UserModel> usersLT = usersDAO.getUsersWithRankLT(dbConn, userWithRank.getRank(), count);
-        List<UserModel> usersGEQ = usersDAO.getUsersWithRankGT(dbConn, userWithRank.getRank(), count);
-        List<UserModel> results = new ArrayList<>(usersLT.size() + usersGEQ.size() + 1);
-        results.addAll(usersLT);
-        results.add(userWithRank);
-        results.addAll(usersGEQ);
-        return results;
+        final int centerRank = userWithRank.getRank();
+        final int minRank = Math.max(1, centerRank - count);
+        final int maxRank = centerRank + count;
+        return usersDAO.getUsersWithRanksBetween(dbConn, minRank, maxRank);
     }
 }
