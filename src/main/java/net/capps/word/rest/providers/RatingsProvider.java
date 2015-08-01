@@ -11,6 +11,7 @@ import net.capps.word.rest.models.UserModel;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -139,21 +140,22 @@ public class RatingsProvider {
         List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(dbConn, user.getId(), user.getRating(), count);
         List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(dbConn, user.getRating(), count);
         List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size() + 1);
-        resultUsers.addAll(ratingGEQ);
-        resultUsers.add(user);
         resultUsers.addAll(ratingLT);
+        resultUsers.add(user);
+        resultUsers.addAll(ratingGEQ);
+        Collections.reverse(resultUsers);
         return resultUsers;
     }
 
     public UserModel getBestMatch(Connection dbConn, UserModel user) throws SQLException {
-        final int numAdjacentUsers = 10;
+        final int numAdjacentUsers = 50;
         List<UserModel> ratingGEQ = usersDAO.getUsersWithRatingGEQ(dbConn, user.getId(), user.getRating(), numAdjacentUsers);
         List<UserModel> ratingLT = usersDAO.getUsersWithRatingLT(dbConn, user.getRating(), numAdjacentUsers);
-        List<UserModel> resultUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size());
-        resultUsers.addAll(ratingGEQ);
-        resultUsers.addAll(ratingLT);
-        final int choice = ThreadLocalRandom.current().nextInt(resultUsers.size());
-        return  resultUsers.get(choice);
+        List<UserModel> matchUsers = new ArrayList<>(ratingGEQ.size() + ratingLT.size());
+        matchUsers.addAll(ratingLT);
+        matchUsers.addAll(ratingGEQ);
+        final int choice = ThreadLocalRandom.current().nextInt(matchUsers.size());
+        return matchUsers.get(choice);
     }
 
     public List<UserModel> getUsersWithRankAroundMe(Connection dbConn, UserModel centerUser, int count) throws SQLException {

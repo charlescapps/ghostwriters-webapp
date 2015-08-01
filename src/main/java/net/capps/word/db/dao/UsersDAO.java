@@ -69,7 +69,7 @@ public class UsersDAO {
 
     // Get users by ratings
     private static final String GET_USERS_WITH_RATING_GEQ =
-            "SELECT * FROM word_users WHERE rating >= ? AND id != ? ORDER BY rating DESC LIMIT ?";
+            "SELECT * FROM word_users WHERE rating >= ? AND id != ? ORDER BY rating ASC LIMIT ?";
 
     private static final String GET_USERS_WITH_RATING_LT =
             "SELECT * FROM word_users WHERE rating < ? ORDER BY rating DESC LIMIT ?";
@@ -77,23 +77,21 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                    "SELECT t1.*, COUNT(t2.id) AS rank FROM word_users t1 INNER JOIN word_users t2 " +
-                    "ON t1.rating < t2.rating OR (t1.rating = t2.rating AND t2.id <= t1.id) " +
-                    "GROUP BY t1.id " +
-                    "ORDER BY rank ASC;";
+                    "SELECT word_users.*, row_number() OVER (ORDER BY rating ASC) " +
+                    "FROM word_users;";
 
     // Get users with ranking around a given user
     private static final String GET_USER_WITH_RANK =
             "SELECT * FROM word_user_ranks WHERE id = ?;";
 
     private static final String GET_USERS_WITH_RANK_LT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rank < ? ORDER BY rank ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE row_number < ? ORDER BY row_number ASC LIMIT ?";
 
     private static final String GET_USERS_WITH_RANK_GT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE rank > ? ORDER BY rank ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE row_number > ? ORDER BY row_number ASC LIMIT ?";
 
     private static final String GET_BEST_RANKED_USERS =
-            "SELECT * FROM word_user_ranks WHERE rank >= 1 ORDER BY rank ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE row_number >= 1 ORDER BY row_number ASC LIMIT ?";
 
     // Return games such that either
     // (1) game is IN_PROGRESS and it's my turn, or
@@ -327,7 +325,7 @@ public class UsersDAO {
         ResultSet resultSet = stmt.executeQuery();
         List<UserModel> results = new ArrayList<>(limit);
         while (resultSet.next()) {
-            results.add(getUserFromResultSet(resultSet));
+            results.add(0, getUserFromResultSet(resultSet));
         }
         return results;
     }
@@ -474,10 +472,7 @@ public class UsersDAO {
         }
     }
 
-
-    // ------------ Private ---------
-
-    private int getMaximumId(Connection dbConn) throws SQLException {
+    public int getMaximumId(Connection dbConn) throws SQLException {
         Statement stmt = dbConn.createStatement();
         ResultSet resultSet = stmt.executeQuery("SELECT MAX(id) AS max_id FROM word_users;");
         if (!resultSet.next()) {
@@ -486,6 +481,7 @@ public class UsersDAO {
         return resultSet.getInt("max_id");
     }
 
+    // ------------ Private ---------
     private UserModel getUserFromResultSet(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("id");
         String username = resultSet.getString("username");
@@ -513,7 +509,7 @@ public class UsersDAO {
 
     private UserModel getUserFromResultSetWithRank(ResultSet resultSet) throws SQLException {
         UserModel userModel = getUserFromResultSet(resultSet);
-        int rank = resultSet.getInt("rank");
+        int rank = resultSet.getInt("row_number");
         userModel.setRank(rank);
         return userModel;
     }

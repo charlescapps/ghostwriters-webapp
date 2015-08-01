@@ -110,14 +110,18 @@ public class SetupHelper {
 
 
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            Optional<UserModel> createdRandomUser = usersProvider.createNewUserIfNotExists(dbConn, randomUser);
-            Optional<UserModel> createdBookwormUser = usersProvider.createNewUserIfNotExists(dbConn, bookwormUser);
-            Optional<UserModel> createdProfessorUser = usersProvider.createNewUserIfNotExists(dbConn, professorUser);
+            usersProvider.createNewUserIfNotExists(dbConn, randomUser);
+            usersProvider.createNewUserIfNotExists(dbConn, bookwormUser);
+            usersProvider.createNewUserIfNotExists(dbConn, professorUser);
+
+            Optional<UserModel> randomUserOpt = usersDAO.getUserByUsername(dbConn, WordConstants.RANDOM_AI_USERNAME, true);
+            Optional<UserModel> bookwormUserOpt = usersDAO.getUserByUsername(dbConn, WordConstants.BOOKWORM_AI_USERNAME, true);
+            Optional<UserModel> profUserOpt = usersDAO.getUserByUsername(dbConn, WordConstants.PROFESSOR_AI_USERNAME, true);
 
             // They must be present since we just inserted them into the Database!
-            WordConstants.RANDOM_AI_USER.set(createdRandomUser.get());
-            WordConstants.BOOKWORM_AI_USER.set(createdBookwormUser.get());
-            WordConstants.PROFESSOR_AI_USER.set(createdProfessorUser.get());
+            WordConstants.RANDOM_AI_USER.set(randomUserOpt.get());
+            WordConstants.BOOKWORM_AI_USER.set(bookwormUserOpt.get());
+            WordConstants.PROFESSOR_AI_USER.set(profUserOpt.get());
         }
     }
 
