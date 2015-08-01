@@ -5,8 +5,13 @@ import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
+import net.capps.word.ranks.UserWithRanking;
+import net.capps.word.ranks.UserWithRating;
+import net.capps.word.ranks.UserRanks;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,6 +27,7 @@ import static java.lang.String.format;
  * Created by charlescapps on 3/29/15.
  */
 public class RatingsProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(RatingsProvider.class);
     private static final RatingsProvider INSTANCE = new RatingsProvider();
     private static final EloRankingComputer eloRankingComputer = EloRankingComputer.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
@@ -71,6 +77,10 @@ public class RatingsProvider {
                 usersDAO.updateUserRating(dbConn, player1.getId(), player1NewRating, gameResult.getPlayer1RecordChange());
                 usersDAO.updateUserRating(dbConn, player2.getId(), player2NewRating, gameResult.getPlayer2RecordChange());
                 gamesDAO.updateGamePlayerRatingIncreases(dbConn, gameModel.getId(), player1ActualRatingChange, player2ActualRatingChange);
+
+                // Updates in the data structures for ranking
+                UserRanks.getInstance().updateRankedUser(new UserWithRating(player1.getId(), player1NewRating));
+                UserRanks.getInstance().updateRankedUser(new UserWithRating(player2.getId(), player2NewRating));
 
                 // Update models to be returned to the app
                 player1.setRating(player1NewRating);
@@ -159,14 +169,20 @@ public class RatingsProvider {
     }
 
     public List<UserModel> getUsersWithRankAroundMe(Connection dbConn, UserModel centerUser, int count) throws SQLException {
-        Optional<UserModel> userWithRankOpt = usersDAO.getUserWithRank(dbConn, centerUser.getId());
-        if (!userWithRankOpt.isPresent()) {
-            throw new IllegalStateException(format("Error - user %s not found in the ranks view.", centerUser.toString()));
+        List<UserWithRanking> usersWithRanking = UserRanks.getInstance().getUsersWithRankAround(centerUser, count);
+        List<UserModel> fullUsers = new ArrayList<>(usersWithRanking.size());
+
+        for (UserWithRanking userWithRanking: usersWithRanking) {
+            Optional<UserModel> fullUserOpt = usersDAO.getUserById(dbConn, userWithRanking.getUserId());
+            if (!fullUserOpt.isPresent()) {
+                LOG.error("ERROR - user with ID {} isn't present in word_users table, but it was in the rankings table!", userWithRanking.getUserId());
+                continue;
+            }
+            UserModel fullUser = fullUserOpt.get();
+            fullUser.setRank(userWithRanking.getRank());
+            fullUsers.add(fullUser);
         }
-        UserModel userWithRank = userWithRankOpt.get();
-        final int centerRank = userWithRank.getRank();
-        final int minRank = Math.max(1, centerRank - count);
-        final int maxRank = centerRank + count;
-        return usersDAO.getUsersWithRanksBetween(dbConn, minRank, maxRank);
+
+        return fullUsers;
     }
 }

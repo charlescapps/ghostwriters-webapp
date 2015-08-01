@@ -8,6 +8,8 @@ import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
+import net.capps.word.ranks.UserWithRating;
+import net.capps.word.ranks.UserRanks;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
@@ -15,7 +17,11 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -115,8 +121,6 @@ public class SetupHelper {
         UserModel bookwormUser = new UserModel(null, WordConstants.BOOKWORM_AI_USERNAME, null, null, null, true);
         UserModel professorUser = new UserModel(null, WordConstants.PROFESSOR_AI_USERNAME, null, null, null, true);
 
-
-
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             usersProvider.createNewUserIfNotExists(dbConn, randomUser);
             usersProvider.createNewUserIfNotExists(dbConn, bookwormUser);
@@ -141,6 +145,19 @@ public class SetupHelper {
 
     public void initDictionaryDataStructures() throws IOException {
         Dictionaries.initializeAllDictionaries();
+    }
+
+    public void initRankDataStructures() throws SQLException {
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            Statement stmt = dbConn.createStatement();
+            List<UserWithRating> userWithRatings = new ArrayList<>();
+            ResultSet resultSet = stmt.executeQuery("SELECT id, rating FROM word_users");
+            while (resultSet.next()) {
+                userWithRatings.add(new UserWithRating(resultSet.getInt("id"), resultSet.getInt("rating")));
+            }
+
+            UserRanks.getInstance().buildRanks(userWithRatings);
+        }
     }
 
     public void initJetty() throws Exception {

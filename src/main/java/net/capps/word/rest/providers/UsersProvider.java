@@ -3,6 +3,8 @@ package net.capps.word.rest.providers;
 import com.google.common.base.Strings;
 import net.capps.word.crypto.CryptoUtils;
 import net.capps.word.db.dao.UsersDAO;
+import net.capps.word.ranks.UserWithRating;
+import net.capps.word.ranks.UserRanks;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.UserGameSummaryModel;
 import net.capps.word.rest.models.UserModel;
@@ -84,7 +86,9 @@ public class UsersProvider {
     }
 
     public UserModel createNewUser(Connection dbConn, UserModel validatedInput) throws Exception {
-        return usersDao.insertNewUser(dbConn, validatedInput);
+        UserModel createdUser = usersDao.insertNewUser(dbConn, validatedInput);
+        UserRanks.getInstance().insertRankedUser(new UserWithRating(createdUser.getId(), createdUser.getRating()));
+        return createdUser;
     }
 
     public void updateUserPassword(int userId, String validatedPass, Connection dbConn) throws Exception {
