@@ -32,6 +32,8 @@ public class RankingTest {
     private static final RatingsProvider ratingProvider = RatingsProvider.getInstance();
     private static final SetupHelper setupHelper = SetupHelper.getInstance();
 
+    private static final int DEFAULT_RANK_COUNT = 50;
+
     @Test
     public void testCreateManyUsers() throws Exception {
 
@@ -45,6 +47,8 @@ public class RankingTest {
     @Test
     public void testQueryLeaderboardManyTimesAndPrintDurations() throws Exception {
         setupHelper.initRankDataStructures();
+
+        final int NUM_USERS_AROUND = 25;
 
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             int maxUserId = usersDAO.getMaximumId(dbConn);
@@ -63,7 +67,7 @@ public class RankingTest {
                 Optional<UserModel> optUser = usersDAO.getUserById(dbConn, randomId);
                 Assert.assertTrue("Expected user with id " + randomId + " to exist.", optUser.isPresent());
 
-                queryLeaderboard(dbConn, optUser.get());
+                queryLeaderboard(dbConn, optUser.get(), NUM_USERS_AROUND);
             }
 
             final long END = System.currentTimeMillis();
@@ -93,7 +97,7 @@ public class RankingTest {
                 Optional<UserModel> optUser = usersDAO.getUserById(dbConn, randomId);
                 Assert.assertTrue("Expected user with id " + randomId + " to exist.", optUser.isPresent());
 
-                List<UserModel> results = queryLeaderboard(dbConn, optUser.get());
+                List<UserModel> results = queryLeaderboard(dbConn, optUser.get(), DEFAULT_RANK_COUNT);
                 Assert.assertTrue("Expected ranks to be non-empty", !results.isEmpty());
                 assertRanksValid(results);
                 assertRanksSequential(results);
@@ -129,7 +133,7 @@ public class RankingTest {
             Optional<UserModel> optUser = usersDAO.getUserById(dbConn, firstPlaceUser.getUserId());
             Assert.assertTrue("Expected user with the lowest rank to exist.", optUser.isPresent());
 
-            List<UserModel> results = queryLeaderboard(dbConn, optUser.get());
+            List<UserModel> results = queryLeaderboard(dbConn, optUser.get(), DEFAULT_RANK_COUNT);
             Assert.assertTrue("Expected ranks to be non-empty", !results.isEmpty());
             Assert.assertTrue("Expected the rank to be 1 for the first result", results.get(0).getRank() == 1);
             assertRanksValid(results);
@@ -165,7 +169,7 @@ public class RankingTest {
             Optional<UserModel> optUser = usersDAO.getUserById(dbConn, lastPlaceUser.getUserId());
             Assert.assertTrue("Expected user with the highest rank to exist.", optUser.isPresent());
 
-            List<UserModel> results = queryLeaderboard(dbConn, optUser.get());
+            List<UserModel> results = queryLeaderboard(dbConn, optUser.get(), DEFAULT_RANK_COUNT);
             Assert.assertTrue("Expected ranks to be non-empty", !results.isEmpty());
             Assert.assertTrue("Expected the rank to be the highest - limit for the first result", results.get(0).getRank() == UserRanks.getInstance().getHighestRank() - 50);
             assertRanksValid(results);
@@ -243,9 +247,9 @@ public class RankingTest {
 
     // --------- Private ---------
 
-    private List<UserModel> queryLeaderboard(Connection dbConn, UserModel userModel) throws Exception {
+    private List<UserModel> queryLeaderboard(Connection dbConn, UserModel userModel, int rankCount) throws Exception {
         final long START = System.currentTimeMillis();
-        List<UserModel> results = ratingProvider.getUsersWithRankAroundMe(dbConn, userModel, 50);
+        List<UserModel> results = ratingProvider.getUsersWithRankAroundMe(dbConn, userModel, rankCount);
         final long END = System.currentTimeMillis();
 
         System.out.println(END - START);

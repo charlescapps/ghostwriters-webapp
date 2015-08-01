@@ -169,7 +169,7 @@ public class RatingsProvider {
     }
 
     public List<UserModel> getUsersWithRankAroundMe(Connection dbConn, UserModel centerUser, int count) throws SQLException {
-        List<UserWithRanking> usersWithRanking = UserRanks.getInstance().getUsersWithRankAround(centerUser, count);
+        List<UserWithRanking> usersWithRanking = UserRanks.getInstance().getUsersWithRankAround(centerUser.getId(), count);
         List<UserModel> fullUsers = new ArrayList<>(usersWithRanking.size());
 
         for (UserWithRanking userWithRanking: usersWithRanking) {

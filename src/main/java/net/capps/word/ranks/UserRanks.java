@@ -58,8 +58,11 @@ public class UserRanks {
         return rankTree.size();
     }
 
-    public List<UserWithRanking> getUsersWithRankAround(UserModel centerUser, int limit) {
-        UserWithRating userWithRating = new UserWithRating(centerUser.getId(), centerUser.getRating());
+    public List<UserWithRanking> getUsersWithRankAround(final int centerUserId, int limit) {
+        UserWithRating userWithRating = usersById.get(centerUserId);
+        if (userWithRating == null) {
+            throw new IllegalStateException("User with ID " + centerUserId + " is not in the usersById map in UserRanks.");
+        }
         if (!rankTree.contains(userWithRating)) {
             throw new IllegalStateException(
                     format("Error - user is not contained in the TreeSet for ranks: %s", userWithRating));
