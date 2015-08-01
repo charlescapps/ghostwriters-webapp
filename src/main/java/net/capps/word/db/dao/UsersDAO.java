@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +78,7 @@ public class UsersDAO {
     // User ranking based on rating
     public static final String CREATE_RANKING_VIEW =
             "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                    "SELECT word_users.*, row_number() OVER (ORDER BY rating ASC) " +
+                    "SELECT word_users.*, row_number() OVER (ORDER BY rating DESC) AS word_rank " +
                     "FROM word_users;";
 
     // Get users with ranking around a given user
@@ -85,13 +86,13 @@ public class UsersDAO {
             "SELECT * FROM word_user_ranks WHERE id = ?;";
 
     private static final String GET_USERS_WITH_RANK_LT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE row_number < ? ORDER BY row_number ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE word_rank < ? ORDER BY word_rank DESC LIMIT ?";
 
     private static final String GET_USERS_WITH_RANK_GT_BY_RATING =
-            "SELECT * FROM word_user_ranks WHERE row_number > ? ORDER BY row_number ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks WHERE word_rank > ? ORDER BY word_rank ASC LIMIT ?";
 
     private static final String GET_BEST_RANKED_USERS =
-            "SELECT * FROM word_user_ranks WHERE row_number >= 1 ORDER BY row_number ASC LIMIT ?";
+            "SELECT * FROM word_user_ranks ORDER BY word_rank ASC LIMIT ?";
 
     // Return games such that either
     // (1) game is IN_PROGRESS and it's my turn, or
@@ -352,6 +353,7 @@ public class UsersDAO {
         while (resultSet.next()) {
             results.add(getUserFromResultSetWithRank(resultSet));
         }
+        Collections.reverse(results);
         return results;
     }
 
@@ -509,7 +511,7 @@ public class UsersDAO {
 
     private UserModel getUserFromResultSetWithRank(ResultSet resultSet) throws SQLException {
         UserModel userModel = getUserFromResultSet(resultSet);
-        int rank = resultSet.getInt("row_number");
+        int rank = resultSet.getInt("word_rank");
         userModel.setRank(rank);
         return userModel;
     }
