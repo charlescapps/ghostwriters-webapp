@@ -80,7 +80,7 @@ public class WordServletContextListener implements ServletContextListener {
     private void startScheduledTaskToRebuildRanks() {
         LOG.info("Scheduling task to rebuild the User Ranks!");
         rebuildUserRanksService = Executors.newSingleThreadScheduledExecutor();
-        rebuildUserRanksService.scheduleAtFixedRate(new RebuildUserRanksRunnable(), 5, 60, TimeUnit.MINUTES);
+        rebuildUserRanksService.scheduleAtFixedRate(new RebuildUserRanksRunnable(), 5, 30, TimeUnit.MINUTES);
     }
 
     private void startScheduledTaskToTimeOutInactiveGames() {

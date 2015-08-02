@@ -180,6 +180,9 @@ public class RatingsProvider {
             }
             UserModel fullUser = fullUserOpt.get();
             fullUser.setRank(userWithRanking.getRank());
+            // Set the user's rating to be the rating from the UserRanks data structure,
+            // so that the user doesn't see any inconsistency
+            fullUser.setRating(userWithRanking.getRating());
             fullUsers.add(fullUser);
         }
 
