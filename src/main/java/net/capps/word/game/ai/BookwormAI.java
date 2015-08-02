@@ -19,7 +19,7 @@ public class BookwormAI implements GameAI {
         return INSTANCE;
     }
 
-    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.1f, 0.6f, 0.05f);
+    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(0.5f, 0.6f, 0.05f);
 
     @Override
     public Move getNextMove(Game game) {

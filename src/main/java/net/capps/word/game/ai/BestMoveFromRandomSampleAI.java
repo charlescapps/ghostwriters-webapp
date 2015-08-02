@@ -39,7 +39,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private final float probabilityToSelectWordFromSpecialDict;
 
     public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict) {
-        Preconditions.checkArgument(fractionOfPositionsToSearch > 0 && fractionOfPositionsToSearch <= 1);
+        Preconditions.checkArgument(fractionOfPositionsToSearch > 0 && fractionOfPositionsToSearch <= 1.f);
         this.fractionOfPositionsToSearch = fractionOfPositionsToSearch;
         this.probabilityToGrab = probabilityToGrab;
         this.probabilityToSelectWordFromSpecialDict = probabilityToSelectWordFromSpecialDict;
