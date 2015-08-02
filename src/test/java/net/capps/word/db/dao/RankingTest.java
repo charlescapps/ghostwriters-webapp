@@ -14,10 +14,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by charlescapps on 7/29/15.
@@ -33,6 +34,29 @@ public class RankingTest {
     private static final SetupHelper setupHelper = SetupHelper.getInstance();
 
     private static final int DEFAULT_RANK_COUNT = 50;
+
+    @Test
+    public void testQueryLeaderboardConcurrent() throws Exception {
+        setupHelper.initRankDataStructures();
+
+        final int NUM_THREADS = 16;
+        final int NUM_TASKS = 200;
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        List<Callable<Void>> callables = new ArrayList<>();
+
+        for (int i = 0; i < NUM_TASKS; ++i) {
+            callables.add(() -> {
+                doTestQueryLeaderboardAndPrintTotalTime(25, 50);
+                return null;
+            });
+        }
+
+        List<Future<Void>> futures = executor.invokeAll(callables);
+
+        for (Future<Void> future: futures) {
+            future.get();
+        }
+    }
 
     @Test
     public void testCreateManyUsers() throws Exception {
@@ -299,5 +323,26 @@ public class RankingTest {
         UserRanks.getInstance().updateRankedUser(new UserWithRating(createdUser.getId(), rating));
 
         return createdUser;
+    }
+
+    private void doTestQueryLeaderboardAndPrintTotalTime(int userCount, int numTimesToQueryLeaderboard) throws Exception {
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            int maxUserId = usersDAO.getMaximumId(dbConn);
+            Assert.assertTrue("Expected more than 3 users", maxUserId > 3);
+
+            final long START = System.currentTimeMillis();
+
+            for (int i = 0; i < numTimesToQueryLeaderboard; ++i) {
+                final int randomId = RandomUtil.randomInt(1, maxUserId);
+                Optional<UserModel> optUser = usersDAO.getUserById(dbConn, randomId);
+                Assert.assertTrue("Expected user with id " + randomId + " to exist.", optUser.isPresent());
+
+                ratingProvider.getUsersWithRankAroundMe(dbConn, optUser.get(), userCount);
+            }
+
+            final long END = System.currentTimeMillis();
+
+            System.out.println(END - START);
+        }
     }
 }
