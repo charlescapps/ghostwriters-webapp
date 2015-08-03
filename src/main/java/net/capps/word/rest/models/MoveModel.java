@@ -1,8 +1,11 @@
 package net.capps.word.rest.models;
 
+import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.dict.DictType;
 import net.capps.word.game.move.MoveType;
+
+import java.util.Objects;
 
 /**
  * Created by charlescapps on 1/16/15.
@@ -113,5 +116,66 @@ public class MoveModel {
 
     public void setDict(DictType dict) {
         this.dict = dict;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("gameId", gameId)
+                .add("moveType", moveType)
+                .add("start", start)
+                .add("dir", dir)
+                .add("letters", letters)
+                .add("tiles", tiles)
+                .add("datePlayed", datePlayed)
+                .toString();
+    }
+
+    /**
+     * Define move equality in terms of the content of the move,
+     * ignoring game ID.
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MoveModel)) {
+            return false;
+        }
+        MoveModel oMove = (MoveModel)o;
+        if (moveType != oMove.moveType) {
+            return false;
+        }
+        switch (moveType) {
+            case PLAY_WORD:
+            case GRAB_TILES:
+                return Objects.equals(start, oMove.start) &&
+                        dir == oMove.dir &&
+                        Objects.equals(letters, oMove.letters) &&
+                        Objects.equals(tiles, oMove.tiles);
+            case PASS:
+            case RESIGN:
+                return true;
+
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        switch (moveType) {
+            case PASS:
+                return 1;
+            case RESIGN:
+                return 2;
+            case GRAB_TILES:
+            case PLAY_WORD:
+                return Objects.hashCode(letters) ^
+                        Objects.hashCode(tiles) ^
+                        Objects.hashCode(start) ^
+                        Objects.hashCode(dir);
+            default:
+                return 0;
+        }
     }
 }

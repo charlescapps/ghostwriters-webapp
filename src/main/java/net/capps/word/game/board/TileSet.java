@@ -259,12 +259,7 @@ public class TileSet implements Iterable<Pos> {
         }
 
         Placement placement = move.getPlacement();
-        errorOpt = getPlacementError(placement, specialDict);
-        if (errorOpt.isPresent()) {
-            return errorOpt;
-        }
-
-        return Optional.empty();
+        return getPlacementError(placement, specialDict);
     }
 
     public Optional<String> isValidGrabTilesMove(Move move) {

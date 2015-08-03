@@ -1,5 +1,6 @@
 package net.capps.word.rest.models;
 
+import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.Pos;
 
 /**
@@ -36,6 +37,14 @@ public class PosModel {
 
     public Pos toPos() {
         return Pos.of(r, c);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("r", r)
+                .add("c", c)
+                .toString();
     }
 
     @Override

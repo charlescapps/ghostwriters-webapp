@@ -2,7 +2,6 @@ package net.capps.word.db;
 
 import com.google.common.base.Strings;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -14,6 +14,7 @@ import net.capps.word.game.dict.common.DictHelpers;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
+import net.capps.word.rest.models.MoveModel;
 import net.capps.word.util.RandomUtil;
 
 import java.util.ArrayList;
@@ -37,20 +38,22 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private final float fractionOfPositionsToSearch;
     private final float probabilityToGrab;
     private final float probabilityToSelectWordFromSpecialDict;
-    private final ImmutableList<Move> excludedMoves;
+    private final ImmutableList<MoveModel> prevTwoMoves;
+    private final Integer currentPlayerId;
 
     public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict) {
-        this(fractionOfPositionsToSearch, probabilityToGrab, probabilityToSelectWordFromSpecialDict, ImmutableList.of());
+        this(fractionOfPositionsToSearch, probabilityToGrab, probabilityToSelectWordFromSpecialDict, ImmutableList.of(), null);
     }
 
-    public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict, List<Move> excludedMoves) {
+    public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict, List<MoveModel> prevTwoMoves, Integer currentPlayerId) {
         Preconditions.checkArgument(fractionOfPositionsToSearch > 0 && fractionOfPositionsToSearch <= 1.f);
         this.fractionOfPositionsToSearch = fractionOfPositionsToSearch;
         this.probabilityToGrab = probabilityToGrab;
         this.probabilityToSelectWordFromSpecialDict = probabilityToSelectWordFromSpecialDict;
-        this.excludedMoves = ImmutableList.<Move>builder()
-                .addAll(excludedMoves)
+        this.prevTwoMoves = ImmutableList.<MoveModel>builder()
+                .addAll(prevTwoMoves)
                 .build();
+        this.currentPlayerId = currentPlayerId;
     }
 
     @Override
@@ -209,7 +212,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         final int diff = occOrAdj.minus(originalStart);
 
-        generateMoves(game.getGameId(), dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
+        generateMoves(game, dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
 
         // If no moves are found, return Optional.empty()
         if (foundMoves.isEmpty()) {
@@ -230,7 +233,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         return Optional.of(bestMove);
     }
 
-    private void generateMoves(int gameId, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves) {
+    private void generateMoves(Game game, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves) {
 
         if (!DictHelpers.isPrefix(prefix, dictType)) {
             return;
@@ -238,8 +241,9 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         if (placements.size() >= minPlacements && DictHelpers.isWord(prefix, dictType)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
-            Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.getPlayWordMoveError(move, null).isPresent() && !excludedMoves.contains(move)) {
+            Move move = new Move(game.getGameId(), MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
+            if (!tileSet.getPlayWordMoveError(move, null).isPresent() &&
+                !isReplayGrabbedTiles(move, game)) {
                 moves.add(move);
             }
         }
@@ -251,7 +255,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         if (tileSet.isOccupied(tryPos)) {
             prefix += tileSet.getLetterAt(tryPos);
-            generateMoves(gameId, dictType, prefix, minPlacements, tileSet, start, nextPos, dir, placements, remaining, moves);
+            generateMoves(game, dictType, prefix, minPlacements, tileSet, start, nextPos, dir, placements, remaining, moves);
         } else {
             Set<RackTile> remainingSet = Sets.newHashSet(remaining);
             for (RackTile rackTile : remainingSet) {
@@ -260,8 +264,16 @@ public class BestMoveFromRandomSampleAI implements GameAI {
                 List<RackTile> newRemaining = Lists.newArrayList(remaining);
                 newPlacements.add(rackTile);
                 newRemaining.remove(rackTile);
-                generateMoves(gameId, dictType, word, minPlacements, tileSet, start, nextPos, dir, newPlacements, newRemaining, moves);
+                generateMoves(game, dictType, word, minPlacements, tileSet, start, nextPos, dir, newPlacements, newRemaining, moves);
             }
         }
+    }
+
+    private boolean isReplayGrabbedTiles(Move move, Game game) {
+        if (currentPlayerId == null) {
+            return false;
+        }
+        MoveModel moveModel = move.toMoveModel(currentPlayerId, 0);
+        return game.getReplayGrabbedTilesError(moveModel, prevTwoMoves).isPresent();
     }
 }

@@ -2,6 +2,7 @@ package net.capps.word.game.ai;
 
 import net.capps.word.game.board.Game;
 import net.capps.word.game.move.Move;
+import net.capps.word.rest.models.MoveModel;
 
 import java.util.List;
 
@@ -19,8 +20,8 @@ import java.util.List;
 public class OracleTileAI implements GameAI {
     private final BestMoveFromRandomSampleAI delegateAI;
 
-    public OracleTileAI(List<Move> excludedMoves) {
-        delegateAI = new BestMoveFromRandomSampleAI(1f, 0f, 1f, excludedMoves);
+    public OracleTileAI(List<MoveModel> prevTwoMoves, Integer currentPlayerId) {
+        delegateAI = new BestMoveFromRandomSampleAI(1f, 0f, 1f, prevTwoMoves, currentPlayerId);
     }
 
     @Override

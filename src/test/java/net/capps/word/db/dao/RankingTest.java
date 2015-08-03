@@ -60,7 +60,6 @@ public class RankingTest {
 
     @Test
     public void testCreateManyUsers() throws Exception {
-
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             for (int i = 0; i < NUM_USERS; ++i) {
                 createUserWithRandomRating(i, usersDAO, dbConn);

@@ -5,9 +5,9 @@ import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.ranking.EloRankingComputer;
+import net.capps.word.ranks.UserRanks;
 import net.capps.word.ranks.UserWithRanking;
 import net.capps.word.ranks.UserWithRating;
-import net.capps.word.ranks.UserRanks;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
 import org.slf4j.Logger;
@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.lang.String.format;
 
 /**
  * Created by charlescapps on 3/29/15.

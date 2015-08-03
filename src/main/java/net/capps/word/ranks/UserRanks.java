@@ -1,6 +1,5 @@
 package net.capps.word.ranks;
 
-import net.capps.word.rest.models.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

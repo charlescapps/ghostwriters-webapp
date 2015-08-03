@@ -51,7 +51,7 @@ public class SpecialActionService {
 
             GameModel gameModel = errorOrGame.getResultOpt().get();
 
-            ErrorOrResult<MoveModel> scryMoveOrError = specialActionsProvider.getScryMoveAndUpdateUserRack(gameModel, authUser, dbConn);
+            ErrorOrResult<MoveModel> scryMoveOrError = specialActionsProvider.getOracleMoveAndUpdateUserRack(gameModel, authUser, dbConn);
 
             if (scryMoveOrError.isError()) {
                 return Response.status(Response.Status.BAD_REQUEST)
