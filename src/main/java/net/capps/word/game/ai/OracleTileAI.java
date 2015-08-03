@@ -3,6 +3,8 @@ package net.capps.word.game.ai;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.move.Move;
 
+import java.util.List;
+
 /**
  * Created by charlescapps on 2/22/15.
  * <p/>
@@ -14,15 +16,12 @@ import net.capps.word.game.move.Move;
  *
  * Always tries a word from the special dictionary first (if present).
  */
-public class ScryTileAI implements GameAI {
-    private static final ScryTileAI INSTANCE = new ScryTileAI();
-    private ScryTileAI() { }
+public class OracleTileAI implements GameAI {
+    private final BestMoveFromRandomSampleAI delegateAI;
 
-    public static ScryTileAI getInstance() {
-        return INSTANCE;
+    public OracleTileAI(List<Move> excludedMoves) {
+        delegateAI = new BestMoveFromRandomSampleAI(1f, 0f, 1f, excludedMoves);
     }
-
-    private final BestMoveFromRandomSampleAI delegateAI = new BestMoveFromRandomSampleAI(1f, 0f, 1f);
 
     @Override
     public Move getNextMove(Game game) {

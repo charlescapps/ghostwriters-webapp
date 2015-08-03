@@ -37,12 +37,20 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private final float fractionOfPositionsToSearch;
     private final float probabilityToGrab;
     private final float probabilityToSelectWordFromSpecialDict;
+    private final ImmutableList<Move> excludedMoves;
 
     public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict) {
+        this(fractionOfPositionsToSearch, probabilityToGrab, probabilityToSelectWordFromSpecialDict, ImmutableList.of());
+    }
+
+    public BestMoveFromRandomSampleAI(float fractionOfPositionsToSearch, float probabilityToGrab, float probabilityToSelectWordFromSpecialDict, List<Move> excludedMoves) {
         Preconditions.checkArgument(fractionOfPositionsToSearch > 0 && fractionOfPositionsToSearch <= 1.f);
         this.fractionOfPositionsToSearch = fractionOfPositionsToSearch;
         this.probabilityToGrab = probabilityToGrab;
         this.probabilityToSelectWordFromSpecialDict = probabilityToSelectWordFromSpecialDict;
+        this.excludedMoves = ImmutableList.<Move>builder()
+                .addAll(excludedMoves)
+                .build();
     }
 
     @Override
@@ -231,7 +239,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         if (placements.size() >= minPlacements && DictHelpers.isWord(prefix, dictType)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.getPlayWordMoveError(move, null).isPresent()) {
+            if (!tileSet.getPlayWordMoveError(move, null).isPresent() && !excludedMoves.contains(move)) {
                 moves.add(move);
             }
         }
@@ -256,6 +264,4 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             }
         }
     }
-
-
 }

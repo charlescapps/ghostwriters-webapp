@@ -12,6 +12,7 @@ import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by charlescapps on 1/16/15.
@@ -129,5 +130,53 @@ public class Move {
                 .add("dir", dir)
                 .add("tiles", tiles)
                 .toString();
+    }
+
+    /**
+     * Define move equality in terms of the content of the move,
+     * ignoring game ID.
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Move)) {
+            return false;
+        }
+        Move oMove = (Move)o;
+        if (moveType != oMove.moveType) {
+            return false;
+        }
+        switch (moveType) {
+            case PLAY_WORD:
+            case GRAB_TILES:
+                return Objects.equals(start, oMove.start) &&
+                       dir == oMove.dir &&
+                       Objects.equals(letters, oMove.letters) &&
+                       Objects.equals(tiles, oMove.tiles);
+            case PASS:
+            case RESIGN:
+                return true;
+
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        switch (moveType) {
+            case PASS:
+                return 1;
+            case RESIGN:
+                return 2;
+            case GRAB_TILES:
+            case PLAY_WORD:
+                return Objects.hashCode(letters) ^
+                       Objects.hashCode(tiles) ^
+                       Objects.hashCode(start) ^
+                       Objects.hashCode(dir);
+            default:
+                return 0;
+        }
     }
 }

@@ -1,8 +1,11 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.collect.ImmutableList;
 import net.capps.word.db.dao.GamesDAO;
-import net.capps.word.game.ai.ScryTileAI;
+import net.capps.word.db.dao.MovesDAO;
+import net.capps.word.game.ai.OracleTileAI;
 import net.capps.word.game.board.Game;
+import net.capps.word.game.common.Rack;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
@@ -14,6 +17,7 @@ import net.capps.word.util.ErrorOrResult;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -21,7 +25,6 @@ import java.util.Optional;
  */
 public class SpecialActionsProvider {
     private static final SpecialActionsProvider INSTANCE = new SpecialActionsProvider();
-    private static final ScryTileAI SCRY_TILE_AI = ScryTileAI.getInstance();
 
     private static final ErrorModel ERR_MISSING_GAME_ID = new ErrorModel("Missing query param 'gameId'");
     private static final ErrorModel ERR_INVALID_GAME_ID = new ErrorModel("gameId is invalid.");
@@ -32,6 +35,7 @@ public class SpecialActionsProvider {
     private static final ErrorModel ERR_NO_PLAY_WORD_MOVE_FOUND = new ErrorModel("No words found! Try grabbing tiles from the board or passing.");
 
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
+    private static final MovesDAO movesDAO = MovesDAO.getInstance();
 
     public static SpecialActionsProvider getInstance() {
         return INSTANCE;
@@ -89,7 +93,9 @@ public class SpecialActionsProvider {
             throw new IllegalStateException("Player's rack didn't contain '^' -- a Scry Tile");
         }
 
-        Move scryMove = SCRY_TILE_AI.getNextMove(game);
+        final List<Move> excludedMoves = getExcludedMoves(dbConn, validatedGame.getId(), authUser.getId());
+        final OracleTileAI oracleTileAI = new OracleTileAI(excludedMoves);
+        Move scryMove = oracleTileAI.getNextMove(game);
         if (scryMove.getMoveType() != MoveType.PLAY_WORD) {
             return ErrorOrResult.ofError(ERR_NO_PLAY_WORD_MOVE_FOUND);
         }
@@ -106,5 +112,30 @@ public class SpecialActionsProvider {
         return ErrorOrResult.ofResult(moveModel);
     }
 
+    private List<Move> getExcludedMoves(Connection dbConn, int gameId, int playerId) throws Exception {
+        List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
+        if (prevMoves.isEmpty()) {
+            return ImmutableList.of();
+        }
+        if (prevMoves.size() >= 2) {
+            MoveModel prevPrevMove = prevMoves.get(1);
+            if (Integer.valueOf(playerId).equals(prevPrevMove.getPlayerId()) &&
+                    prevPrevMove.getMoveType() == MoveType.GRAB_TILES) {
+                return ImmutableList.of(grabMoveToPlayMove(prevPrevMove, gameId));
+            }
+        }
+        if (prevMoves.size() >= 1) {
+            MoveModel prevMove = prevMoves.get(0);
+            if (Integer.valueOf(playerId).equals(prevMove.getPlayerId()) &&
+                prevMove.getMoveType() == MoveType.GRAB_TILES) {
+                return ImmutableList.of(grabMoveToPlayMove(prevMove, gameId));
+            }
+        }
+        return ImmutableList.of();
+    }
 
+    private Move grabMoveToPlayMove(MoveModel grabMove, int gameId) {
+        return new Move(gameId, MoveType.PLAY_WORD, grabMove.getLetters(), grabMove.getStart().toPos(),
+                grabMove.getDir(), Rack.lettersToTiles(grabMove.getLetters()));
+    }
 }
