@@ -48,7 +48,7 @@ public class TableDefinitions {
             "DROP INDEX IF EXISTS idx_rating;";
 
     public static final String CREATE_RATING_DESC_AND_ID_IDX =
-            "CREATE INDEX idx_rating_desc_and_id ON word_users (rating, id);";
+            "CREATE INDEX idx_rating_desc_and_id ON word_users (rating DESC, id);";
 
     public static final String DROP_RATING_DESC_AND_ID_IDX =
             "DROP INDEX IF EXISTS idx_rating_desc_and_id;";
