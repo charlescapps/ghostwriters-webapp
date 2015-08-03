@@ -3,8 +3,6 @@ package net.capps.word.db.dao;
 import com.google.common.collect.Sets;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.heroku.SetupHelper;
-import net.capps.word.ranks.UserWithRating;
-import net.capps.word.ranks.UserRanks;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.rest.providers.UserRecordChange;
@@ -37,8 +35,6 @@ public class RankingTest {
 
     @Test
     public void testQueryLeaderboardConcurrent() throws Exception {
-        setupHelper.initRankDataStructures();
-
         final int NUM_THREADS = 16;
         final int NUM_TASKS = 200;
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
@@ -69,8 +65,6 @@ public class RankingTest {
 
     @Test
     public void testQueryLeaderboardManyTimesAndPrintDurations() throws Exception {
-        setupHelper.initRankDataStructures();
-
         final int NUM_USERS_AROUND = 25;
 
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
@@ -102,8 +96,6 @@ public class RankingTest {
 
     @Test
     public void testQueryLeaderboardCorrectness() throws Exception {
-        setupHelper.initRankDataStructures();
-
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             int maxUserId = usersDAO.getMaximumId(dbConn);
             Assert.assertTrue("Expected more than 3 users", maxUserId > 3);
@@ -140,9 +132,7 @@ public class RankingTest {
     }
 
     @Test
-    public void testQueryLeaderboardCorrectnessRank1() throws Exception {
-        setupHelper.initRankDataStructures();
-
+    public void testQueryLeaderboardCorrectnessTop100() throws Exception {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             int maxUserId = usersDAO.getMaximumId(dbConn);
             Assert.assertTrue("Expected more than 3 users", maxUserId > 3);
@@ -151,17 +141,12 @@ public class RankingTest {
 
             final long START = System.currentTimeMillis();
 
-            UserWithRating firstPlaceUser = UserRanks.getInstance().getFirstPlaceUser();
-
-            Optional<UserModel> optUser = usersDAO.getUserById(dbConn, firstPlaceUser.getUserId());
-            Assert.assertTrue("Expected user with the lowest rank to exist.", optUser.isPresent());
-
-            List<UserModel> results = queryLeaderboard(dbConn, optUser.get(), DEFAULT_RANK_COUNT);
+            List<UserModel> results = usersDAO.getTopRankedUsers(dbConn, 100);
             Assert.assertTrue("Expected ranks to be non-empty", !results.isEmpty());
+            Assert.assertTrue("Expected 100 results", results.size() == 100);
             Assert.assertTrue("Expected the rank to be 1 for the first result", results.get(0).getRank() == 1);
             assertRanksValid(results);
             assertRanksSequential(results);
-            Assert.assertTrue("Expected ranks to contain the center user", results.contains(optUser.get()));
 
             System.out.println("Rankings:");
             for (UserModel result: results) {
@@ -175,46 +160,9 @@ public class RankingTest {
         }
     }
 
-    @Test
-    public void testQueryLeaderboardCorrectnessLastRank() throws Exception {
-        setupHelper.initRankDataStructures();
-
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            int maxUserId = usersDAO.getMaximumId(dbConn);
-            Assert.assertTrue("Expected more than 3 users", maxUserId > 3);
-
-            System.out.println("Num users in database:" + maxUserId);
-
-            final long START = System.currentTimeMillis();
-
-            UserWithRating lastPlaceUser = UserRanks.getInstance().getLastPlaceUser();
-
-            Optional<UserModel> optUser = usersDAO.getUserById(dbConn, lastPlaceUser.getUserId());
-            Assert.assertTrue("Expected user with the highest rank to exist.", optUser.isPresent());
-
-            List<UserModel> results = queryLeaderboard(dbConn, optUser.get(), DEFAULT_RANK_COUNT);
-            Assert.assertTrue("Expected ranks to be non-empty", !results.isEmpty());
-            Assert.assertTrue("Expected the rank to be the highest - limit for the first result", results.get(0).getRank() == UserRanks.getInstance().getHighestRank() - 50);
-            assertRanksValid(results);
-            assertRanksSequential(results);
-            Assert.assertTrue("Expected ranks to contain the center user", results.contains(optUser.get()));
-
-            System.out.println("Rankings:");
-            for (UserModel result: results) {
-                System.out.println(result.getRank());
-            }
-
-            final long END = System.currentTimeMillis();
-
-            System.out.println("Total time to query leaderboard many times (seconds): " +
-                    TimeUnit.MILLISECONDS.toSeconds(END - START));
-        }
-    }
 
     @Test
     public void testUpdateUserRanking() throws Exception {
-        setupHelper.initRankDataStructures();
-
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             int maxUserId = usersDAO.getMaximumId(dbConn);
             Assert.assertTrue("Expected more than 3 users", maxUserId > 3);
@@ -250,10 +198,6 @@ public class RankingTest {
             usersDAO.updateUserRating(dbConn, player1.getId(), player1.getRating(), UserRecordChange.INCREASE_WINS);
             usersDAO.updateUserRating(dbConn, player2.getId(), player2.getRating(), UserRecordChange.INCREASE_LOSSES);
 
-            // Updates in the data structures for ranking
-            UserRanks.getInstance().updateRankedUser(new UserWithRating(player1.getId(), player1.getRating()));
-            UserRanks.getInstance().updateRankedUser(new UserWithRating(player2.getId(), player2.getRating()));
-
             // Verify the ranks are swapped
             results = ratingProvider.getUsersWithRankAroundMe(dbConn, player2, 1000);
             Assert.assertTrue("Results should contain player 2", results.contains(player2));
@@ -288,7 +232,7 @@ public class RankingTest {
             ranks.add(userModel.getRank());
         }
 
-        Assert.assertTrue("Expected all ranks to be unique!", ranks.size() == rankedUsers.size());
+        Assert.assertEquals("Expected all ranks to be unique! (num distinct ranks == num ranked users)", ranks.size(), rankedUsers.size());
     }
 
     private void assertRanksSequential(List<UserModel> rankedUsers) {
@@ -301,10 +245,9 @@ public class RankingTest {
                 Assert.assertTrue("Expected ranks to be sequential", currentRank == prevRank + 1 );
             }
             if (prevUser != null) {
-                UserWithRating pUserWithRating = new UserWithRating(prevUser.getId(), prevUser.getRating());
-                UserWithRating cUserWithRating = new UserWithRating(userModel.getId(), userModel.getRating());
                 Assert.assertTrue("Expected the next user to be greated with natural comparator",
-                        pUserWithRating.compareTo(cUserWithRating) < 0);
+                        prevUser.getRating() > userModel.getRating() ||
+                        prevUser.getRating().equals(userModel.getRating()) && prevUser.getId() < userModel.getId());
             }
             prevRank = currentRank;
             prevUser = userModel;
@@ -319,7 +262,6 @@ public class RankingTest {
 
         final int rating = RandomUtil.randomInt(MIN_RATING, MAX_RATING);
         usersDAO.updateUserRating(dbConn, createdUser.getId(), rating, UserRecordChange.INCREASE_WINS);
-        UserRanks.getInstance().updateRankedUser(new UserWithRating(createdUser.getId(), rating));
 
         return createdUser;
     }

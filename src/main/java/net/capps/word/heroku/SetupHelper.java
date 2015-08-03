@@ -8,8 +8,6 @@ import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
-import net.capps.word.ranks.UserRanks;
-import net.capps.word.ranks.UserWithRating;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
 import org.eclipse.jetty.server.Server;
@@ -17,11 +15,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,7 +26,6 @@ public class SetupHelper {
     private static final SetupHelper INSTANCE = new SetupHelper();
     private static final UsersProvider usersProvider = UsersProvider.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
-    private static final UserRanks userRanks = UserRanks.getInstance();
 
     private SetupHelper() {}
 
@@ -72,6 +65,12 @@ public class SetupHelper {
 
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_USER_RATING_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_RATING_DESC_AND_ID_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_RATING_DESC_AND_ID_IDX);
 
             // -------- word_games table --------
             stmt = connection.createStatement();
@@ -146,23 +145,6 @@ public class SetupHelper {
 
     public void initDictionaryDataStructures() throws IOException {
         Dictionaries.initializeAllDictionaries();
-    }
-
-    public void initRankDataStructures() throws SQLException {
-        final long START = System.currentTimeMillis();
-
-        List<UserWithRating> userWithRatings = new ArrayList<>();
-        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            Statement stmt = dbConn.createStatement();
-            ResultSet resultSet = stmt.executeQuery("SELECT id, rating FROM word_users");
-            while (resultSet.next()) {
-                userWithRatings.add(new UserWithRating(resultSet.getInt("id"), resultSet.getInt("rating")));
-            }
-        }
-        UserRanks.getInstance().buildRanks(userWithRatings);
-
-        final long END = System.currentTimeMillis();
-        System.out.println("Total time to initialize RankUsers: " + (END - START) + " milliseconds");
     }
 
     public void initJetty() throws Exception {

@@ -20,7 +20,6 @@ public class InitDictionariesThread extends Thread {
         try {
             setupHelper.initDictionaryDataStructures();
             setupHelper.initGameDataStructures();
-            setupHelper.initRankDataStructures();
             LOG.info("SUCCESS - Finished initializing dictionary data structures and game data structures!");
         } catch (Exception e) {
             throw new RuntimeException(e);

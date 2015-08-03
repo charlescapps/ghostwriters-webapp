@@ -74,22 +74,17 @@ public class UsersDAO {
     private static final String GET_USERS_WITH_RATING_LT =
             "SELECT * FROM word_users WHERE rating < ? ORDER BY rating DESC LIMIT ?";
 
-    // User ranking based on rating
-    public static final String CREATE_RANKING_VIEW =
-            "CREATE OR REPLACE VIEW word_user_ranks AS " +
-                    "SELECT word_users.*, row_number() OVER (ORDER BY rating DESC) AS word_rank " +
-                    "FROM word_users;";
+    // Get a particular user's rank
+    private static final String GET_USER_RANK =
+            "SELECT (SELECT COUNT(*) FROM word_users WHERE rating > ?) + " +
+                   "(SELECT COUNT(*) FROM word_users WHERE rating = ? AND id < ?) + 1 AS word_rank;";
 
-    // Get users with ranking around a given user
-    private static final String GET_USER_WITH_RANK =
-            "SELECT * FROM " +
-                    "(SELECT *, row_number() OVER (ORDER BY rating DESC) AS word_rank FROM word_users)  my_ranks " +
-             "WHERE id = ?;";
+    // Get users ranked around given user
+    private static final String GET_USERS_BY_RANK_AROUND =
+            "SELECT * FROM word_users ORDER BY rating DESC, id ASC LIMIT ? OFFSET ?;";
 
-    private static final String GET_USERS_WITH_RANKS_BETWEEN =
-            "SELECT * FROM " +
-                    "(SELECT *, row_number() OVER (ORDER BY rating DESC) AS word_rank FROM word_users)  my_ranks " +
-             "WHERE word_rank >= ? AND word_rank <= ? ORDER BY word_rank ASC;";
+    private static final String GET_TOP_USERS_BY_RANK =
+            "SELECT * FROM word_users ORDER BY rating DESC, id ASC LIMIT ?;";
 
     // Return games such that either
     // (1) game is IN_PROGRESS and it's my turn, or
@@ -329,32 +324,60 @@ public class UsersDAO {
     }
 
     // ------- Rank queries -----
-    public Optional<UserModel> getUserWithRank(Connection dbConn, int userId) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_WITH_RANK);
-        stmt.setInt(1, userId);
+    public int getUserRank(Connection dbConn, int id, int rating) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_RANK);
+        stmt.setInt(1, rating);
+        stmt.setInt(2, rating);
+        stmt.setInt(3, id);
+
         ResultSet resultSet = stmt.executeQuery();
+
         if (!resultSet.next()) {
-            return Optional.empty();
+            throw new SQLException("Failed to compute rank of user, no results returned.");
         }
-        UserModel userModel = getUserFromResultSetWithRank(resultSet);
-        return Optional.of(userModel);
+
+        return resultSet.getInt("word_rank");
     }
 
-    public List<UserModel> getUsersWithRanksBetween(Connection dbConn, final int minRank, final int maxRank) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_WITH_RANKS_BETWEEN);
-        stmt.setInt(1, minRank);
-        stmt.setInt(2, maxRank);
+    public List<UserModel> getUsersWithRankAroundUser(Connection dbConn, int centerRank, int countPerSide) throws SQLException {
+        int limit = countPerSide * 2 + 1;
+        int offset = Math.max(0, centerRank - countPerSide - 1);
+
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USERS_BY_RANK_AROUND);
+        stmt.setInt(1, limit);
+        stmt.setInt(2, offset);
 
         ResultSet resultSet = stmt.executeQuery();
-        List<UserModel> results = new ArrayList<>(maxRank - minRank + 1);
+        List<UserModel> results = new ArrayList<>();
+
+        int rankOffset = 1;
         while (resultSet.next()) {
-            results.add(getUserFromResultSetWithRank(resultSet));
+            UserModel userWithRank = getUserFromResultSet(resultSet);
+            int rank = rankOffset + offset;
+            userWithRank.setRank(rank);
+            results.add(userWithRank);
+            ++rankOffset;
         }
+
         return results;
     }
 
-    public List<UserModel> getUsersWithBestRanks(Connection dbConn, final int limit) throws SQLException {
-        return getUsersWithRanksBetween(dbConn, 1, limit);
+    public List<UserModel> getTopRankedUsers(Connection dbConn, int limit) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_TOP_USERS_BY_RANK);
+        stmt.setInt(1, limit);
+
+        ResultSet resultSet = stmt.executeQuery();
+        List<UserModel> results = new ArrayList<>();
+
+        int currentRank = 1;
+        while (resultSet.next()) {
+            UserModel userWithRank = getUserFromResultSet(resultSet);
+            userWithRank.setRank(currentRank);
+            results.add(userWithRank);
+            ++currentRank;
+        }
+
+        return results;
     }
 
     public int getNumGamesMyTurn(Connection dbConn, int userId) throws SQLException {

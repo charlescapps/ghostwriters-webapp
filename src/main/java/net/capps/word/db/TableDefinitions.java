@@ -47,11 +47,11 @@ public class TableDefinitions {
     public static final String DROP_USER_RATING_IDX =
             "DROP INDEX IF EXISTS idx_rating;";
 
-    public static final String CREATE_ID_AND_RATING_IDX =
-            "CREATE INDEX idx_id_and_rating ON word_users (rating, id);";
+    public static final String CREATE_RATING_DESC_AND_ID_IDX =
+            "CREATE INDEX idx_rating_desc_and_id ON word_users (rating, id);";
 
-    public static final String DROP_ID_AND_RATING_IDX =
-            "DROP INDEX IF EXISTS idx_id_and_rating;";
+    public static final String DROP_RATING_DESC_AND_ID_IDX =
+            "DROP INDEX IF EXISTS idx_rating_desc_and_id;";
 
     // --------- Games table -----------
 

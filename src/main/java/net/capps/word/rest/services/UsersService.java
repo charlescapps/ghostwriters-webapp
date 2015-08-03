@@ -213,7 +213,7 @@ public class UsersService {
                     .build();
         }
         try (Connection dbConn = wordDbManager.getConnection()) {
-            List<UserModel> results = usersDAO.getUsersWithBestRanks(dbConn, maxResults);
+            List<UserModel> results = usersDAO.getTopRankedUsers(dbConn, maxResults);
             return Response.ok(new UserListModel(results)).build();
         }
     }
