@@ -28,6 +28,8 @@ import static java.lang.String.format;
  */
 public class UsersProvider {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_\\-]*");
+    private static final String INVALID_USERNAME_CHARS = "[^a-zA-Z0-9_\\-]+";
+
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("[a-zA-Z0-9!@#$%^&*\\(\\)\\-_=\\+\\[\\]\\{\\}]+");
     public static final int MIN_USERNAME_LEN = 4;
     public static final int MAX_USERNAME_LEN = 16;
@@ -110,6 +112,7 @@ public class UsersProvider {
     public List<UserModel> searchUsers(Connection dbConn, String q, int maxResults) throws Exception {
         List<UserModel> results = new ArrayList<>();
         // First add the exact match (case insensitive) to the beginning of the list.
+        q = preprocessUserQueryString(q);
         Optional<UserModel> exactMatch = usersDao.getUserByUsername(dbConn, q, false);
         if (exactMatch.isPresent()) {
             results.add(exactMatch.get());
@@ -134,6 +137,10 @@ public class UsersProvider {
         results.addAll(substringMatches);
 
         return results.subList(0, Math.min(maxResults, results.size()));
+    }
+
+    private String preprocessUserQueryString(String q) {
+        return q.replaceAll(INVALID_USERNAME_CHARS, ""); // Remove all characters disallowed in usernames.
     }
 
     public UserGameSummaryModel getUserSummaryInfoForMainMenu(int userId, Connection dbConn) throws SQLException {
