@@ -9,9 +9,9 @@ import net.capps.word.game.gen.SpecialDictGameGenerator;
  * Represents dictionaries that can be used in the Ghostwriters game.
  */
 public enum SpecialDict {
-    POE(DictType.POE, 1),
-    LOVECRAFT(DictType.LOVECRAFT, 1),
-    MYTHOS(DictType.MYTHOS, 1);
+    POE(DictType.POE, 0),
+    LOVECRAFT(DictType.LOVECRAFT, 0),
+    MYTHOS(DictType.MYTHOS, 0);
 
     private final DictType primaryDict;
     private final int tokenCost;
