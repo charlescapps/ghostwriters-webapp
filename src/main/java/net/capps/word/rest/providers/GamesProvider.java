@@ -38,7 +38,7 @@ public class GamesProvider {
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final int MAX_ACTIVE_GAMES = 200;
-    public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,2}");
+    public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,4}");
 
     // -------------- Errors ------------
     private static final ErrorModel ERR_GAME_ID_PRESENT = new ErrorModel("The \"gameId\" field should not be specified.");
