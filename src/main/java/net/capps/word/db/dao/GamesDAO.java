@@ -51,6 +51,9 @@ public class GamesDAO {
     private static final String UPDATE_GAME_RESULT =
             "UPDATE word_games SET game_result = ? WHERE id = ?;";
 
+    private static final String UPDATE_GAME_RESULT_AND_MOVE_NUM =
+            "UPDATE word_games SET (game_result, move_num) = (?, move_num + 1) WHERE id = ?;";
+
     private static final String UPDATE_PLAYER_RATING_INCREASES =
             "UPDATE word_games SET (player1_rating_increase, player2_rating_increase) = (?, ?) WHERE id = ?;";
 
@@ -178,12 +181,6 @@ public class GamesDAO {
         return Optional.of(getGameByResultSetRow(result));
     }
 
-    public Optional<GameModel> getGameWithPlayerModelsById(int gameId) throws Exception {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getGameWithPlayerModelsById(gameId, dbConn);
-        }
-    }
-
     public Optional<GameModel> getGameWithPlayerModelsById(int gameId, Connection dbConn) throws Exception {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAME_BY_ID_WITH_PLAYERS);
         stmt.setInt(1, gameId);
@@ -269,7 +266,7 @@ public class GamesDAO {
     }
 
     public void rejectGame(int gameId, Connection dbConn) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT_AND_MOVE_NUM);
         stmt.setShort(1, (short) GameResult.REJECTED.ordinal());
         stmt.setInt(2, gameId);
 
@@ -282,7 +279,7 @@ public class GamesDAO {
 
     public void timeOutGame(int gameId, boolean player1TimedOut, Connection dbConn) throws SQLException {
         GameResult gameResult = player1TimedOut ? GameResult.PLAYER1_TIMEOUT : GameResult.PLAYER2_TIMEOUT;
-        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT);
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_GAME_RESULT_AND_MOVE_NUM);
         stmt.setShort(1, (short) gameResult.ordinal());
         stmt.setInt(2, gameId);
 
