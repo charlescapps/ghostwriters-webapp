@@ -3,7 +3,6 @@ package net.capps.word.rest.services;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.rest.filters.InitialUserAuthFilter;
 import net.capps.word.rest.filters.RegularUserAuthFilter;
-import net.capps.word.rest.models.GameListModel;
 import net.capps.word.rest.models.UserListModel;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;

@@ -1,7 +1,6 @@
 package net.capps.word.game.board;
 
 import net.capps.word.game.common.BoardSize;
-import net.capps.word.heroku.SetupHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

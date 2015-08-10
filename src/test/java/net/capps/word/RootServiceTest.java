@@ -1,12 +1,12 @@
 package net.capps.word;
 
-import javax.ws.rs.core.Application;
-
 import net.capps.word.rest.services.RootService;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-
 import org.junit.Test;
+
+import javax.ws.rs.core.Application;
+
 import static org.junit.Assert.assertEquals;
 
 public class RootServiceTest extends JerseyTest {

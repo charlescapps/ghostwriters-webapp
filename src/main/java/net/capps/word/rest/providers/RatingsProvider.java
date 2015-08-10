@@ -111,7 +111,10 @@ public class RatingsProvider {
 
         // Make people happy by not allowing negative rating changes
         int ratingChange = Math.max(boardSize.getMinimumRatingIncrease(), rawPlayer1RatingChange);
-        return boundRatingChange(ratingChange);
+        // Bound the rating change so no one can gain more than 1,000 rating in a single game!
+        int boundedChange = boundRatingChange(ratingChange);
+        // Adjust rating increase by Bonus Book Power
+        return BookPowerProvider.getInstance().adjustRatingIncrease(boundedChange, userModel);
     }
 
     private int computePlayer2RatingChange(int rawPlayer2RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel) {
@@ -127,7 +130,8 @@ public class RatingsProvider {
 
         // Make people happy by not allowing negative rating changes
         int ratingChange = Math.max(boardSize.getMinimumRatingIncrease(), rawPlayer2RatingChange);
-        return boundRatingChange(ratingChange);
+        int boundedChange = boundRatingChange(ratingChange);
+        return BookPowerProvider.getInstance().adjustRatingIncrease(boundedChange, userModel);
     }
 
     private int boundRatingChange(int ratingChange) {

@@ -1,7 +1,6 @@
 package net.capps.word.game.dict;
 
 import net.capps.word.heroku.SetupHelper;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

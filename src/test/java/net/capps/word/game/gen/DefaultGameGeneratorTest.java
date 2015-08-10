@@ -1,7 +1,6 @@
 package net.capps.word.game.gen;
 
 import net.capps.word.game.board.TileSet;
-import net.capps.word.game.common.BoardSize;
 import net.capps.word.game.common.GameDensity;
 import net.capps.word.heroku.SetupHelper;
 import net.capps.word.util.DateUtil;
@@ -10,9 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import static net.capps.word.game.common.BoardSize.VENTI;
 

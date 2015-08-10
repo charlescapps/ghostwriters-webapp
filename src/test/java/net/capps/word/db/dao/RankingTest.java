@@ -2,7 +2,6 @@ package net.capps.word.db.dao;
 
 import com.google.common.collect.Sets;
 import net.capps.word.db.WordDbManager;
-import net.capps.word.heroku.SetupHelper;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.rest.providers.UserRecordChange;
@@ -29,7 +28,6 @@ public class RankingTest {
 
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final RatingsProvider ratingProvider = RatingsProvider.getInstance();
-    private static final SetupHelper setupHelper = SetupHelper.getInstance();
 
     private static final int DEFAULT_RANK_COUNT = 50;
 
