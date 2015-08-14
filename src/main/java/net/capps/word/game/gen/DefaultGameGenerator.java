@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static net.capps.word.game.common.Dir.S;
 
@@ -29,6 +30,8 @@ public class DefaultGameGenerator implements GameGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGameGenerator.class);
     private static final PositionLists POSITION_LISTS = PositionLists.getInstance();
+    private static final long MAX_TIME_MILLIS = TimeUnit.SECONDS.toMillis(24);
+    private static final int MIN_WORDS = 5;
     private final DictionaryWordSets dictWordSets;
 
     public static DefaultGameGenerator getInstance() {
@@ -51,7 +54,12 @@ public class DefaultGameGenerator implements GameGenerator {
         Placement firstPlacement = generateFirstPlacement(tileSet, maxWordSize);
         tileSet.placeWord(firstPlacement);
 
+        final long START = System.currentTimeMillis();
         for (int i = 1; i < numWords; i++) {
+            // If it's taking more than 24s to create a game, then return what we have.
+            if (System.currentTimeMillis() - START > MAX_TIME_MILLIS && i >= MIN_WORDS) {
+                break;
+            }
             Optional<Placement> validPlacementOpt = findFirstValidPlacementInRandomSearch(tileSet, maxWordSize);
             if (!validPlacementOpt.isPresent()) {
                 LOG.error("ERROR - couldn't find placement for board:\n{}", tileSet);
