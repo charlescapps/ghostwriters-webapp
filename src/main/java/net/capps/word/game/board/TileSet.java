@@ -112,19 +112,6 @@ public class TileSet implements Iterable<Pos> {
         return tile.getLetter();
     }
 
-    public String getWord(Pos start, Pos end) {
-
-        int diff = end.minus(start);
-        Dir dir = start.getDirTo(end);
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <= diff; i++) {
-            Pos p = start.go(dir, i);
-            sb.append(getLetterAt(p));
-        }
-        return sb.toString();
-    }
-
     public String getWordWithMissingChar(Pos start, Pos end, Pos middle, char middleChar) {
         int diff = end.minus(start);
         Dir dir = start.getDirTo(end);

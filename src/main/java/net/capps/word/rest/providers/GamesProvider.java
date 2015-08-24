@@ -34,7 +34,7 @@ public class GamesProvider {
     // -------------- Static -------------
     private static final GamesProvider INSTANCE = new GamesProvider();
     private static final GameGenerator DEFAULT_GAME_GENERATOR = DefaultGameGenerator.getInstance();
-    private static final SquareSetGenerator SQUARE_SET_GENERATOR = new DefaultSquareSetGenerator();
+    private static final SquareSetGenerator SQUARE_SET_GENERATOR = DefaultSquareSetGenerator.getInstance();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final int MAX_ACTIVE_GAMES = 200;

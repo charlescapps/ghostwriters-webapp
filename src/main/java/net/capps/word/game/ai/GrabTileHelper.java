@@ -27,7 +27,7 @@ public class GrabTileHelper {
     private GrabTileHelper() {
     }
 
-    public Move getLongestGrabMove(Game game, Pos start, int maxToGrab) {
+    public Move getLongestGrabMove(Game game, Pos start, final int maxToGrab) {
         Preconditions.checkArgument(maxToGrab > 0, "Can't get a grab move when maxToGrab isn't positive!");
         final TileSet tileSet = game.getTileSet();
 
@@ -55,7 +55,7 @@ public class GrabTileHelper {
         Pos grabStart, grabEnd;
 
         for (grabEnd = start; tileSet.isValid(grabEnd) && tileSet.get(grabEnd).isStartTile(); grabEnd = grabEnd.go(dir)) {
-            int numGrabbed = grabEnd.minus(start) + 1;
+            int numGrabbed = Math.abs(grabEnd.minus(start)) + 1;
             if (numGrabbed > maxToGrab) {
                 break;
             }
@@ -63,7 +63,7 @@ public class GrabTileHelper {
         grabEnd = grabEnd.go(reverseDir);
 
         for (grabStart = start; tileSet.isValid(grabStart) && tileSet.get(grabStart).isStartTile(); grabStart = grabStart.go(reverseDir)) {
-            int numGrabbed = grabEnd.minus(grabStart) + 1;
+            int numGrabbed = Math.abs(grabEnd.minus(grabStart)) + 1;
             if (numGrabbed > maxToGrab) {
                 break;
             }

@@ -24,11 +24,31 @@ public enum AiType {
         return systemUsername;
     }
 
-    public GameAI getGameAiInstance() {
+    public float getBoardSearchFraction(BoardSize boardSize) {
+        switch (this) {
+            case RANDOM_AI:
+                return 0f;
+            case BOOKWORM_AI:
+                switch (boardSize) {
+                    case TALL: return 0.95f;
+                    case GRANDE: return 0.5f;
+                    case VENTI: return 0.3f;
+                }
+            case PROFESSOR_AI:
+                switch (boardSize) {
+                    case TALL: return 1f;
+                    case GRANDE: return 0.75f;
+                    case VENTI: return 0.5f;
+                }
+        }
+        throw new IllegalStateException();
+    }
+
+    public GameAI getGameAiInstance(BoardSize boardSize) {
         switch (this) {
             case RANDOM_AI: return RandomAI.getInstance();
-            case BOOKWORM_AI: return BookwormAI.getInstance();
-            case PROFESSOR_AI: return ProfessorAI.getInstance();
+            case BOOKWORM_AI: return BookwormAI.getInstance(boardSize);
+            case PROFESSOR_AI: return ProfessorAI.getInstance(boardSize);
         }
         throw new IllegalStateException();
     }

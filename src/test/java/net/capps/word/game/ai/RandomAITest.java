@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class RandomAITest {
     private static final GameGenerator GG = DefaultGameGenerator.getInstance();
-    private static final SquareSetGenerator LG = new DefaultSquareSetGenerator();
+    private static final SquareSetGenerator LG = DefaultSquareSetGenerator.getInstance();
     private static final RandomAI RA = RandomAI.getInstance();
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomAITest.class);

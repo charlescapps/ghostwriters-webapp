@@ -16,6 +16,16 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by charlescapps on 1/19/15.
  */
 public class DefaultSquareSetGenerator implements SquareSetGenerator {
+    private static final DefaultSquareSetGenerator INSTANCE = new DefaultSquareSetGenerator();
+
+    public static DefaultSquareSetGenerator getInstance() {
+        return INSTANCE;
+    }
+
+    private DefaultSquareSetGenerator() {
+
+    }
+
     private static final int PROB_2_ADJ = 1;
     private static final int PROB_1_ADJ = 10;
     private static final int PROB_0_ADJ = 1000;

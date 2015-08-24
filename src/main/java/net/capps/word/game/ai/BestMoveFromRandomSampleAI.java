@@ -16,6 +16,7 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.util.RandomUtil;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class BestMoveFromRandomSampleAI implements GameAI {
     private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
+    private static final int MAX_MOVES_TO_CONSIDER = 100;
 
     private final float fractionOfPositionsToSearch;
     private final float probabilityToGrab;
@@ -212,8 +214,10 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         final int diff = occOrAdj.minus(originalStart);
 
-        generateMoves(game, dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves);
+        MutableInt numPositionsChecked = new MutableInt(0);
+        generateMoves(game, dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves, numPositionsChecked);
 
+  //      System.out.println("Positions checked: " + numPositionsChecked);
         // If no moves are found, return Optional.empty()
         if (foundMoves.isEmpty()) {
             return Optional.empty();
@@ -233,11 +237,13 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         return Optional.of(bestMove);
     }
 
-    private void generateMoves(Game game, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves) {
+    private void generateMoves(Game game, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves, MutableInt numPositionsChecked) {
 
         if (!DictHelpers.isPrefix(prefix, dictType)) {
             return;
         }
+
+        numPositionsChecked.increment();
 
         if (placements.size() >= minPlacements && DictHelpers.isWord(prefix, dictType)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
@@ -255,7 +261,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         if (tileSet.isOccupied(tryPos)) {
             prefix += tileSet.getLetterAt(tryPos);
-            generateMoves(game, dictType, prefix, minPlacements, tileSet, start, nextPos, dir, placements, remaining, moves);
+            generateMoves(game, dictType, prefix, minPlacements, tileSet, start, nextPos, dir, placements, remaining, moves, numPositionsChecked);
         } else {
             Set<RackTile> remainingSet = Sets.newHashSet(remaining);
             for (RackTile rackTile : remainingSet) {
@@ -264,7 +270,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
                 List<RackTile> newRemaining = Lists.newArrayList(remaining);
                 newPlacements.add(rackTile);
                 newRemaining.remove(rackTile);
-                generateMoves(game, dictType, word, minPlacements, tileSet, start, nextPos, dir, newPlacements, newRemaining, moves);
+                generateMoves(game, dictType, word, minPlacements, tileSet, start, nextPos, dir, newPlacements, newRemaining, moves, numPositionsChecked);
             }
         }
     }

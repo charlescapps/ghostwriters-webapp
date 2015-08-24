@@ -192,7 +192,7 @@ public class MovesProvider {
 
     private GameModel playOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
 
-        GameAI gameAI = aiType.getGameAiInstance();
+        GameAI gameAI = aiType.getGameAiInstance(gameModel.getBoardSize());
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
         MoveModel lastMove = aiMoves.isEmpty() ? lastHumanMove : aiMoves.get(aiMoves.size() - 1);
         Game game = new Game(gameModel, Optional.of(new Move(lastMove)));
