@@ -52,11 +52,17 @@ public class DefaultGameGeneratorTest {
         final long START = System.currentTimeMillis();
         GameGenerator gg = DefaultGameGenerator.getInstance();
         final int SIZE = VENTI.getN();
-        for (int numWords = 2; numWords < 40; numWords++) {
+        final int numWords = GameDensity.REGULAR.getNumWords(VENTI);
+        final int NUM_GAMES = 50;
+        System.out.println("Printing times to generate VENTI games...");
+        for (int i = 0; i < NUM_GAMES; ++i) {
+            final long GAME_START = System.currentTimeMillis();
             TileSet game = gg.generateRandomFinishedGame(SIZE, numWords, VENTI.getN());
+            final long DURATION = System.currentTimeMillis() - GAME_START;
+            System.out.println(DURATION);
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
-          //  LOG.info("\n{}", game);
         }
+
         final long END = System.currentTimeMillis();
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(END - START));
         LOG.info("Duration in seconds: {}", (END - START)/1000);

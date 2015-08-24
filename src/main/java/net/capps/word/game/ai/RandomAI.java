@@ -145,13 +145,11 @@ public class RandomAI implements GameAI {
     private Optional<Move> getFirstValidMoveFromUnoccupiedStartTile(int gameId, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
+        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
 
-        if (!firstOccupiedOrAdjacent.isPresent()) {
-            firstOccupiedOrAdjacent = Optional.of(originalStart); // Try placing tiles off in space, not connected.
+        if (null == occOrAdj) {
+            occOrAdj = originalStart; // Try placing tiles off in space, not connected.
         }
-
-        Pos occOrAdj = firstOccupiedOrAdjacent.get();
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
@@ -200,7 +198,7 @@ public class RandomAI implements GameAI {
         if (placements.size() >= minPlacements && SET.contains(prefix)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(gameId, MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.getPlayWordMoveError(move, null).isPresent()) {
+            if (tileSet.isValidPlayWordMove(move, null)) {
                 moves.add(move);
             }
         }

@@ -249,6 +249,16 @@ public class TileSet implements Iterable<Pos> {
         return getPlacementError(placement, specialDict);
     }
 
+    public boolean isValidPlayWordMove(Move move, SpecialDict specialDict) {
+        // Check if the tiles played from the player's Rack match what's on the board
+        if (!doLettersMatchTilesPlayed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles())) {
+            return false;
+        }
+
+        Placement placement = move.getPlacement();
+        return isValidPlacement(placement, specialDict);
+    }
+
     public Optional<String> isValidGrabTilesMove(Move move) {
         // Check if the move starts in a valid place.
         if (!isOccupied(move.getStart())) {
@@ -264,7 +274,7 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    private Optional<String> doesMoveStartInValidPosition(Pos start, Dir dir) {
+    private Optional<String> getInvalidPositionError(Pos start, Dir dir) {
         if (!isValid(start)) {
             return ERR_START_POS_OFF_BOARD;
         }
@@ -274,6 +284,18 @@ public class TileSet implements Iterable<Pos> {
             return ERR_INVALID_MOVE_START;
         }
         return Optional.empty();
+    }
+
+    private boolean doesMoveStartInValidPosition(Pos start, Dir dir) {
+        if (!isValid(start)) {
+            return false;
+        }
+
+        Pos previous = start.go(dir.negate());
+        if (isOccupied(previous)) {
+            return false;
+        }
+        return true;
     }
 
     private Optional<String> lettersMatchTilesPlayed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
@@ -301,6 +323,33 @@ public class TileSet implements Iterable<Pos> {
         }
 
         return Optional.empty();
+    }
+
+    private boolean doLettersMatchTilesPlayed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
+        int rackIndex = 0;
+        for (int i = 0; i < letters.length(); i++) {
+            char c = letters.charAt(i);
+            Pos p = start.go(dir, i);
+            Tile tile = get(p);
+            if (tile.isAbsent()) {
+                RackTile toPlay = tiles.get(rackIndex++);
+                // The next tile on the rack must match the character of the word being played, or be wild.
+                if (!toPlay.isWild() && toPlay.getLetter() != c) {
+                    return false;
+                }
+            } else {
+                // The tile on the board must match the next character of the word being played
+                if (c != tile.getLetter()) {
+                    return false;
+                }
+            }
+        }
+
+        if (rackIndex != tiles.size()) {
+            return false;
+        }
+
+        return true;
     }
 
     private Optional<String> lettersMatchTilesGrabbed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
@@ -349,19 +398,47 @@ public class TileSet implements Iterable<Pos> {
             return Optional.of(format("%s is not a valid direction to play. Can only play South or East.", dir));
         }
 
-        Optional<String> errorOpt = doesMoveStartInValidPosition(placement.getStart(), placement.getDir());
+        Optional<String> errorOpt = getInvalidPositionError(placement.getStart(), placement.getDir());
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
 
         // Must be a valid play in the primary direction
-        errorOpt = isValidPlacementInPrimaryDir(placement);
+        errorOpt = getErrorForPrimaryDir(placement);
         if (errorOpt.isPresent()) {
             return errorOpt;
         }
 
         // Must be a valid play with words formed perpendicularly
         return getErrorForPerpendicularPlacement(placement, specialDict);
+    }
+
+    public boolean isValidPlacement(Placement placement, SpecialDict specialDict) {
+        final String word = placement.getWord();
+
+        // Must be a valid dictionary word
+        if (!isValidWord(word, specialDict)) {
+            return false;
+        }
+
+        final Dir dir = placement.getDir();
+
+        // Can only play EAST or SOUTH
+        if (!dir.isValidPlayDir()) {
+            return false;
+        }
+
+        if (!doesMoveStartInValidPosition(placement.getStart(), placement.getDir())) {
+            return false;
+        }
+
+        // Must be a valid play in the primary direction
+        if (!isValidPlayInPrimaryDir(placement)) {
+            return false;
+        }
+
+        // Must be a valid play with words formed perpendicularly
+        return isValidPerpendicularPlacement(placement, specialDict);
     }
 
     private boolean isValidWord(String word, SpecialDict specialDict) {
@@ -377,7 +454,7 @@ public class TileSet implements Iterable<Pos> {
         return false;
     }
 
-    private Optional<String> isValidPlacementInPrimaryDir(Placement placement) {
+    private Optional<String> getErrorForPrimaryDir(Placement placement) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
@@ -405,29 +482,80 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement, SpecialDict specialDict) {
+    private boolean isValidPlayInPrimaryDir(Placement placement) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
         for (int i = 0; i < word.length(); i++) {
             Pos p = start.go(dir, i);
+
+            // Placement can't go off end of board
+            if (!isValid(p)) {
+                return false;
+            }
+
+            // Letter must match occupied tiles
+            if (isOccupied(p)) {
+                if (getLetterAt(p) != word.charAt(i)) {
+                    return false;
+                }
+            }
+        }
+
+        Pos afterWordPos = start.go(dir, word.length());
+        if (isOccupied(afterWordPos)) {
+            return false;
+        }
+        return true;
+    }
+
+    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
+        final String word = placement.getWord();
+        final Pos start = placement.getStart();
+        final Dir dir = placement.getDir();
+
+        for (int i = 0; i < word.length(); ++i) {
+            Pos p = start.go(dir, i);
             // Don't need to check already occupied squares.
             if (isOccupied(p)) {
                 continue;
             }
             char c = word.charAt(i);
-            Optional<String> perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
-            if (perpWord.isPresent()) {
-                if (!isValidWord(perpWord.get(), specialDict)) {
-                    return Optional.of(format("Sorry, \"%s\" isn't in our dictionary.", perpWord.get()));
+            String perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
+            if (perpWord != null) {
+                if (!isValidWord(perpWord, specialDict)) {
+                    final String msg = "\"" + perpWord + "\" isn't in this game's dictionary.";
+                    return Optional.of(msg);
                 }
             }
         }
         return Optional.empty();
     }
 
-    private Optional<String> getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
+    private boolean isValidPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
+        final String word = placement.getWord();
+        final Pos start = placement.getStart();
+        final Dir dir = placement.getDir();
+
+        for (int i = 0; i < word.length(); ++i) {
+            Pos p = start.go(dir, i);
+            // Don't need to check already occupied squares.
+            if (isOccupied(p)) {
+                continue;
+            }
+            char c = word.charAt(i);
+            String perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
+            if (perpWord != null) {
+                if (!isValidWord(perpWord, specialDict)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private String getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
         // Precondition: pos isn't an occupied tile.
         switch (dir) {
             case E:
@@ -435,20 +563,20 @@ public class TileSet implements Iterable<Pos> {
                 Pos start = getEndOfOccupied(pos.n(), Dir.N);
                 Pos end = getEndOfOccupied(pos.s(), Dir.S);
                 if (start.equals(end)) {
-                    return Optional.empty();
+                    return null;
                 }
-                return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
+                return getWordWithMissingChar(start, end, pos, missingChar);
 
             case S:
             case N:
                 start = getEndOfOccupied(pos.w(), Dir.W);
                 end = getEndOfOccupied(pos.e(), Dir.E);
                 if (start.equals(end)) {
-                    return Optional.empty();
+                    return null;
                 }
-                return Optional.of(getWordWithMissingChar(start, end, pos, missingChar));
+                return getWordWithMissingChar(start, end, pos, missingChar);
         }
-        return Optional.empty();
+        return null;
     }
 
     public boolean isOccupiedOrAdjacentOccupied(Pos p) {
@@ -458,29 +586,29 @@ public class TileSet implements Iterable<Pos> {
         return isOccupied(p) || isOccupied(p.s()) || isOccupied(p.e()) || isOccupied(p.n()) || isOccupied(p.w());
     }
 
-    public boolean isOccupied(Pos pos) {
-        if (!isValid(pos)) {
+    public boolean isOccupied(Pos p) {
+        if (p.r < 0 || p.r >= N || p.c < 0 || p.c >= N) {
             return false;
         }
-        return !tiles[pos.r][pos.c].isAbsent();
+        return !tiles[p.r][p.c].isAbsent();
     }
 
     /**
      * Starting at position "start", going in direction "dir" at most "maxLen" distance,
      * find the first tile that is occupied or an adjacent tile in any direction is occupied.
      */
-    public Optional<Pos> getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
+    public Pos getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
 
         for (int i = 0; i < maxLen; i++) {
             Pos p = start.go(dir, i);
             if (!isValid(p)) {
-                return Optional.empty();
+                return null;
             }
             if (isOccupiedOrAdjacentOccupied(p)) {
-                return Optional.of(p);
+                return p;
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     public Pos getEndOfOccupied(Pos start, Dir dir) {

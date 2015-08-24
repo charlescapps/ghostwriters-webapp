@@ -116,13 +116,11 @@ public class DefaultGameGenerator implements GameGenerator {
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
         // Precondition: the start pos isn't an occupied tile.
 
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
+        final Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
-        if (!firstOccupiedOrAdjacent.isPresent()) {
+        if (null == occOrAdj) {
             return Optional.empty();
         }
-
-        Pos occOrAdj = firstOccupiedOrAdjacent.get();
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
@@ -174,7 +172,7 @@ public class DefaultGameGenerator implements GameGenerator {
             while (iter.hasNext()) {
                 String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementError(placement, null).isPresent()) {
+                if (tileSet.isValidPlacement(placement, null)) {
                     return Optional.of(placement);
                 }
             }

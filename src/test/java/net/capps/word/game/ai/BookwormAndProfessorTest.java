@@ -1,6 +1,5 @@
 package net.capps.word.game.ai;
 
-import net.capps.word.db.WordDbManager;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.SquareSet;
 import net.capps.word.game.board.TileSet;
@@ -13,12 +12,9 @@ import net.capps.word.game.gen.DefaultSquareSetGenerator;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.heroku.SetupHelper;
-import net.capps.word.rest.models.GameModel;
-import net.capps.word.rest.providers.GamesProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -119,13 +119,11 @@ public class SpecialDictGameGenerator implements GameGenerator {
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize, DictionaryWordSets wordSets) {
         // Precondition: the start pos isn't an occupied tile.
 
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
+        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
-        if (!firstOccupiedOrAdjacent.isPresent()) {
+        if (null == occOrAdj) {
             return Optional.empty();
         }
-
-        Pos occOrAdj = firstOccupiedOrAdjacent.get();
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
@@ -181,7 +179,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
                     continue;
                 }
                 Placement placement = new Placement(word, start, dir);
-                if (!tileSet.getPlacementError(placement, specialDict).isPresent()) {
+                if (tileSet.isValidPlacement(placement, specialDict)) {
                     return Optional.of(placement);
                 }
             }

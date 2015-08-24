@@ -185,13 +185,11 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private Optional<Move> getBestMoveFromStartPos(Game game, DictType dictType, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Optional<Pos> firstOccupiedOrAdjacent = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
+        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
 
-        if (!firstOccupiedOrAdjacent.isPresent()) {
-            firstOccupiedOrAdjacent = Optional.of(start); // Try playing a word off in space
+        if (null == occOrAdj) {
+            occOrAdj = start; // Try playing a word off in space
         }
-
-        Pos occOrAdj = firstOccupiedOrAdjacent.get();
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
@@ -252,7 +250,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         if (placements.size() >= minPlacements && DictHelpers.isWord(prefix, dictType)) {
             List<RackTile> usedTiles = ImmutableList.<RackTile>builder().addAll(placements).build();
             Move move = new Move(game.getGameId(), MoveType.PLAY_WORD, prefix, start, dir, usedTiles);
-            if (!tileSet.getPlayWordMoveError(move, null).isPresent() &&
+            if (tileSet.isValidPlayWordMove(move, null) &&
                 !isReplayGrabbedTiles(move, game)) {
                 moves.add(move);
             }
