@@ -497,7 +497,7 @@ public class TileSet implements Iterable<Pos> {
 
             // Letter must match occupied tiles
             if (isOccupied(p)) {
-                if (getLetterAt(p) != word.charAt(i)) {
+                if (tiles[p.r][p.c].getLetter() != word.charAt(i)) {
                     return false;
                 }
             }

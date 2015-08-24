@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import net.capps.word.rest.models.PosModel;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created by charlescapps on 1/16/15.
@@ -13,9 +12,6 @@ import java.util.regex.Pattern;
 public class Pos {
     public final int r;
     public final int c;
-
-    // (r,c,N) - how a Pos is stored when stored in the Database or in JSON
-    private static final Pattern SERIAL_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\)");
 
     private Pos(int r, int c) {
         this.r = r;
@@ -58,12 +54,12 @@ public class Pos {
         return go(dir, 1);
     }
 
-    public Pos go(Dir dir, int num) {
+    public Pos go(final Dir dir, final int num) {
         switch (dir) {
-            case E: return e(num);
-            case S: return s(num);
-            case W: return w(num);
-            case N: return n(num);
+            case E: return new Pos(r, c + num);
+            case S: return new Pos(r + num, c);
+            case W: return new Pos(r, c - num);
+            case N: return new Pos(r - num, c);
         }
         throw new IllegalStateException();
     }
