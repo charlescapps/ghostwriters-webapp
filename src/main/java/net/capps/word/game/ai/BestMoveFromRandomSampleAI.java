@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class BestMoveFromRandomSampleAI implements GameAI {
     private static final GrabTileHelper GRAB_TILE_HELPER = GrabTileHelper.getInstance();
-    private static final int MAX_MOVES_TO_CONSIDER = 100;
+    private static final int MAX_POSITIONS_TO_CHECK = 500;
 
     private final float fractionOfPositionsToSearch;
     private final float probabilityToGrab;
@@ -240,6 +240,10 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private void generateMoves(Game game, DictType dictType, String prefix, int minPlacements, TileSet tileSet, Pos start, Pos tryPos, Dir dir, List<RackTile> placements, List<RackTile> remaining, List<Move> moves, MutableInt numPositionsChecked) {
 
         if (!DictHelpers.isPrefix(prefix, dictType)) {
+            return;
+        }
+
+        if (!moves.isEmpty() && numPositionsChecked.getValue() > MAX_POSITIONS_TO_CHECK) {
             return;
         }
 

@@ -49,37 +49,30 @@ public class DictionaryTrie {
     }
 
     public boolean contains(String str) {
-        return contains(str, root);
+        TrieNode node = root;
+        for (int pos = 0; pos < str.length(); ++pos) {
+            final char c = str.charAt(pos);
+            node = node.getChild(c);
+            if (node == null) {
+                return false;
+            }
+        }
+        return node.isValidWord();
     }
 
     public boolean isPrefix(String str) {
-        return isPrefix(str, root);
+        TrieNode node = root;
+        for (int pos = 0; pos < str.length(); ++pos) {
+            final char c = str.charAt(pos);
+            node = node.getChild(c);
+            if (node == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // --------------- Private ---------------
-    private static boolean isPrefix(String str, TrieNode node) {
-        if (str.isEmpty()) {
-            return true;
-        }
-        char c = str.charAt(0);
-        TrieNode child = node.getChild(c);
-        if (child == null) {
-            return false;
-        }
-        return isPrefix(str.substring(1), child);
-    }
-
-    private static boolean contains(String str, TrieNode node) {
-        if (str.isEmpty()) {
-            return node.isValidWord();
-        }
-        char c = str.charAt(0);
-        TrieNode child = node.getChild(c);
-        if (child == null) {
-            return false;
-        }
-        return contains(str.substring(1), child);
-    }
 
     private static void insertWord(String word, TrieNode trieNode) {
         if (word.isEmpty()) {

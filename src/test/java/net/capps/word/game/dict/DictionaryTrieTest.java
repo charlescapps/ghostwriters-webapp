@@ -72,6 +72,7 @@ public class DictionaryTrieTest {
         START = System.currentTimeMillis();
         for (String word: words) {
             boolean contains = TRIE.contains(word);
+            Assert.assertTrue("Word is contained in trie", contains);
         }
 
         END = System.currentTimeMillis();
