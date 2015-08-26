@@ -123,7 +123,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
         MutPos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
         if (null == occOrAdj) {
-            return Optional.empty();
+            occOrAdj = start.toMutPos();
         }
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
@@ -133,15 +133,20 @@ public class SpecialDictGameGenerator implements GameGenerator {
             start = mp.toPos();
         }
 
-        final int diff = occOrAdj.minus(start);
+        final int startDiff = Math.max(1, occOrAdj.minus(start));
+
+        // Do not append to an existing word.
+        if (startDiff > 1) {
+            return Optional.empty();
+        }
 
         int maxSearched = -1;
 
         // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
         List<Integer> diffsToTry = new ArrayList<>();
 
-        mp.go(dir, diff);
-        for (int i = diff; i < maxWordSize; i++, mp.go(dir)) {
+        mp.go(dir, startDiff);
+        for (int i = startDiff; i < maxWordSize; i++, mp.go(dir)) {
             if (i <= maxSearched) {
                 continue;
             }

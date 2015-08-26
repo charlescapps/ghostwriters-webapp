@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static net.capps.word.game.common.BoardSize.GRANDE;
+import static net.capps.word.game.common.BoardSize.TALL;
 import static net.capps.word.game.common.BoardSize.VENTI;
 
 /**
@@ -54,6 +56,16 @@ public class DefaultGameGeneratorTest {
         doTestGenerateGamesWithManyMoves(VENTI.getN(), VENTI.getN(), GameDensity.REGULAR.getNumWords(VENTI));
     }
 
+    @Test
+    public void testGenerateGamesWithManyMovesTALL() {
+        doTestGenerateGamesWithManyMoves(TALL.getN(), TALL.getN(), GameDensity.REGULAR.getNumWords(TALL));
+    }
+
+    @Test
+    public void testGenerateGamesWithManyMovesGRANDE() {
+        doTestGenerateGamesWithManyMoves(GRANDE.getN(), GRANDE.getN(), GameDensity.REGULAR.getNumWords(GRANDE));
+    }
+
     public void doTestGenerateGamesWithManyMoves(int size, int maxWordSize, int numWords) {
         GameGenerator gg = DefaultGameGenerator.getInstance();
         final int NUM_GAMES = 50;
@@ -67,7 +79,7 @@ public class DefaultGameGeneratorTest {
             System.out.println(DURATION);
             totalComputeTime += DURATION;
             Assert.assertEquals("Game should be correct size", size, game.N);
-            //System.out.println(game.toString() + "\n");
+            System.out.println(game.toString() + "\n");
         }
 
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(totalComputeTime));

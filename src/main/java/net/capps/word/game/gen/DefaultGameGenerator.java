@@ -131,6 +131,11 @@ public class DefaultGameGenerator implements GameGenerator {
 
         final int startDiff = Math.max(1, occOrAdj.minus(start));
 
+        // Do not append to an existing word.
+        if (startDiff > 1) {
+            return Optional.empty();
+        }
+
         int maxSearched = -1;
 
         // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
