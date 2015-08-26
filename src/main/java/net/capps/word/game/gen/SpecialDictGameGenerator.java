@@ -128,7 +128,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
-        MutPos mp = tileSet.getEndOfOccupiedAfter(start, dir.negate());
+        MutPos mp = tileSet.getEndOfOccupied(start, dir.negate());
         if (!mp.isEquivalent(start)) {
             start = mp.toPos();
         }
@@ -149,7 +149,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
                 break;
             }
 
-            MutPos wordEndPos = tileSet.getEndOfOccupiedAfter(new MutPos(mp), dir);
+            MutPos wordEndPos = tileSet.getEndOfOccupied(new MutPos(mp), dir);
             int totalDiff = wordEndPos.minus(start);
 
             maxSearched = Math.max(maxSearched, totalDiff);

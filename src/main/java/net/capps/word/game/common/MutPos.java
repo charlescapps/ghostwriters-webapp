@@ -46,6 +46,22 @@ public class MutPos {
         throw new IllegalArgumentException("Invalid dir: " + d);
     }
 
+    public void e() {
+        ++c;
+    }
+
+    public void s() {
+        ++r;
+    }
+
+    public void w() {
+        --c;
+    }
+
+    public void n() {
+        --r;
+    }
+
     public int minus(Pos other) {
         if (r == other.r) {
             return c - other.c;

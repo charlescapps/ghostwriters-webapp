@@ -197,7 +197,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         String prefix = "";
 
         // Compute the prefix if present.
-        MutPos mp = tileSet.getEndOfOccupiedAfter(start, dir.negate());
+        MutPos mp = tileSet.getEndOfOccupied(start, dir.negate());
 
         if (!mp.isEquivalent(originalStart)) {
             start = mp.toPos();

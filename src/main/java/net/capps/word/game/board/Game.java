@@ -312,8 +312,8 @@ public class Game {
 
     private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
         final Dir perp = d.perp();
-        final MutPos end = tileSet.getEndOfOccupiedAfter(baseWordPos, perp);
-        final MutPos start = tileSet.getEndOfOccupiedAfter(baseWordPos, perp.negate());
+        final MutPos end = tileSet.getEndOfOccupied(baseWordPos, perp);
+        final MutPos start = tileSet.getEndOfOccupied(baseWordPos, perp.negate());
         if (start.equals(end)) {
             return 0; // There's no perpendicular word
         }

@@ -124,19 +124,19 @@ public class TileSet implements Iterable<Pos> {
     }
 
     public String getWordWithMissingChar(MutPos start, MutPos end, MutPos middle, char middleChar) {
-        int diff = end.minus(start);
-        Dir dir = start.getDirTo(end);
+        final int wordLen = end.minus(start) + 1;
+        final Dir dir = start.getDirTo(end);
+        final char[] word = new char[wordLen];
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <= diff; ++i) {
-            if (start.equals(middle)) {
-                sb.append(middleChar);
+        for (int i = 0; i < wordLen; ++i) {
+            if (start.r == middle.r && start.c == middle.c) {
+                word[i] = middleChar;
             } else {
-                sb.append(getLetterAt(start));
+                word[i] = tiles[start.r][start.c].getLetter();
             }
             start.go(dir);
         }
-        return sb.toString();
+        return new String(word);
     }
 
     public void load(Reader reader) throws IOException, InvalidBoardException {
@@ -490,7 +490,7 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    private boolean isValidPlayInPrimaryDir(Placement placement) {
+    private boolean isValidPlayInPrimaryDir(final Placement placement) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
@@ -569,26 +569,23 @@ public class TileSet implements Iterable<Pos> {
      */
     private String getPerpWordForAttemptedPlacement(final MutPos pos, char missingChar, Dir dir) {
         // Precondition: pos isn't an occupied tile.
+        MutPos start, end;
         switch (dir) {
             case E:
-            case W:
-                MutPos start = getEndOfOccupiedAfter(new MutPos(pos), Dir.N);
-                MutPos end = getEndOfOccupiedAfter(new MutPos(pos), Dir.S);
-                if (start.equals(end)) {
-                    return null;
-                }
-                return getWordWithMissingChar(start, end, pos, missingChar);
-
+                start = getEndOfOccupiedN(new MutPos(pos));
+                end = getEndOfOccupiedS(new MutPos(pos));
+                break;
             case S:
-            case N:
-                start = getEndOfOccupiedAfter(new MutPos(pos), Dir.W);
-                end = getEndOfOccupiedAfter(new MutPos(pos), Dir.E);
-                if (start.equals(end)) {
-                    return null;
-                }
-                return getWordWithMissingChar(start, end, pos, missingChar);
+                start = getEndOfOccupiedW(new MutPos(pos));
+                end = getEndOfOccupiedE(new MutPos(pos));
+                break;
+            default:
+                throw new IllegalStateException("Invalid direction for word placement: " + dir);
         }
-        return null;
+        if (start.r == end.r && start.c == end.c) {
+            return null;
+        }
+        return getWordWithMissingChar(start, end, pos, missingChar);
     }
 
     public boolean isOccupiedOrAdjacentOccupied(MutPos p) {
@@ -654,7 +651,7 @@ public class TileSet implements Iterable<Pos> {
         return null;
     }
 
-    public MutPos getEndOfOccupiedAfter(Pos start, Dir dir) {
+    public MutPos getEndOfOccupied(Pos start, Dir dir) {
         MutPos mp = new MutPos(start);
         do {
             mp.go(dir);
@@ -671,12 +668,46 @@ public class TileSet implements Iterable<Pos> {
      * @param dir
      * @return
      */
-    public MutPos getEndOfOccupiedAfter(MutPos start, Dir dir) {
+    public MutPos getEndOfOccupied(MutPos start, Dir dir) {
+        switch (dir) {
+            case E: return getEndOfOccupiedE(start);
+            case S: return getEndOfOccupiedS(start);
+            case W: return getEndOfOccupiedW(start);
+            case N: return getEndOfOccupiedN(start);
+        }
+        throw new IllegalStateException("Invalid dir: " + dir);
+    }
+
+    public MutPos getEndOfOccupiedE(MutPos mp) {
         do {
-            start.go(dir);
-        } while (isOccupiedAndValid(start));
-        start.go(dir, -1);
-        return start;
+            ++mp.c;
+        } while (mp.c < N && !tiles[mp.r][mp.c].isAbsent());
+        --mp.c;
+        return mp;
+    }
+
+    public MutPos getEndOfOccupiedW(MutPos mp) {
+        do {
+            --mp.c;
+        } while (mp.c >= 0 && !tiles[mp.r][mp.c].isAbsent());
+        ++mp.c;
+        return mp;
+    }
+
+    public MutPos getEndOfOccupiedS(MutPos mp) {
+        do {
+            ++mp.r;
+        } while (mp.r < N && !tiles[mp.r][mp.c].isAbsent());
+        --mp.r;
+        return mp;
+    }
+
+    public MutPos getEndOfOccupiedN(MutPos mp) {
+        do {
+            --mp.r;
+        } while (mp.r >= 0 && !tiles[mp.r][mp.c].isAbsent());
+        ++mp.r;
+        return mp;
     }
 
     @Override
