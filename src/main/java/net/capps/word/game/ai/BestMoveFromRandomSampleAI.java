@@ -186,11 +186,8 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private Optional<Move> getBestMoveFromStartPos(Game game, DictType dictType, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles()).toPos();
-
-        if (null == occOrAdj) {
-            occOrAdj = start; // Try playing a word off in space
-        }
+        MutPos firstOccOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
+        Pos occOrAdj = firstOccOrAdj != null ? firstOccOrAdj.toPos() : start;
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.

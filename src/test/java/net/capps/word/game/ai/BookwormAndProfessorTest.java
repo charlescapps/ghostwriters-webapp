@@ -66,13 +66,8 @@ public class BookwormAndProfessorTest {
         }
 
         System.out.println("PLAY MOVE TIMES:");
-        for (Long time: playMoveTimes) {
-            System.out.println(time);
-        }
-
-        System.out.println("GRAB MOVE TIMES:");
-        for (Long time: grabMoveTimes) {
-            System.out.println(time);
+        for (int i = 1; i < playMoveTimes.size(); ++i) {
+            System.out.println(playMoveTimes.get(i));
         }
     }
 
