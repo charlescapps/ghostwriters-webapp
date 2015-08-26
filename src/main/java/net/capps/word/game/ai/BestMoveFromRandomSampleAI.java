@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
+import net.capps.word.game.common.MutPos;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
 import net.capps.word.game.dict.DictType;
@@ -185,7 +186,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
     private Optional<Move> getBestMoveFromStartPos(Game game, DictType dictType, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
+        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles()).toPos();
 
         if (null == occOrAdj) {
             occOrAdj = start; // Try playing a word off in space
@@ -193,16 +194,19 @@ public class BestMoveFromRandomSampleAI implements GameAI {
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
-        Pos previous = start.go(dir.negate());
         String prefix = "";
 
         // Compute the prefix if present.
-        if (tileSet.isOccupied(previous)) {
-            start = tileSet.getEndOfOccupied(previous, dir.negate());
+        MutPos mp = tileSet.getEndOfOccupiedAfter(start, dir.negate());
+
+        if (!mp.isEquivalent(originalStart)) {
+            start = mp.toPos();
             StringBuilder sb = new StringBuilder();
-            for (Pos p = start; !p.equals(originalStart); p = p.go(dir)) {
-                sb.append(tileSet.getLetterAt(p));
-            }
+            do {
+                sb.append(tileSet.getLetterAt(mp));
+                mp.go(dir);
+            } while (!mp.isEquivalent(originalStart));
+
             prefix = sb.toString();
         }
 
@@ -261,7 +265,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
             return;
         }
 
-        if (tileSet.isOccupied(tryPos)) {
+        if (tileSet.isOccupiedAndValid(tryPos)) {
             prefix += tileSet.getLetterAt(tryPos);
             generateMoves(game, dictType, prefix, minPlacements, tileSet, start, nextPos, dir, placements, remaining, moves, numPositionsChecked);
         } else {

@@ -53,7 +53,7 @@ public class DefaultGameGeneratorTest {
         GameGenerator gg = DefaultGameGenerator.getInstance();
         final int SIZE = VENTI.getN();
         final int numWords = GameDensity.REGULAR.getNumWords(VENTI);
-        final int NUM_GAMES = 50;
+        final int NUM_GAMES = 500;
         System.out.println("Printing times to generate VENTI games...");
         for (int i = 0; i < NUM_GAMES; ++i) {
             final long GAME_START = System.currentTimeMillis();
@@ -61,6 +61,7 @@ public class DefaultGameGeneratorTest {
             final long DURATION = System.currentTimeMillis() - GAME_START;
             System.out.println(DURATION);
             Assert.assertEquals("Game should be correct size", SIZE, game.N);
+            System.out.println(game.toString() + "\n");
         }
 
         final long END = System.currentTimeMillis();

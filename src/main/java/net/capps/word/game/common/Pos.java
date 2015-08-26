@@ -13,7 +13,7 @@ public class Pos {
     public final int r;
     public final int c;
 
-    private Pos(int r, int c) {
+    public Pos(int r, int c) {
         this.r = r;
         this.c = c;
     }
@@ -51,7 +51,13 @@ public class Pos {
     }
 
     public Pos go(Dir dir) {
-        return go(dir, 1);
+        switch (dir) {
+            case E: return new Pos(r, c + 1);
+            case S: return new Pos(r + 1, c);
+            case W: return new Pos(r, c - 1);
+            case N: return new Pos(r - 1, c);
+        }
+        throw new IllegalStateException();
     }
 
     public Pos go(final Dir dir, final int num) {
@@ -93,10 +99,6 @@ public class Pos {
         throw new IllegalStateException("Cannot subtract 2 positions that aren't on the same row or column!");
     }
 
-    public static Pos of(int r, int c) {
-        return new Pos(r, c);
-    }
-
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -107,6 +109,10 @@ public class Pos {
 
     public PosModel toPosModel() {
         return new PosModel(r, c);
+    }
+
+    public MutPos toMutPos() {
+        return new MutPos(r, c);
     }
 
     @Override

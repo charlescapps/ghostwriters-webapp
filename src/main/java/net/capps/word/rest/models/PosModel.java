@@ -36,7 +36,7 @@ public class PosModel {
     }
 
     public Pos toPos() {
-        return Pos.of(r, c);
+        return new Pos(r, c);
     }
 
     @Override

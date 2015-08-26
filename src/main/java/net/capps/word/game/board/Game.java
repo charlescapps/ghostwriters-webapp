@@ -3,10 +3,7 @@ package net.capps.word.game.board;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
-import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.GameResult;
-import net.capps.word.game.common.Pos;
-import net.capps.word.game.common.Rack;
+import net.capps.word.game.common.*;
 import net.capps.word.game.dict.DictType;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
@@ -234,7 +231,7 @@ public class Game {
 
         for (int i = 0; i < moveModel.getTiles().length() - 1; ++i) {
             p = p.go(moveModel.getDir(), 1);
-            if (!tileSet.isValid(p) || tileSet.isOccupied(p)) {
+            if (!tileSet.isValid(p) || tileSet.isOccupiedAndValid(p)) {
                 return null;
             }
         }
@@ -271,20 +268,21 @@ public class Game {
         Dir dir = move.getDir();
 
         // Compute the points
+        MutPos mp = new MutPos(start);
         for (int i = 0; i < word.length(); i++) {
             char c = word.charAt(i);
-            Pos p = start.go(dir, i);
-            Tile tile = tileSet.get(p);
+            Tile tile = tileSet.get(mp);
             // If there was no tile already on the board, then include letter/word bonuses
             if (tile.isAbsent()) {
-                Square square = squareSet.get(p);
+                Square square = squareSet.get(mp);
                 wordPoints += letterPoints.getPointValue(c) * square.getLetterMultiplier();
-                perpWordPoints += computePerpWordPoints(p, dir, c, square.getLetterMultiplier());
+                perpWordPoints += computePerpWordPoints(mp.toPos(), dir, c, square.getLetterMultiplier());
             }
             // If the tile was already on the board, just include the base point value.
             else {
                 wordPoints += letterPoints.getPointValue(c);
             }
+            mp.go(dir);
         }
 
         int totalPoints = wordPoints + perpWordPoints + computeBonusPointsForSpecialDictionaryPlay(move);
@@ -309,18 +307,18 @@ public class Game {
 
     private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
         final Dir perp = d.perp();
-        final Pos end = tileSet.getEndOfOccupied(baseWordPos.go(perp), perp);
-        final Pos start = tileSet.getEndOfOccupied(baseWordPos.go(perp.negate()), perp.negate());
+        final MutPos end = tileSet.getEndOfOccupiedAfter(baseWordPos, perp);
+        final MutPos start = tileSet.getEndOfOccupiedAfter(baseWordPos, perp.negate());
         if (start.equals(end)) {
             return 0; // There's no perpendicular word
         }
-        final Pos afterEnd = end.go(perp);
+        end.go(perp); // 1 tile after the end
         int wordPoints = 0;
-        for (Pos p = start; !p.equals(afterEnd); p = p.go(perp)) {
-            if (p.equals(baseWordPos)) {
+        for (; !start.equals(end); start.go(perp)) {
+            if (start.isEquivalent(baseWordPos)) {
                 wordPoints += letterPoints.getPointValue(playChar) * letterScale;
             } else {
-                final char c = tileSet.getLetterAt(p);
+                final char c = tileSet.getLetterAt(start);
                 wordPoints += letterPoints.getPointValue(c);
             }
         }
