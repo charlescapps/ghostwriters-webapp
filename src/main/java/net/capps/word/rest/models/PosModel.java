@@ -36,7 +36,7 @@ public class PosModel {
     }
 
     public Pos toPos() {
-        return new Pos(r, c);
+        return Pos.ofSafe(r, c);
     }
 
     @Override

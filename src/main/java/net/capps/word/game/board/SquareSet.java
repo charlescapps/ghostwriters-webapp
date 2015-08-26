@@ -2,7 +2,6 @@ package net.capps.word.game.board;
 
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.MutPos;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.PosIterator;
 
@@ -35,10 +34,6 @@ public class SquareSet implements Iterable<Pos> {
         return squares[p.r][p.c];
     }
 
-    public Square get(MutPos mp) {
-        return squares[mp.r][mp.c];
-    }
-
     public void set(Pos p, Square s) {
         if (!isValid(p)) {
             throw new IllegalArgumentException("Must provide a valid position!");
@@ -51,8 +46,8 @@ public class SquareSet implements Iterable<Pos> {
     }
 
     public void load(Reader reader) throws IOException, InvalidBoardException {
-        final char[] input = new char[1024];
-        StringBuffer sb = new StringBuffer();
+        final char[] input = new char[256];
+        StringBuilder sb = new StringBuilder();
         int numRead;
         do {
             numRead = reader.read(input);

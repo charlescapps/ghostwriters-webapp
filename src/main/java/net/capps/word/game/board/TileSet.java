@@ -2,7 +2,10 @@ package net.capps.word.game.board;
 
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
-import net.capps.word.game.common.*;
+import net.capps.word.game.common.Dir;
+import net.capps.word.game.common.Placement;
+import net.capps.word.game.common.Pos;
+import net.capps.word.game.common.PosIterator;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.SpecialDict;
@@ -51,23 +54,11 @@ public class TileSet implements Iterable<Pos> {
         return tiles[p.r][p.c];
     }
 
-    public Tile get(MutPos mp) {
-        return tiles[mp.r][mp.c];
-    }
-
     public void set(Pos p, Tile tile) {
         tiles[p.r][p.c] = tile;
     }
 
-    public void set(MutPos p, Tile tile) {
-        tiles[p.r][p.c] = tile;
-    }
-
     public boolean isValid(Pos p) {
-        return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
-    }
-
-    public boolean isValid(MutPos p) {
         return p.r >= 0 && p.r < N && p.c >= 0 && p.c < N;
     }
 
@@ -118,29 +109,23 @@ public class TileSet implements Iterable<Pos> {
         return tile.getLetter();
     }
 
-    public char getLetterAt(MutPos p) {
-        Tile tile = tiles[p.r][p.c];
-        return tile.getLetter();
-    }
-
-    public String getWordWithMissingChar(MutPos start, MutPos end, MutPos middle, char middleChar) {
+    public String getWordWithMissingChar(Pos start, Pos end, Pos middle, char middleChar) {
         final int wordLen = end.minus(start) + 1;
         final Dir dir = start.getDirTo(end);
         final char[] word = new char[wordLen];
 
-        for (int i = 0; i < wordLen; ++i) {
+        for (int i = 0; i < wordLen; ++i, start = start.go(dir)) {
             if (start.r == middle.r && start.c == middle.c) {
                 word[i] = middleChar;
             } else {
                 word[i] = tiles[start.r][start.c].getLetter();
             }
-            start.go(dir);
         }
         return new String(word);
     }
 
     public void load(Reader reader) throws IOException, InvalidBoardException {
-        final char[] input = new char[1024];
+        final char[] input = new char[256];
         StringBuilder sb = new StringBuilder();
         int numRead;
         do {
@@ -183,18 +168,18 @@ public class TileSet implements Iterable<Pos> {
         String word = move.getLetters();
 
         int rackIndex = 0;
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < word.length(); i++, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < word.length(); i++, p = p.go(dir)) {
             char letter = word.charAt(i);
-            Tile existing = get(mp);
+            Tile existing = get(p);
             if (existing.isAbsent()) {
                 RackTile rackTile = tilesPlayed.get(rackIndex++);
-                set(mp, rackTile.toTile(letter));
+                set(p, rackTile.toTile(letter));
             } else {
                 if (existing.getLetter() != letter) {
                     throw new IllegalStateException("Attempting to place invalid move: " + move);
                 }
-                set(mp, Tile.playedTile(letter)); // Any tile that is part of the played word is now "set in stone"
+                set(p, Tile.playedTile(letter)); // Any tile that is part of the played word is now "set in stone"
             }
         }
         if (rackIndex != tilesPlayed.size()) {
@@ -211,9 +196,9 @@ public class TileSet implements Iterable<Pos> {
         final String word = move.getLetters();
 
         final int wordLen = word.length();
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < wordLen; ++i, mp.go(dir)) {
-            Tile existing = get(mp);
+        Pos p = start;
+        for (int i = 0; i < wordLen; ++i, p = p.go(dir)) {
+            Tile existing = get(p);
             if (existing.isAbsent()) {
                 throw new IllegalStateException("Cannot grab an empty tile!");
             }
@@ -224,7 +209,7 @@ public class TileSet implements Iterable<Pos> {
                                 i, existing.toString(), tilesGrabbed.get(i).toString(), move.toString()));
             }
             // Remove the tile being grabbed.
-            set(mp, Tile.absentTile());
+            set(p, Tile.absentTile());
         }
 
     }
@@ -312,10 +297,10 @@ public class TileSet implements Iterable<Pos> {
 
     private Optional<String> lettersMatchTilesPlayed(final Pos start, final Dir dir, final String letters, List<RackTile> tiles) {
         int rackIndex = 0;
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < letters.length(); i++, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < letters.length(); i++, p = p.go(dir)) {
             char c = letters.charAt(i);
-            Tile tile = get(mp);
+            Tile tile = get(p);
             if (tile.isAbsent()) {
                 RackTile toPlay = tiles.get(rackIndex++);
                 // The next tile on the rack must match the character of the word being played, or be wild.
@@ -339,10 +324,10 @@ public class TileSet implements Iterable<Pos> {
 
     private boolean doLettersMatchTilesPlayed(Pos start, Dir dir, String letters, List<RackTile> tiles) {
         int rackIndex = 0;
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < letters.length(); i++) {
+        Pos p = start;
+        for (int i = 0; i < letters.length(); i++, p = p.go(dir)) {
             char c = letters.charAt(i);
-            Tile tile = get(mp);
+            Tile tile = get(p);
             if (tile.isAbsent()) {
                 RackTile toPlay = tiles.get(rackIndex++);
                 // The next tile on the rack must match the character of the word being played, or be wild.
@@ -355,7 +340,6 @@ public class TileSet implements Iterable<Pos> {
                     return false;
                 }
             }
-            mp.go(dir);
         }
 
         return rackIndex == tiles.size();
@@ -365,10 +349,10 @@ public class TileSet implements Iterable<Pos> {
         if (tiles.size() != letters.length()) {
             return Optional.of(format("The letters \"%s\" don't match the number of tiles grabbed, %d", letters, tiles.size()));
         }
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < letters.length(); i++, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < letters.length(); i++, p = p.go(dir)) {
             char c = letters.charAt(i);
-            Tile tile = get(mp);
+            Tile tile = get(p);
             RackTile rackTile = tiles.get(i);
             // Can't grab a tile that was played by a player
             if (!tile.isStartTile()) {
@@ -468,23 +452,23 @@ public class TileSet implements Iterable<Pos> {
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < word.length(); ++i, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < word.length(); ++i, p = p.go(dir)) {
 
             // Placement can't go off end of board
-            if (!isValid(mp)) {
+            if (!isValid(p)) {
                 return Optional.of("Play would go off the board!");
             }
 
             // Letter must match occupied tiles
-            if (!tiles[mp.r][mp.c].isAbsent()) {
-                if (getLetterAt(mp) != word.charAt(i)) {
+            if (!tiles[p.r][p.c].isAbsent()) {
+                if (getLetterAt(p) != word.charAt(i)) {
                     return Optional.of("Word played must match existing tiles!");
                 }
             }
         }
 
-        if (isOccupiedAndValid(mp)) {
+        if (isOccupiedAndValid(p)) {
             return Optional.of("Letters given to play must include all consecutive letters on the board from start position.");
         }
         return Optional.empty();
@@ -495,22 +479,22 @@ public class TileSet implements Iterable<Pos> {
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < word.length(); ++i, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < word.length(); ++i, p = p.go(dir)) {
             // Placement can't go off end of board
-            if (!isValid(mp)) {
+            if (!isValid(p)) {
                 return false;
             }
 
             // Letter must match occupied tiles
-            if (!tiles[mp.r][mp.c].isAbsent()) {
-                if (tiles[mp.r][mp.c].getLetter() != word.charAt(i)) {
+            if (!tiles[p.r][p.c].isAbsent()) {
+                if (tiles[p.r][p.c].getLetter() != word.charAt(i)) {
                     return false;
                 }
             }
         }
 
-        return !isOccupiedAndValid(mp);
+        return !isOccupiedAndValid(p);
     }
 
     private Optional<String> getErrorForPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
@@ -518,14 +502,14 @@ public class TileSet implements Iterable<Pos> {
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
-        MutPos mp = new MutPos(start);
-        for (int i = 0; i < word.length(); ++i, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < word.length(); ++i, p = p.go(dir)) {
             // Don't need to check already occupied squares.
-            if (!tiles[mp.r][mp.c].isAbsent()) {
+            if (!tiles[p.r][p.c].isAbsent()) {
                 continue;
             }
             char c = word.charAt(i);
-            String perpWord = getPerpWordForAttemptedPlacement(mp, c, dir);
+            String perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord != null) {
                 if (!isValidWord(perpWord, specialDict)) {
                     final String msg = "\"" + perpWord + "\" isn't in this game's dictionary.";
@@ -539,20 +523,20 @@ public class TileSet implements Iterable<Pos> {
     /**
      * ASSUMPTION: We already checked the placement is valid in the primary direction.
      */
-    private boolean isValidPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
+    public boolean isValidPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
         final int wordLen = word.length();
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < wordLen; ++i, mp.go(dir)) {
+        Pos p = start;
+        for (int i = 0; i < wordLen; ++i, p = p.go(dir)) {
             // Don't need to check already occupied squares.
-            if (!tiles[mp.r][mp.c].isAbsent()) {
+            if (!tiles[p.r][p.c].isAbsent()) {
                 continue;
             }
             char c = word.charAt(i);
-            String perpWord = getPerpWordForAttemptedPlacement(mp, c, dir);
+            String perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord != null) {
                 if (!isValidWord(perpWord, specialDict)) {
                     return false;
@@ -567,17 +551,17 @@ public class TileSet implements Iterable<Pos> {
      * Input mutable position pos is not modified.
      * @return perpendicular word from the starting position when playing in the given direction.
      */
-    private String getPerpWordForAttemptedPlacement(final MutPos pos, char missingChar, Dir dir) {
+    private String getPerpWordForAttemptedPlacement(final Pos pos, char missingChar, Dir dir) {
         // Precondition: pos isn't an occupied tile.
-        MutPos start, end;
+        Pos start, end;
         switch (dir) {
             case E:
-                start = getEndOfOccupiedN(new MutPos(pos));
-                end = getEndOfOccupiedS(new MutPos(pos));
+                start = getEndOfOccupiedN(pos);
+                end = getEndOfOccupiedS(pos);
                 break;
             case S:
-                start = getEndOfOccupiedW(new MutPos(pos));
-                end = getEndOfOccupiedE(new MutPos(pos));
+                start = getEndOfOccupiedW(pos);
+                end = getEndOfOccupiedE(pos);
                 break;
             default:
                 throw new IllegalStateException("Invalid direction for word placement: " + dir);
@@ -588,7 +572,7 @@ public class TileSet implements Iterable<Pos> {
         return getWordWithMissingChar(start, end, pos, missingChar);
     }
 
-    public boolean isOccupiedOrAdjacentOccupied(MutPos p) {
+    public boolean isOccupiedOrAdjacentOccupied(Pos p) {
         if (!isValid(p)) {
             return false;
         }
@@ -606,30 +590,19 @@ public class TileSet implements Iterable<Pos> {
         return !tiles[p.r][p.c].isAbsent();
     }
 
-    public boolean isOccupiedAndValid(MutPos p) {
-        if (p.r < 0 || p.r >= N || p.c < 0 || p.c >= N) {
-            return false;
-        }
-        return !tiles[p.r][p.c].isAbsent();
-    }
-
-    public boolean isOccupied(MutPos p) {
-        return !tiles[p.r][p.c].isAbsent();
-    }
-
-    public boolean isOccupiedE(MutPos p) {
+    public boolean isOccupiedE(Pos p) {
         return p.c + 1 < N && !tiles[p.r][p.c + 1].isAbsent();
     }
 
-    public boolean isOccupiedW(MutPos p) {
+    public boolean isOccupiedW(Pos p) {
         return p.c - 1 >= 0 && !tiles[p.r][p.c - 1].isAbsent();
     }
 
-    public boolean isOccupiedS(MutPos p) {
+    public boolean isOccupiedS(Pos p) {
         return p.r + 1 < N && !tiles[p.r + 1][p.c].isAbsent();
     }
 
-    public boolean isOccupiedN(MutPos p) {
+    public boolean isOccupiedN(Pos p) {
         return p.r - 1 >= 0 && !tiles[p.r - 1][p.c].isAbsent();
     }
 
@@ -637,38 +610,21 @@ public class TileSet implements Iterable<Pos> {
      * Starting at position "start", going in direction "dir" at most "maxLen" distance,
      * find the first tile that is occupied or an adjacent tile in any direction is occupied.
      */
-    public MutPos getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
+    public Pos getFirstOccupiedOrAdjacent(Pos start, Dir dir, int maxLen) {
 
-        MutPos mp = start.toMutPos();
-        for (int i = 0; i < maxLen; i++, mp.go(dir)) {
-            if (!isValid(mp)) {
+        Pos p = start;
+        for (int i = 0; i < maxLen; i++, p = p.go(dir)) {
+            if (!isValid(p)) {
                 return null;
             }
-            if (isOccupiedOrAdjacentOccupied(mp)) {
-                return mp;
+            if (isOccupiedOrAdjacentOccupied(p)) {
+                return p;
             }
         }
         return null;
     }
 
-    public MutPos getEndOfOccupied(Pos start, Dir dir) {
-        MutPos mp = new MutPos(start);
-        do {
-            mp.go(dir);
-        } while (isOccupiedAndValid(mp));
-        mp.go(dir, -1);
-        return mp;
-    }
-
-    /**
-     * Modify the given mutable position to be pointing at the last occupied position, starting at the
-     * original position, going in the given direction.
-     *
-     * @param start
-     * @param dir
-     * @return
-     */
-    public MutPos getEndOfOccupied(MutPos start, Dir dir) {
+    public Pos getEndOfOccupied(Pos start, Dir dir) {
         switch (dir) {
             case E: return getEndOfOccupiedE(start);
             case S: return getEndOfOccupiedS(start);
@@ -678,36 +634,32 @@ public class TileSet implements Iterable<Pos> {
         throw new IllegalStateException("Invalid dir: " + dir);
     }
 
-    public MutPos getEndOfOccupiedE(MutPos mp) {
+    public Pos getEndOfOccupiedE(Pos p) {
         do {
-            ++mp.c;
-        } while (mp.c < N && !tiles[mp.r][mp.c].isAbsent());
-        --mp.c;
-        return mp;
+            p = p.e();
+        } while (p.c < N && !tiles[p.r][p.c].isAbsent());
+        return p.w();
     }
 
-    public MutPos getEndOfOccupiedW(MutPos mp) {
+    public Pos getEndOfOccupiedW(Pos p) {
         do {
-            --mp.c;
-        } while (mp.c >= 0 && !tiles[mp.r][mp.c].isAbsent());
-        ++mp.c;
-        return mp;
+            p = p.w();
+        } while (p.c >= 0 && !tiles[p.r][p.c].isAbsent());
+        return p.e();
     }
 
-    public MutPos getEndOfOccupiedS(MutPos mp) {
+    public Pos getEndOfOccupiedS(Pos p) {
         do {
-            ++mp.r;
-        } while (mp.r < N && !tiles[mp.r][mp.c].isAbsent());
-        --mp.r;
-        return mp;
+            p = p.s();
+        } while (p.r < N && !tiles[p.r][p.c].isAbsent());
+        return p.n();
     }
 
-    public MutPos getEndOfOccupiedN(MutPos mp) {
+    public Pos getEndOfOccupiedN(Pos p) {
         do {
-            --mp.r;
-        } while (mp.r >= 0 && !tiles[mp.r][mp.c].isAbsent());
-        ++mp.r;
-        return mp;
+            p = p.n();
+        } while (p.r >= 0 && !tiles[p.r][p.c].isAbsent());
+        return p.s();
     }
 
     @Override

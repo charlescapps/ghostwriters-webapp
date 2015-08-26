@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import net.capps.word.game.board.Game;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.MutPos;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
 import net.capps.word.game.dict.Dictionaries;
@@ -146,23 +145,23 @@ public class RandomAI implements GameAI {
     private Optional<Move> getFirstValidMoveFromUnoccupiedStartTile(int gameId, TileSet tileSet, Rack rack, Pos start, Dir dir) {
         // Precondition: the start pos isn't an occupied tile.
         final Pos originalStart = start;
-        MutPos firstOccOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
-        Pos occOrAdj = firstOccOrAdj != null ? firstOccOrAdj.toPos() : originalStart;
+        Pos firstOccOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, rack.getNumLetterTiles());
+        Pos occOrAdj = firstOccOrAdj != null ? firstOccOrAdj : originalStart;
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
         String prefix = "";
 
         // Compute the prefix if present.
-        MutPos mp = tileSet.getEndOfOccupied(start, dir.negate());
+        Pos p = tileSet.getEndOfOccupied(start, dir.negate());
 
-        if (!mp.isEquivalent(originalStart)) {
-            start = mp.toPos();
+        if (!p.equals(originalStart)) {
+            start = p;
             StringBuilder sb = new StringBuilder();
             do {
-                sb.append(tileSet.getLetterAt(mp));
-                mp.go(dir);
-            } while (!mp.isEquivalent(originalStart));
+                sb.append(tileSet.getLetterAt(p));
+                p.go(dir);
+            } while (!p.equals(originalStart));
 
             prefix = sb.toString();
         }

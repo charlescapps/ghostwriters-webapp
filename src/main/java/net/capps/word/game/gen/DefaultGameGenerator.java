@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import net.capps.word.game.board.TileSet;
 import net.capps.word.game.common.Dir;
-import net.capps.word.game.common.MutPos;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.dict.Dictionaries;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static net.capps.word.game.common.Dir.S;
@@ -86,7 +84,7 @@ public class DefaultGameGenerator implements GameGenerator {
         int maxStartPos = Math.min(N / 2, N - len);
 
         int startPos = RandomUtil.randomInt(minStartPos, maxStartPos);
-        Pos pos = dir == S ? new Pos(startPos, N / 2) : new Pos(N / 2, startPos);
+        Pos pos = dir == S ? Pos.of(startPos, N / 2) : Pos.of(N / 2, startPos);
 
         return new Placement(word, pos, dir);
     }
@@ -118,16 +116,16 @@ public class DefaultGameGenerator implements GameGenerator {
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
         // Precondition: the start pos isn't an occupied tile.
 
-        MutPos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
+        Pos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
         if (null == occOrAdj) {
-            occOrAdj = start.toMutPos();
+            occOrAdj = start;
         }
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
         // in that direction.
-        MutPos mp = tileSet.getEndOfOccupied(start, dir.negate());
-        start = mp.toPos();
+        Pos p = tileSet.getEndOfOccupied(start, dir.negate());
+        start = p;
 
         final int startDiff = Math.max(1, occOrAdj.minus(start));
 
@@ -141,16 +139,16 @@ public class DefaultGameGenerator implements GameGenerator {
         // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
         List<Integer> diffsToTry = new ArrayList<>();
 
-        mp.go(dir, startDiff);
-        for (int i = startDiff; i < maxWordSize; ++i, mp.go(dir)) {
+        p = p.go(dir, startDiff);
+        for (int i = startDiff; i < maxWordSize; ++i, p = p.go(dir)) {
             if (i <= maxSearched) {
                 continue;
             }
-            if (!tileSet.isValid(mp)) {
+            if (!tileSet.isValid(p)) {
                 break;
             }
 
-            MutPos wordEndPos = tileSet.getEndOfOccupied(new MutPos(mp), dir);
+            Pos wordEndPos = tileSet.getEndOfOccupied(p, dir);
             int totalDiff = wordEndPos.minus(start);
 
             maxSearched = Math.max(maxSearched, totalDiff);
@@ -165,8 +163,8 @@ public class DefaultGameGenerator implements GameGenerator {
             List<WordConstraint> wcs = new ArrayList<>();
 
             // Get all constraints from existing tiles.
-            MutPos scan = start.toMutPos();
-            for (int j = 0; j <= totalDiff; ++j, scan.go(dir)) {
+            Pos scan = start;
+            for (int j = 0; j <= totalDiff; ++j, scan = scan.go(dir)) {
                 if (tileSet.isOccupied(scan)) {
                     wcs.add(new WordConstraint(j, tileSet.getLetterAt(scan)));
                 }
@@ -177,7 +175,7 @@ public class DefaultGameGenerator implements GameGenerator {
             while (iter.hasNext()) {
                 String word = iter.next();
                 Placement placement = new Placement(word, start, dir);
-                if (tileSet.isValidPlacement(placement, null)) {
+                if (tileSet.isValidPerpendicularPlacement(placement, null)) {
                     return Optional.of(placement);
                 }
             }

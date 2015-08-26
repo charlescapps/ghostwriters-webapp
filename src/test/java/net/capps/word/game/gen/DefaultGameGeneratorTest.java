@@ -10,8 +10,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 import static net.capps.word.game.common.BoardSize.GRANDE;
 import static net.capps.word.game.common.BoardSize.TALL;
 import static net.capps.word.game.common.BoardSize.VENTI;
@@ -79,7 +77,7 @@ public class DefaultGameGeneratorTest {
             System.out.println(DURATION);
             totalComputeTime += DURATION;
             Assert.assertEquals("Game should be correct size", size, game.N);
-            System.out.println(game.toString() + "\n");
+            //System.out.println(game.toString() + "\n");
         }
 
         LOG.info("Duration of testGenerateGamesWithManyMoves: {}", DateUtil.getDurationPretty(totalComputeTime));

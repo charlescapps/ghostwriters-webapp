@@ -27,7 +27,7 @@ public class Move {
     private int points;
 
     public static Move passMove(int gameId) {
-        return new Move(gameId, MoveType.PASS, "", new Pos(0, 0), Dir.E, ImmutableList.<RackTile>of());
+        return new Move(gameId, MoveType.PASS, "", Pos.of(0, 0), Dir.E, ImmutableList.<RackTile>of());
     }
 
     public Move(Integer gameId, MoveType moveType, String letters, Pos start, Dir dir, List<RackTile> tiles) {

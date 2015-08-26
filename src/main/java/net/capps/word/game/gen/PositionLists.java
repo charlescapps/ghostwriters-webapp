@@ -47,7 +47,7 @@ public class PositionLists {
         for (int i = 0; i < numPositions; i++) {
             int r = i / N;
             int c = i % N;
-            builder.add(new Pos(r, c));
+            builder.add(Pos.of(r, c));
         }
         ImmutableList<Pos> result = builder.build();
         if (result.size() != numPositions) {

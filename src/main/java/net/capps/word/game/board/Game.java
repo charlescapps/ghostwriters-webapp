@@ -3,7 +3,10 @@ package net.capps.word.game.board;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import net.capps.word.exceptions.InvalidBoardException;
-import net.capps.word.game.common.*;
+import net.capps.word.game.common.Dir;
+import net.capps.word.game.common.GameResult;
+import net.capps.word.game.common.Pos;
+import net.capps.word.game.common.Rack;
 import net.capps.word.game.dict.DictType;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
@@ -221,27 +224,27 @@ public class Game {
         final Pos start = moveModel.getStart().toPos();
         final Dir dir = moveModel.getDir();
 
-        MutPos mp = start.toMutPos();
-        while (tileSet.isOccupiedAndValid(mp)) {
-            mp.go(dir);
+        Pos p = start;
+        while (tileSet.isOccupiedAndValid(p)) {
+            p = p.go(dir);
         }
 
-        if (!tileSet.isValid(mp)) {
+        if (!tileSet.isValid(p)) {
             return null;
         }
 
-        final Pos startPlayTiles = mp.toPos();
+        final Pos startPlayTiles = p;
 
         final int tilesLen = moveModel.getTiles().length();
 
         for (int i = 0; i < tilesLen - 1; ++i) {
-            mp.go(dir);
-            if (!tileSet.isValid(mp) || tileSet.isOccupied(mp)) {
+            p = p.go(dir);
+            if (!tileSet.isValid(p) || tileSet.isOccupied(p)) {
                 return null;
             }
         }
 
-        return ImmutablePair.of(startPlayTiles, mp.toPos());
+        return ImmutablePair.of(startPlayTiles, p);
     }
 
     public int playMove(Move validatedMove) {
@@ -273,21 +276,20 @@ public class Game {
         Dir dir = move.getDir();
 
         // Compute the points
-        MutPos mp = new MutPos(start);
-        for (int i = 0; i < word.length(); i++) {
+        Pos p = start;
+        for (int i = 0; i < word.length(); i++, p = p.go(dir)) {
             char c = word.charAt(i);
-            Tile tile = tileSet.get(mp);
+            Tile tile = tileSet.get(p);
             // If there was no tile already on the board, then include letter/word bonuses
             if (tile.isAbsent()) {
-                Square square = squareSet.get(mp);
+                Square square = squareSet.get(p);
                 wordPoints += letterPoints.getPointValue(c) * square.getLetterMultiplier();
-                perpWordPoints += computePerpWordPoints(mp.toPos(), dir, c, square.getLetterMultiplier());
+                perpWordPoints += computePerpWordPoints(p, dir, c, square.getLetterMultiplier());
             }
             // If the tile was already on the board, just include the base point value.
             else {
                 wordPoints += letterPoints.getPointValue(c);
             }
-            mp.go(dir);
         }
 
         int totalPoints = wordPoints + perpWordPoints + computeBonusPointsForSpecialDictionaryPlay(move);
@@ -312,18 +314,18 @@ public class Game {
 
     private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
         final Dir perp = d.perp();
-        final MutPos end = tileSet.getEndOfOccupied(baseWordPos, perp);
-        final MutPos start = tileSet.getEndOfOccupied(baseWordPos, perp.negate());
-        if (start.equals(end)) {
+        Pos end = tileSet.getEndOfOccupied(baseWordPos, perp);
+        Pos p = tileSet.getEndOfOccupied(baseWordPos, perp.negate());
+        if (p.equals(end)) {
             return 0; // There's no perpendicular word
         }
-        end.go(perp); // 1 tile after the end
+        end = end.go(perp); // 1 tile after the end
         int wordPoints = 0;
-        for (; !start.equals(end); start.go(perp)) {
-            if (start.isEquivalent(baseWordPos)) {
+        for (; !p.equals(end); p = p.go(perp)) {
+            if (p.equals(baseWordPos)) {
                 wordPoints += letterPoints.getPointValue(playChar) * letterScale;
             } else {
-                final char c = tileSet.getLetterAt(start);
+                final char c = tileSet.getLetterAt(p);
                 wordPoints += letterPoints.getPointValue(c);
             }
         }
