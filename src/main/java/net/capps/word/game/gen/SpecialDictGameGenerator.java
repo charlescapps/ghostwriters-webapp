@@ -103,7 +103,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
         List<Pos> randomOrderPositions = RandomUtil.shuffleList(positions);
 
         for (Pos p: randomOrderPositions) {
-            if (!tileSet.isOccupiedAndValid(p)) {
+            if (!tileSet.isOccupied(p)) {
                 Dir[] randomOrderDirs = RandomUtil.shuffleArray(Dir.VALID_PLAY_DIRS);
                 for (Dir dir: randomOrderDirs) {
                     Optional<Placement> optValidPlacement = getFirstValidPlacementFromUnoccupiedStartTile(tileSet, p, dir, maxWordSize, wordSets);
@@ -166,7 +166,7 @@ public class SpecialDictGameGenerator implements GameGenerator {
             // Get all constraints from existing tiles.
             MutPos scan = start.toMutPos();
             for (int j = 0; j <= totalDiff; ++j, scan.go(dir)) {
-                if (tileSet.isOccupiedAndValid(scan)) {
+                if (tileSet.isOccupied(scan)) {
                     wcs.add(new WordConstraint(j, tileSet.getLetterAt(scan)));
                 }
             }

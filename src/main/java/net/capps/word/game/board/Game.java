@@ -218,25 +218,30 @@ public class Game {
     }
 
     private Pair<Pos, Pos> getStartAndEndOfPlayTiles(MoveModel moveModel) {
-        Pos p = moveModel.getStart().toPos();
-        while (tileSet.isValid(p) && !tileSet.get(p).isAbsent()) {
-            p = p.go(moveModel.getDir(), 1);
+        final Pos start = moveModel.getStart().toPos();
+        final Dir dir = moveModel.getDir();
+
+        MutPos mp = start.toMutPos();
+        while (tileSet.isOccupiedAndValid(mp)) {
+            mp.go(dir);
         }
 
-        if (!tileSet.isValid(p)) {
+        if (!tileSet.isValid(mp)) {
             return null;
         }
 
-        final Pos startPlayTiles = p;
+        final Pos startPlayTiles = mp.toPos();
 
-        for (int i = 0; i < moveModel.getTiles().length() - 1; ++i) {
-            p = p.go(moveModel.getDir(), 1);
-            if (!tileSet.isValid(p) || tileSet.isOccupiedAndValid(p)) {
+        final int tilesLen = moveModel.getTiles().length();
+
+        for (int i = 0; i < tilesLen - 1; ++i) {
+            mp.go(dir);
+            if (!tileSet.isValid(mp) || tileSet.isOccupied(mp)) {
                 return null;
             }
         }
 
-        return ImmutablePair.of(startPlayTiles, p);
+        return ImmutablePair.of(startPlayTiles, mp.toPos());
     }
 
     public int playMove(Move validatedMove) {

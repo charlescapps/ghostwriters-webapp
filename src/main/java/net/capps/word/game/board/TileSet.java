@@ -11,8 +11,6 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterUtils;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.game.tile.Tile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -27,7 +25,6 @@ import static java.lang.String.format;
  * Created by charlescapps on 1/12/15.
  */
 public class TileSet implements Iterable<Pos> {
-    private static final Logger LOG = LoggerFactory.getLogger(TileSet.class);
     private static final DictionarySet DICTIONARY_SET = Dictionaries.getEnglishDictSet();
 
     // ----------- Errors ----------
@@ -471,24 +468,23 @@ public class TileSet implements Iterable<Pos> {
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
-        for (int i = 0; i < word.length(); i++) {
-            Pos p = start.go(dir, i);
+        MutPos mp = start.toMutPos();
+        for (int i = 0; i < word.length(); ++i, mp.go(dir)) {
 
             // Placement can't go off end of board
-            if (!isValid(p)) {
+            if (!isValid(mp)) {
                 return Optional.of("Play would go off the board!");
             }
 
             // Letter must match occupied tiles
-            if (isOccupiedAndValid(p)) {
-                if (getLetterAt(p) != word.charAt(i)) {
+            if (!tiles[mp.r][mp.c].isAbsent()) {
+                if (getLetterAt(mp) != word.charAt(i)) {
                     return Optional.of("Word played must match existing tiles!");
                 }
             }
         }
 
-        Pos afterWordPos = start.go(dir, word.length());
-        if (isOccupiedAndValid(afterWordPos)) {
+        if (isOccupiedAndValid(mp)) {
             return Optional.of("Letters given to play must include all consecutive letters on the board from start position.");
         }
         return Optional.empty();
@@ -507,7 +503,7 @@ public class TileSet implements Iterable<Pos> {
             }
 
             // Letter must match occupied tiles
-            if (isOccupiedAndValid(mp)) {
+            if (!tiles[mp.r][mp.c].isAbsent()) {
                 if (tiles[mp.r][mp.c].getLetter() != word.charAt(i)) {
                     return false;
                 }
@@ -525,7 +521,7 @@ public class TileSet implements Iterable<Pos> {
         MutPos mp = new MutPos(start);
         for (int i = 0; i < word.length(); ++i, mp.go(dir)) {
             // Don't need to check already occupied squares.
-            if (isOccupiedAndValid(mp)) {
+            if (!tiles[mp.r][mp.c].isAbsent()) {
                 continue;
             }
             char c = word.charAt(i);
@@ -540,16 +536,19 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
+    /**
+     * ASSUMPTION: We already checked the placement is valid in the primary direction.
+     */
     private boolean isValidPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
 
-        MutPos mp = start.toMutPos();
         final int wordLen = word.length();
+        MutPos mp = start.toMutPos();
         for (int i = 0; i < wordLen; ++i, mp.go(dir)) {
             // Don't need to check already occupied squares.
-            if (isOccupiedAndValid(mp)) {
+            if (!tiles[mp.r][mp.c].isAbsent()) {
                 continue;
             }
             char c = word.charAt(i);
@@ -606,10 +605,18 @@ public class TileSet implements Iterable<Pos> {
         return !tiles[p.r][p.c].isAbsent();
     }
 
+    public boolean isOccupied(Pos p) {
+        return !tiles[p.r][p.c].isAbsent();
+    }
+
     public boolean isOccupiedAndValid(MutPos p) {
         if (p.r < 0 || p.r >= N || p.c < 0 || p.c >= N) {
             return false;
         }
+        return !tiles[p.r][p.c].isAbsent();
+    }
+
+    public boolean isOccupied(MutPos p) {
         return !tiles[p.r][p.c].isAbsent();
     }
 
