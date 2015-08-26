@@ -160,7 +160,7 @@ public class RandomAI implements GameAI {
             StringBuilder sb = new StringBuilder();
             do {
                 sb.append(tileSet.getLetterAt(p));
-                p.go(dir);
+                p = p.go(dir);
             } while (!p.equals(originalStart));
 
             prefix = sb.toString();
