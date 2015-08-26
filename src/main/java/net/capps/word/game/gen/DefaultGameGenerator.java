@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static net.capps.word.game.common.Dir.S;
@@ -117,10 +118,10 @@ public class DefaultGameGenerator implements GameGenerator {
     private Optional<Placement> getFirstValidPlacementFromUnoccupiedStartTile(TileSet tileSet, Pos start, Dir dir, int maxWordSize) {
         // Precondition: the start pos isn't an occupied tile.
 
-        final MutPos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
+        MutPos occOrAdj = tileSet.getFirstOccupiedOrAdjacent(start, dir, maxWordSize);
 
         if (null == occOrAdj) {
-            return Optional.empty();
+            occOrAdj = start.toMutPos();
         }
 
         // If the tile in the reverse direction is occupied, we must consider our play including all occupied tiles
@@ -128,15 +129,15 @@ public class DefaultGameGenerator implements GameGenerator {
         MutPos mp = tileSet.getEndOfOccupied(start, dir.negate());
         start = mp.toPos();
 
-        final int diff = occOrAdj.minus(start);
+        final int startDiff = Math.max(1, occOrAdj.minus(start));
 
         int maxSearched = -1;
 
         // Compute possible diffs from the current position to place words at, i.e. possible lengths of words
         List<Integer> diffsToTry = new ArrayList<>();
 
-        mp.go(dir, diff);
-        for (int i = diff; i < maxWordSize; ++i, mp.go(dir)) {
+        mp.go(dir, startDiff);
+        for (int i = startDiff; i < maxWordSize; ++i, mp.go(dir)) {
             if (i <= maxSearched) {
                 continue;
             }
