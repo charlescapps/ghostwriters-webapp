@@ -58,8 +58,8 @@ public class RatingsProvider {
                 final int player1EloRatingChange = eloRankingComputer.computeRatingChangeForPlayerA(player1InitialRating, player2InitialRating, gameResult, boardSize);
 
                 // Modify rating change to always be positive for human players, based on a minimum increase for the board size
-                int player1ActualRatingChange = computePlayer1RatingChange(player1EloRatingChange, gameResult, boardSize, player1);
-                int player2ActualRatingChange = computePlayer2RatingChange(-player1EloRatingChange, gameResult, boardSize, player2);
+                int player1ActualRatingChange = computePlayer1RatingChange(player1EloRatingChange, gameResult, boardSize, player1, gameModel);
+                int player2ActualRatingChange = computePlayer2RatingChange(-player1EloRatingChange, gameResult, boardSize, player2, gameModel);
 
                 gameModel.setPlayer1RatingIncrease(player1ActualRatingChange);
                 gameModel.setPlayer2RatingIncrease(player2ActualRatingChange);
@@ -98,10 +98,13 @@ public class RatingsProvider {
         }
     }
 
-    private int computePlayer1RatingChange(int rawPlayer1RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel) {
+    private int computePlayer1RatingChange(int rawPlayer1RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel, GameModel gameModel) {
         // 0 rating change for resigning player.
         if (gameResult == GameResult.PLAYER1_RESIGN) {
             return 0;
+        }
+        if (gameResult == GameResult.TIE && gameModel.getPlayer1Points() != null && gameModel.getPlayer1Points() == 0) {
+            return 0; // Don't award points for games where both players immediately passed!
         }
 
         // Use the raw ELO chess rating change for the AI
@@ -117,10 +120,13 @@ public class RatingsProvider {
         return BookPowerProvider.getInstance().adjustRatingIncrease(boundedChange, userModel);
     }
 
-    private int computePlayer2RatingChange(int rawPlayer2RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel) {
+    private int computePlayer2RatingChange(int rawPlayer2RatingChange, GameResult gameResult, BoardSize boardSize, UserModel userModel, GameModel gameModel) {
         // 0 rating change for resigning player.
         if (gameResult == GameResult.PLAYER2_RESIGN) {
             return 0;
+        }
+        if (gameResult == GameResult.TIE && gameModel.getPlayer1Points() != null && gameModel.getPlayer1Points() == 0) {
+            return 0; // Don't award points for games where both players immediately passed!
         }
 
         // Use the raw ELO chess rating change for the AI
