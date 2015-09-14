@@ -92,6 +92,12 @@ public class TableDefinitions {
     public static final String DROP_PLAYER2_IDX =
             "DROP INDEX IF EXISTS idx_games_player2;";
 
+    public static final String CREATE_LAST_ACTIVITY_IDX =
+            "CREATE INDEX idx_games_last_activity ON word_games (last_activity DESC);";
+
+    public static final String DROP_LAST_ACTIVITY_IDX =
+            "DROP INDEX IF EXISTS idx_games_last_activity;";
+
     public static final String CREATE_MOVES_TABLE =
             "CREATE TABLE IF NOT EXISTS word_moves " +
                     "( id BIGSERIAL PRIMARY KEY," +

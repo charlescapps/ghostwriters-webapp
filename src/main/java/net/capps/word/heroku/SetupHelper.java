@@ -88,6 +88,12 @@ public class SetupHelper {
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_PLAYER2_IDX);
 
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.DROP_LAST_ACTIVITY_IDX);
+
+            stmt = connection.createStatement();
+            stmt.executeUpdate(TableDefinitions.CREATE_LAST_ACTIVITY_IDX);
+
             // -------- word_moves table -------
             stmt = connection.createStatement();
             stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
