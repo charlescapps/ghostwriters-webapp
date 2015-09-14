@@ -42,6 +42,9 @@ public class GamesService {
     private static final MovesProvider movesProvider = MovesProvider.getInstance();
     private static final TokensProvider tokensProvider = TokensProvider.getInstance();
 
+    private static final String DEFAULT_COUNT_STR = "25";
+    private static final int DEFAULT_COUNT = Integer.parseInt(DEFAULT_COUNT_STR);
+
     // ------ OK results ------
     private static final GenericOkModel OK_REJECTED_GAME = new GenericOkModel("Game rejected!");
 
@@ -124,14 +127,16 @@ public class GamesService {
 
     @GET
     public Response getMyGames(@Context HttpServletRequest request,
-                               @QueryParam("count") Integer count,
+                               @QueryParam("count") @DefaultValue(DEFAULT_COUNT_STR) int count,
+                               @QueryParam("page") @DefaultValue("0") int page,
                                @QueryParam("inProgress") Boolean inProgress,
-                               @QueryParam("includeMoves") Boolean includeMoves) throws SQLException {
+                               @QueryParam("includeMoves") Boolean includeMoves
+                               ) throws SQLException {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> error = gamesSearchProvider.validateSearchParams(count, inProgress);
+        Optional<ErrorModel> error = gamesSearchProvider.validateSearchParams(count, page, inProgress);
         if (error.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
                     .entity(error.get())
@@ -139,8 +144,8 @@ public class GamesService {
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             boolean doIncludeMoves = Boolean.TRUE.equals(includeMoves);
-            List<GameModel> games = gamesSearchProvider.getGamesForUserLastActivityDesc(authUser, count, inProgress, doIncludeMoves, dbConn);
-            return Response.ok(new GameListModel(games)).build();
+            GameListModel games = gamesSearchProvider.getGamesForUserLastActivityDesc(authUser, count, page, inProgress, doIncludeMoves, dbConn);
+            return Response.ok(games).build();
         }
     }
 
@@ -160,7 +165,7 @@ public class GamesService {
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             List<GameModel> games = gamesDAO.getGamesOfferedToUserLastActivityDesc(authUser.getId(), count, dbConn);
-            return Response.ok(new GameListModel(games)).build();
+            return Response.ok(new GameListModel(games, null)).build();
         }
     }
 
@@ -180,7 +185,7 @@ public class GamesService {
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             List<GameModel> games = gamesDAO.getGamesOfferedByUserLastActivityDesc(authUser.getId(), count, dbConn);
-            return Response.ok(new GameListModel(games)).build();
+            return Response.ok(new GameListModel(games, null)).build();
         }
     }
 

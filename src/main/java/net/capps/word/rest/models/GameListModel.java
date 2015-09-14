@@ -8,13 +8,15 @@ import java.util.List;
 public class GameListModel {
 
     private List<GameModel> list;
+    private Integer nextPage;
 
     public GameListModel() {
 
     }
 
-    public GameListModel(List<GameModel> list) {
+    public GameListModel(List<GameModel> list, Integer nextPage) {
         this.list = list;
+        this.nextPage = nextPage;
     }
 
     public List<GameModel> getList() {
@@ -23,5 +25,13 @@ public class GameListModel {
 
     public void setList(List<GameModel> list) {
         this.list = list;
+    }
+
+    public Integer getNextPage() {
+        return nextPage;
+    }
+
+    public void setNextPage(Integer nextPage) {
+        this.nextPage = nextPage;
     }
 }

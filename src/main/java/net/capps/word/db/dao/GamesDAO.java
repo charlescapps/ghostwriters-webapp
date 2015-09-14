@@ -78,11 +78,11 @@ public class GamesDAO {
     private static final String QUERY_IN_PROGRESS_GAMES_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
                     "WHERE (player1 = ? OR player2 = ?) AND game_result = ? OR player1 = ? AND game_result = ? " +
-                    "ORDER BY (player1 = ? AND player1_turn = TRUE OR player2 = ? AND player1_turn = FALSE) DESC, last_activity DESC LIMIT ?;";
+                    "ORDER BY (player1 = ? AND player1_turn = TRUE OR player2 = ? AND player1_turn = FALSE) DESC, last_activity DESC LIMIT ? OFFSET ?;";
 
     private static final String QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
-                    "WHERE (player1 = ? OR player2 = ?) AND game_result > ? ORDER BY last_activity DESC LIMIT ?;";
+                    "WHERE (player1 = ? OR player2 = ?) AND game_result > ? ORDER BY last_activity DESC LIMIT ? OFFSET ?;";
 
     private static final String QUERY_GAMES_OFFERED_TO_USER_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
@@ -303,13 +303,7 @@ public class GamesDAO {
         }
     }
 
-    public List<GameModel> getInProgressGamesForUserDateStartedDesc(int userId, int count) throws SQLException {
-        try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            return getInProgressGamesForUserLastActivityDesc(userId, count, dbConn);
-        }
-    }
-
-    public List<GameModel> getInProgressGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+    public List<GameModel> getInProgressGamesForUserLastActivityDesc(int userId, int count, int offset, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_IN_PROGRESS_GAMES_LAST_ACTIVITY_DESC);
         stmt.setInt(1, userId);
         stmt.setInt(2, userId);
@@ -319,6 +313,7 @@ public class GamesDAO {
         stmt.setInt(6, userId);
         stmt.setInt(7, userId);
         stmt.setInt(8, count);
+        stmt.setInt(9, offset);
 
         ResultSet resultSet = stmt.executeQuery();
 
@@ -363,12 +358,13 @@ public class GamesDAO {
     }
 
 
-    public List<GameModel> getFinishedGamesForUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+    public List<GameModel> getFinishedGamesForUserLastActivityDesc(int userId, int count, int offset, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_FINISHED_GAMES_LAST_ACTIVITY_DESC);
         stmt.setInt(1, userId);
         stmt.setInt(2, userId);
         stmt.setInt(3, GameResult.REJECTED.ordinal());
         stmt.setInt(4, count);
+        stmt.setInt(5, offset);
 
         ResultSet resultSet = stmt.executeQuery();
 
