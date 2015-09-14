@@ -86,7 +86,7 @@ public class GamesDAO {
 
     private static final String QUERY_GAMES_OFFERED_TO_USER_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
-                    "WHERE player2 = ? AND game_result = ? AND player1_turn = FALSE ORDER BY last_activity DESC LIMIT ?;";
+                    "WHERE player2 = ? AND game_result = ? AND player1_turn = FALSE ORDER BY last_activity DESC LIMIT ? OFFSET ?;";
 
     private static final String QUERY_GAMES_OFFERED_BY_USER_LAST_ACTIVITY_DESC =
             SELECT_GAMES_WITH_JOIN_ON_PLAYERS +
@@ -325,11 +325,12 @@ public class GamesDAO {
         return games;
     }
 
-    public List<GameModel> getGamesOfferedToUserLastActivityDesc(int userId, int count, Connection dbConn) throws SQLException {
+    public List<GameModel> getGamesOfferedToUserLastActivityDesc(int userId, int count, int offset, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(QUERY_GAMES_OFFERED_TO_USER_LAST_ACTIVITY_DESC);
         stmt.setInt(1, userId);
         stmt.setInt(2, GameResult.OFFERED.ordinal());
         stmt.setInt(3, count);
+        stmt.setInt(4, offset);
 
         ResultSet resultSet = stmt.executeQuery();
 

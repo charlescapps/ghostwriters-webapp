@@ -32,21 +32,25 @@ public class GamesSearchProvider {
     }
 
     public Optional<ErrorModel> validateSearchParams(int count, int page, Boolean inProgress) {
-        if (count <= 0 || count > MAX_COUNT) {
-            return ERR_INVALID_COUNT;
-        }
-        if (page < 0) {
-            return ERR_INVALID_PAGE;
-        }
         if (inProgress == null) {
             return ERR_MISSING_IN_PROGRESS;
         }
-        return Optional.empty();
+        return validateCountAndPage(count, page);
     }
 
     public Optional<ErrorModel> validateCount(int count) {
         if (count <= 0 || count > MAX_COUNT) {
             return ERR_MISSING_COUNT;
+        }
+        return Optional.empty();
+    }
+
+    public Optional<ErrorModel> validateCountAndPage(int count, int page) {
+        if (count <= 0 || count > MAX_COUNT) {
+            return ERR_MISSING_COUNT;
+        }
+        if (page < 0) {
+            return ERR_INVALID_PAGE;
         }
         return Optional.empty();
     }
@@ -72,5 +76,16 @@ public class GamesSearchProvider {
         // Otherwise, there is no next page, so set the "nextPage" field to null
         return new GameListModel(gameModels, null);
 
+    }
+
+    public GameListModel getGamesOfferedToUserLastActivityDesc(UserModel authUser, int count, int page, Connection dbConn) throws SQLException {
+        List<GameModel> gameModels = gamesDAO.getGamesOfferedToUserLastActivityDesc(authUser.getId(), count + 1, page * count, dbConn);
+        // If we found (count + 1) results, then there is a next page
+        if (gameModels.size() == count + 1) {
+            return new GameListModel(gameModels.subList(0, count), page + 1);
+        }
+
+        // Otherwise, there is no next page, so set the "nextPage" field to null
+        return new GameListModel(gameModels, null);
     }
 }

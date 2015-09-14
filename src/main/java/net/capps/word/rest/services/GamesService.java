@@ -43,7 +43,6 @@ public class GamesService {
     private static final TokensProvider tokensProvider = TokensProvider.getInstance();
 
     private static final String DEFAULT_COUNT_STR = "25";
-    private static final int DEFAULT_COUNT = Integer.parseInt(DEFAULT_COUNT_STR);
 
     // ------ OK results ------
     private static final GenericOkModel OK_REJECTED_GAME = new GenericOkModel("Game rejected!");
@@ -152,20 +151,21 @@ public class GamesService {
     @GET
     @Path("offeredToMe")
     public Response getGamesOfferedToMe(@Context HttpServletRequest request,
-                                        @QueryParam("count") Integer count) throws SQLException {
+                                        @QueryParam("count") @DefaultValue(DEFAULT_COUNT_STR) int count,
+                                        @QueryParam("page") @DefaultValue("0") int page) throws SQLException {
         UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> error = gamesSearchProvider.validateCount(count);
+        Optional<ErrorModel> error = gamesSearchProvider.validateCountAndPage(count, page);
         if (error.isPresent()) {
             return Response.status(Status.BAD_REQUEST)
                     .entity(error.get())
                     .build();
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            List<GameModel> games = gamesDAO.getGamesOfferedToUserLastActivityDesc(authUser.getId(), count, dbConn);
-            return Response.ok(new GameListModel(games, null)).build();
+            GameListModel games = gamesSearchProvider.getGamesOfferedToUserLastActivityDesc(authUser, count, page, dbConn);
+            return Response.ok(games).build();
         }
     }
 
