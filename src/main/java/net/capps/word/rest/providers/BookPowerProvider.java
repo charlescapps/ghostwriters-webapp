@@ -21,22 +21,20 @@ public class BookPowerProvider {
         if (player == null || player.getTokens() == null) {
             return originalIncrease;
         }
+
+        if (Boolean.TRUE.equals(player.getInfiniteBooks())) {
+            return (int) Math.ceil(1.25d * originalIncrease);
+        }
+
         final int TOKENS = player.getTokens();
 
-        if (Boolean.TRUE.equals(player.getInfiniteBooks()) ||
-                TOKENS >= TWENTY_PERCENT_BONUS_THRESHOLD) {
+        if (TOKENS >= TWENTY_PERCENT_BONUS_THRESHOLD) {
             return (int) Math.ceil(1.2d * originalIncrease);
-        }
-
-        if (TOKENS >= FIFTEEN_PERCENT_BONUS_THRESHOLD) {
+        } else if (TOKENS >= FIFTEEN_PERCENT_BONUS_THRESHOLD) {
             return (int) Math.ceil(1.15d * originalIncrease);
-        }
-
-        if (TOKENS >= TEN_PERCENT_BONUS_THRESHOLD) {
+        } else if (TOKENS >= TEN_PERCENT_BONUS_THRESHOLD) {
             return (int) Math.ceil(1.1d * originalIncrease);
-        }
-
-        if (TOKENS >= FIVE_PERCENT_BONUS_THRESHOLD) {
+        } else if (TOKENS >= FIVE_PERCENT_BONUS_THRESHOLD) {
             return (int) Math.ceil(1.05d * originalIncrease);
         }
 
