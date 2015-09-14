@@ -25,8 +25,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static java.lang.String.format;
-
 /**
  * Created by charlescapps on 1/18/15.
  */
@@ -37,7 +35,6 @@ public class GamesProvider {
     private static final SquareSetGenerator SQUARE_SET_GENERATOR = DefaultSquareSetGenerator.getInstance();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
-    private static final int MAX_ACTIVE_GAMES = 200;
     public static final Pattern INITIAL_RACK_PATTERN = Pattern.compile("\\*{0,4}\\^{0,4}");
 
     // -------------- Errors ------------
@@ -119,16 +116,6 @@ public class GamesProvider {
         return Optional.empty();
     }
 
-    public Optional<ErrorModel> validateUserCanCreateOrJoinGame(UserModel gameCreator, Connection dbConn) throws SQLException {
-        int numActiveGames = gamesDAO.getNumActiveGames(dbConn, gameCreator.getId());
-        if (numActiveGames >= MAX_ACTIVE_GAMES) {
-            return Optional.of(new ErrorModel(
-                    format("You can't have more than %d active games. Finish games, resign from games, or wait for games to time out that are inactive for 2 weeks.",
-                            MAX_ACTIVE_GAMES)));
-        }
-        return Optional.empty();
-    }
-
     public ErrorOrResult<GameModel> validateAcceptGameOffer(int gameId, String rack, UserModel authUser, Connection dbConn) throws SQLException {
         Optional<GameModel> gameOpt = gamesDAO.getGameById(gameId, dbConn);
         if (!gameOpt.isPresent()) {
@@ -142,12 +129,6 @@ public class GamesProvider {
 
         if (rack != null && !INITIAL_RACK_PATTERN.matcher(rack).matches()) {
             return ErrorOrResult.ofError(ERR_INVALID_RACK_PARAM);
-        }
-
-        Optional<ErrorModel> errorOpt = validateUserCanCreateOrJoinGame(authUser, dbConn);
-
-        if (errorOpt.isPresent()) {
-            return ErrorOrResult.ofError(errorOpt.get());
         }
 
         return ErrorOrResult.ofResult(game);

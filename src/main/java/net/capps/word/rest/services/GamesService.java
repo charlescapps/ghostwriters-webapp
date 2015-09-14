@@ -69,11 +69,6 @@ public class GamesService {
 
             dbConn.setAutoCommit(false);
 
-            Optional<ErrorModel> canCreateGamesErrorOpt = gamesProvider.validateUserCanCreateOrJoinGame(player1, dbConn);
-            if (canCreateGamesErrorOpt.isPresent()) {
-                return RestUtil.badRequest(canCreateGamesErrorOpt.get());
-            }
-
             GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
 
             UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);
