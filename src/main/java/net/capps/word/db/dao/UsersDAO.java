@@ -156,7 +156,7 @@ public class UsersDAO {
         // Check if a user with the same username already exists
         Optional<UserModel> userWithUsername = getUserByUsername(dbConn, validatedUserInput.getUsername(), false);
         if (userWithUsername.isPresent()) {
-            throw new ConflictException("username", String.format("A user with the username '%s' already exists.", validatedUserInput.getUsername()));
+            throw new ConflictException("username", String.format("The username '%s' already exists.", validatedUserInput.getUsername()));
         }
         // If an email is given, check if a user with the same email exists.
         if (validatedUserInput.getEmail() != null) {
