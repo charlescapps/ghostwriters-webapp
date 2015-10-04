@@ -12,6 +12,7 @@ import net.capps.word.game.gen.DefaultGameGenerator;
 import net.capps.word.game.gen.DefaultSquareSetGenerator;
 import net.capps.word.game.gen.GameGenerator;
 import net.capps.word.game.gen.SquareSetGenerator;
+import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.UserModel;
@@ -156,6 +157,17 @@ public class GamesProvider {
         }
 
         gamesDAO.acceptGame(gameModel.getId(), dbConn);
+    }
+
+    /**
+     * The challenged player gets a free ? tile ('*')
+     * @param rack
+     */
+    public String updateRackForChallengedPlayer(String rack) {
+        if (rack == null) {
+            rack = "";
+        }
+        return rack + RackTile.WILD_RACK_TILE;
     }
 
     public URI getGameURI(int gameId, UriInfo uriInfo) {

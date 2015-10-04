@@ -211,8 +211,11 @@ public class GamesService {
                         .entity(canAffordError.get())
                         .build();
             }
+            // The challenged player gets a free '?' tile
+            final String actualRack = gamesProvider.updateRackForChallengedPlayer(rack);
+            gamesProvider.acceptGameOfferAndUpdateRack(gameModel, actualRack, dbConn);
 
-            gamesProvider.acceptGameOfferAndUpdateRack(gameModel, rack, dbConn);
+            // The challenged player only pays for what she buys in addition to this free '?' tile
             tokensProvider.spendTokensForAcceptGame(authUser, rack, dbConn);
             Optional<GameModel> updatedGame = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
             if (!updatedGame.isPresent()) {
