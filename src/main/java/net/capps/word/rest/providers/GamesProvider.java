@@ -55,7 +55,7 @@ public class GamesProvider {
     private static final ErrorModel ERR_INVALID_PLAYER1_RACK = new ErrorModel("Invalid \"player1Rack\" field. If present, can only contain 0-4 blank tiles ('*') and 0-2 scry tiles ('^')");
     private static final ErrorModel ERR_INVALID_RACK_PARAM = new ErrorModel("Invalid \"rack\" param. If present, can only contain 0-4 blank tiles ('*') and 0-2 scry tiles ('^')");
 
-    private static final ErrorModel ERR_INVALID_ACCEPT_OR_REJECT_USER = new ErrorModel("You can't accept/reject this game.");
+    private static final ErrorModel ERR_INVALID_ACCEPT_OR_REJECT_USER = new ErrorModel("You've already joined this game and can find it in My Games.");
 
     // -------------- Private fields ---------
 
