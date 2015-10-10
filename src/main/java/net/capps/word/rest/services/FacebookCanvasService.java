@@ -25,9 +25,7 @@ public class FacebookCanvasService {
     private UriInfo uriInfo;
 
     @POST
-    @Path("{fbData}")
-    public Response getFacebookCanvas(@PathParam("fbData") String fbData) {
-        LOG.info("fbData={}", fbData);
+    public Response getFacebookCanvas() {
         URI uri = uriInfo.getBaseUriBuilder()
                 .replacePath("/resources/html/facebook_canvas.html")
                 .build();
