@@ -27,6 +27,7 @@ public class FacebookCanvasService {
     @POST
     public Response getFacebookCanvas() {
         URI uri = uriInfo.getBaseUriBuilder()
+                .scheme("https")
                 .replacePath("/resources/html/facebook_canvas.html")
                 .build();
         return Response.seeOther(uri).build();
