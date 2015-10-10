@@ -22,12 +22,17 @@
             <param-name>jersey.config.server.provider.classnames</param-name>
             <param-value>org.glassfish.jersey.jackson.JacksonFeature</param-value>
         </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.WebPageContentRegex</param-name>
+            <param-value>(/resources/(css|images|js|html)/.*)</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Word Attack Webapp</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+
     <listener>
         <listener-class>net.capps.word.servlet.WordServletContextListener</listener-class>
     </listener>
