@@ -11,6 +11,8 @@ import net.capps.word.rest.providers.MovesProvider;
 import net.capps.word.rest.providers.TokensProvider;
 import net.capps.word.util.ErrorOrResult;
 import net.capps.word.util.RestUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -35,6 +37,7 @@ import static javax.ws.rs.core.Response.Status;
 @Filters.RegularUserAuthRequired
 public class GamesService {
     public static final String GAMES_PATH = "games";
+    private static final Logger LOG = LoggerFactory.getLogger(GamesService.class);
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
     private static final GamesDAO gamesDAO = GamesDAO.getInstance();
     private static final GamesProvider gamesProvider = GamesProvider.getInstance();
@@ -69,18 +72,26 @@ public class GamesService {
 
             dbConn.setAutoCommit(false);
 
-            GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
+            try {
 
-            UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);
-            created.setPlayer1Model(updatedUser);
+                GameModel created = gamesProvider.createNewGame(input, player1, dbConn);
 
-            URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
+                UserModel updatedUser = tokensProvider.spendTokensForCreateGame(player1, input, dbConn);
+                created.setPlayer1Model(updatedUser);
 
-            dbConn.commit();
+                URI uri = gamesProvider.getGameURI(created.getId(), uriInfo);
 
-            return Response.created(uri)
-                    .entity(created)
-                    .build();
+                dbConn.commit();
+
+                return Response.created(uri)
+                        .entity(created)
+                        .build();
+
+            } catch (Exception e) {
+                LOG.error("Error creating new game. Rolling back.", e);
+                dbConn.rollback();
+                throw e;
+            }
         }
 
     }
@@ -211,19 +222,29 @@ public class GamesService {
                         .entity(canAffordError.get())
                         .build();
             }
-            // The challenged player gets a free '?' tile
-            final String actualRack = gamesProvider.updateRackForChallengedPlayer(rack);
-            gamesProvider.acceptGameOfferAndUpdateRack(gameModel, actualRack, dbConn);
 
-            // The challenged player only pays for what she buys in addition to this free '?' tile
-            tokensProvider.spendTokensForAcceptGame(authUser, rack, dbConn);
-            Optional<GameModel> updatedGame = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
-            if (!updatedGame.isPresent()) {
-                return Response.serverError().build();
+            // Code that writes to the database.
+            try {
+                // The challenged player gets a free '?' tile
+                final String actualRack = gamesProvider.updateRackForChallengedPlayer(rack);
+                gamesProvider.acceptGameOfferAndUpdateRack(gameModel, actualRack, dbConn);
+
+                // The challenged player only pays for what she buys in addition to this free '?' tile
+                tokensProvider.spendTokensForAcceptGame(authUser, rack, dbConn);
+                Optional<GameModel> updatedGame = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
+                if (!updatedGame.isPresent()) {
+                    dbConn.rollback();
+                    return Response.serverError().build();
+                }
+
+                dbConn.commit();
+                return Response.ok(updatedGame.get()).build();
+
+            } catch (Exception e) {
+                LOG.error("Error accepting game offer. Rolling back.", e);
+                dbConn.rollback();
+                throw e;
             }
-
-            dbConn.commit();
-            return Response.ok(updatedGame.get()).build();
         }
     }
 

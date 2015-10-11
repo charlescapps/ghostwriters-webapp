@@ -193,38 +193,32 @@ public class GamesDAO {
     }
 
     public GameModel updateGame(Game updatedGame, MoveModel validatedMove, int numPoints, Connection dbConn) throws Exception {
-        try {
-            PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
-            updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());
-            updateGameStmt.setString(2, updatedGame.getPlayer2Rack().toString());
-            updateGameStmt.setInt(3, updatedGame.getPlayer1Points());
-            updateGameStmt.setInt(4, updatedGame.getPlayer2Points());
-            updateGameStmt.setString(5, updatedGame.getSquareSet().toCompactString());
-            updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
-            updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
-            updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
-            updateGameStmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
-            updateGameStmt.setInt(10, updatedGame.getGameId());
+        PreparedStatement updateGameStmt = dbConn.prepareStatement(UPDATE_GAME_QUERY, Statement.RETURN_GENERATED_KEYS);
+        updateGameStmt.setString(1, updatedGame.getPlayer1Rack().toString());
+        updateGameStmt.setString(2, updatedGame.getPlayer2Rack().toString());
+        updateGameStmt.setInt(3, updatedGame.getPlayer1Points());
+        updateGameStmt.setInt(4, updatedGame.getPlayer2Points());
+        updateGameStmt.setString(5, updatedGame.getSquareSet().toCompactString());
+        updateGameStmt.setString(6, updatedGame.getTileSet().toCompactString());
+        updateGameStmt.setShort(7, (short) updatedGame.getGameResult().ordinal());
+        updateGameStmt.setBoolean(8, updatedGame.isPlayer1Turn());
+        updateGameStmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+        updateGameStmt.setInt(10, updatedGame.getGameId());
 
-            int rowCount = updateGameStmt.executeUpdate();
+        int rowCount = updateGameStmt.executeUpdate();
 
-            if (rowCount != 1) {
-                throw new SQLException("Row count isn't 1 after updating game, row count is: " + rowCount);
-            }
-            ResultSet result = updateGameStmt.getGeneratedKeys();
-            result.next();
-
-            GameModel updatedGameModel = getGameByResultSetRow(result);
-
-            // Now insert the Move.
-            MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
-
-            return updatedGameModel;
-
-        } catch (Exception e) {
-            dbConn.rollback();
-            throw e;
+        if (rowCount != 1) {
+            throw new SQLException("Row count isn't 1 after updating game, row count is: " + rowCount);
         }
+        ResultSet result = updateGameStmt.getGeneratedKeys();
+        result.next();
+
+        GameModel updatedGameModel = getGameByResultSetRow(result);
+
+        // Now insert the Move.
+        MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
+
+        return updatedGameModel;
     }
 
     public void updatePlayer1Rack(int gameId, String updatedRack, Connection dbConn) throws SQLException {

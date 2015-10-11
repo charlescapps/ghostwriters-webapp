@@ -53,39 +53,45 @@ public class MovesService {
         }
         // We need to rollback if a failure occurs, so use a common database connection with autoCommit == false
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
-            dbConn.setAutoCommit(false);
-            ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser, dbConn);
-
-            if (errorOrResult.isError()) {
-                return Response.status(Status.BAD_REQUEST)
-                        .entity(errorOrResult.getErrorOpt().get())
-                        .build();
-            }
-
-            final GameModel originalGame = errorOrResult.getResultOpt().get();
-
-            GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
-
-            // For single player games, play the AI's move(s)
-            if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
-                updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
-            }
-
-            movesProvider.populateMyMove(updatedGame, input);
-
-            ratingsProvider.updatePlayerRatings(updatedGame, dbConn);
-
-            playedWordsProvider.registerPlayedWordForMove(updatedGame.getMyMove(), dbConn);
-
-            dbConn.commit();
-
             try {
-                oneSignalProvider.sendPushNotificationForMove(originalGame, updatedGame);
-            } catch (Throwable t) {
-                LOG.warn("An error occurred trying to send a push notification to One Signal:", t);
-            }
+                dbConn.setAutoCommit(false);
+                ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(input, authUser, dbConn);
 
-            return Response.ok(updatedGame).build();
+                if (errorOrResult.isError()) {
+                    return Response.status(Status.BAD_REQUEST)
+                            .entity(errorOrResult.getErrorOpt().get())
+                            .build();
+                }
+
+                final GameModel originalGame = errorOrResult.getResultOpt().get();
+
+                GameModel updatedGame = movesProvider.playMove(input, originalGame, dbConn);
+
+                // For single player games, play the AI's move(s)
+                if (updatedGame.getGameType() == GameType.SINGLE_PLAYER) {
+                    updatedGame = movesProvider.playAIMoves(updatedGame.getAiType(), updatedGame, input, dbConn);
+                }
+
+                movesProvider.populateMyMove(updatedGame, input);
+
+                ratingsProvider.updatePlayerRatings(updatedGame, dbConn);
+
+                playedWordsProvider.registerPlayedWordForMove(updatedGame.getMyMove(), dbConn);
+
+                dbConn.commit();
+
+                try {
+                    oneSignalProvider.sendPushNotificationForMove(originalGame, updatedGame);
+                } catch (Throwable t) {
+                    LOG.warn("An error occurred trying to send a push notification to One Signal:", t);
+                }
+
+                return Response.ok(updatedGame).build();
+            } catch (Exception e) {
+                LOG.error("Error playing move. Rolling back.", e);
+                dbConn.rollback();
+                throw e;
+            }
         }
 
     }
