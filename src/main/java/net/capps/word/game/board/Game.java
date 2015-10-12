@@ -13,6 +13,7 @@ import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.game.tile.Tile;
+import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
 import net.capps.word.rest.models.MoveModel;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -33,7 +34,7 @@ public class Game {
     private static final LetterPoints letterPoints = LetterPoints.getInstance();
 
     // --------- Errors ---------
-    private static final Optional<String> ERR_CANNOT_PLAY = Optional.of("You can't play a move, game is complete!");
+    private static final Optional<ErrorModel> ERR_CANNOT_PLAY = Optional.of(new ErrorModel("You can't play a move, game is complete!"));
     private static final Optional<String> ERR_CANNOT_PLAY_GRABBED_TILES = Optional.of("You can't play the letters you just grabbed in the same place!");
 
     private final int gameId;
@@ -145,7 +146,7 @@ public class Game {
         return gameResult;
     }
 
-    public Optional<String> getMoveError(Move move) {
+    public Optional<ErrorModel> getMoveError(Move move) {
         if (gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
             return ERR_CANNOT_PLAY;
         }
@@ -153,7 +154,7 @@ public class Game {
             case PLAY_WORD:
                 return getPlayWordError(move);
             case GRAB_TILES:
-                return getGrabTilesError(move);
+                return getGrabTilesError(move).map(errMsg -> new ErrorModel(errMsg));
             case PASS:
                 return Optional.empty();
             case RESIGN:
@@ -426,12 +427,12 @@ public class Game {
         return GameResult.TIE;
     }
 
-    private Optional<String> getPlayWordError(Move move) {
+    private Optional<ErrorModel> getPlayWordError(Move move) {
         // Check that the player has the requisite tiles in their rack.
         if (player1Turn && !player1Rack.hasTiles(move.getTiles())) {
-            return Optional.of(format("Player 1 doesn't have required tiles: \"%s\"", move.getTilesAsString()));
+            return Optional.of(new ErrorModel(format("Player 1 doesn't have required tiles: \"%s\"", move.getTilesAsString())));
         } else if (!player1Turn && !player2Rack.hasTiles(move.getTiles())) {
-            return Optional.of(format("Player 2 doesn't have required tiles: \"%s\"", move.getTilesAsString()));
+            return Optional.of(new ErrorModel(format("Player 2 doesn't have required tiles: \"%s\"", move.getTilesAsString())));
         }
         // Check that the play is valid
         return tileSet.getPlayWordMoveError(move, specialDict);

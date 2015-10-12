@@ -14,6 +14,8 @@ import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.LetterUtils;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.game.tile.Tile;
+import net.capps.word.rest.models.ErrorModel;
+import net.capps.word.rest.models.ErrorWordModel;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -235,11 +237,11 @@ public class TileSet implements Iterable<Pos> {
         }
     }
 
-    public Optional<String> getPlayWordMoveError(Move move, SpecialDict specialDict) {
+    public Optional<ErrorModel> getPlayWordMoveError(Move move, SpecialDict specialDict) {
         // Check if the tiles played from the player's Rack match what's on the board
         Optional<String> errorOpt = lettersMatchTilesPlayed(move.getStart(), move.getDir(), move.getLetters(), move.getTiles());
         if (errorOpt.isPresent()) {
-            return errorOpt;
+            return errorOpt.map(msg -> new ErrorModel(msg));
         }
 
         Placement placement = move.getPlacement();
@@ -376,30 +378,33 @@ public class TileSet implements Iterable<Pos> {
         return Optional.empty();
     }
 
-    public Optional<String> getPlacementError(Placement placement, SpecialDict specialDict) {
+    public Optional<ErrorModel> getPlacementError(Placement placement, SpecialDict specialDict) {
         final String word = placement.getWord();
 
-        // Must be a valid dictionary word
-        if (!isValidWord(word, specialDict)) {
-            return Optional.of(format("\"%s\" is not in the dictionary for this game!", word));
+        Optional<String> errorOpt = getInvalidPositionError(placement.getStart(), placement.getDir());
+        if (errorOpt.isPresent()) {
+            return Optional.of(new ErrorModel(errorOpt.get()));
         }
 
         final Dir dir = placement.getDir();
 
         // Can only play EAST or SOUTH
         if (!dir.isValidPlayDir()) {
-            return Optional.of(format("%s is not a valid direction to play. Can only play South or East.", dir));
+            return Optional.of(new ErrorModel("Can only play South or East."));
         }
 
-        Optional<String> errorOpt = getInvalidPositionError(placement.getStart(), placement.getDir());
-        if (errorOpt.isPresent()) {
-            return errorOpt;
+        // Must be a valid dictionary word
+        if (!isValidWord(word, specialDict)) {
+            ErrorModel errorModel = new ErrorModel(format("\"%s\" is not in the dictionary for this game!", word));
+            ErrorWordModel errorWordModel = new ErrorWordModel(placement.getStart().toPosModel(), placement.getDir());
+            errorModel.setErrorWord(errorWordModel);
+            return Optional.of(errorModel);
         }
 
         // Must be a valid play in the primary direction
         errorOpt = getErrorForPrimaryDir(placement);
         if (errorOpt.isPresent()) {
-            return errorOpt;
+            return Optional.of(new ErrorModel(errorOpt.get()));
         }
 
         // Must be a valid play with words formed perpendicularly
@@ -497,7 +502,7 @@ public class TileSet implements Iterable<Pos> {
         return !isOccupiedAndValid(p);
     }
 
-    private Optional<String> getErrorForPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
+    private Optional<ErrorModel> getErrorForPerpendicularPlacement(final Placement placement, final SpecialDict specialDict) {
         final String word = placement.getWord();
         final Pos start = placement.getStart();
         final Dir dir = placement.getDir();
@@ -512,8 +517,14 @@ public class TileSet implements Iterable<Pos> {
             String perpWord = getPerpWordForAttemptedPlacement(p, c, dir);
             if (perpWord != null) {
                 if (!isValidWord(perpWord, specialDict)) {
+                    // Return an ErrorModel with the position of the invalid word included.
                     final String msg = "\"" + perpWord + "\" isn't in this game's dictionary.";
-                    return Optional.of(msg);
+                    ErrorModel errorModel = new ErrorModel(msg);
+                    Dir perpDir = dir.perp();
+                    Pos errStart = getEndOfOccupied(p, perpDir.negate());
+                    ErrorWordModel errorWordModel = new ErrorWordModel(errStart.toPosModel(), perpDir);
+                    errorModel.setErrorWord(errorWordModel);
+                    return Optional.of(errorModel);
                 }
             }
         }

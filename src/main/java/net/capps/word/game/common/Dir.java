@@ -32,9 +32,9 @@ public enum Dir {
     public Dir perp() {
         switch (this) {
             case S: return E;
-            case E: return N;
+            case E: return S;
             case N: return W;
-            case W: return S;
+            case W: return N;
         }
         throw new IllegalStateException();
     }

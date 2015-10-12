@@ -96,18 +96,18 @@ public class MovesProvider {
         Move move = new Move(inputMoveModel);
 
         // Check if it's a valid move.
-        Optional<String> moveErrorOpt = gameState.getMoveError(move);
+        Optional<ErrorModel> moveErrorOpt = gameState.getMoveError(move);
         if (moveErrorOpt.isPresent()) {
-            return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
+            return ErrorOrResult.ofError(moveErrorOpt.get());
         }
 
         // Check if player is playing the same tiles they just grabbed
         if (inputMoveModel.getMoveType() == MoveType.PLAY_WORD) {
             List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
-            moveErrorOpt = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
+            Optional<String> moveErrorMsg = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
 
             if (moveErrorOpt.isPresent()) {
-                return ErrorOrResult.ofError(new ErrorModel(moveErrorOpt.get()));
+                return ErrorOrResult.ofError(new ErrorModel(moveErrorMsg.get()));
             }
         }
 

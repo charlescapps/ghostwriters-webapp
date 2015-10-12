@@ -13,6 +13,7 @@ import net.capps.word.game.gen.GameGenerator;
 import net.capps.word.game.gen.SquareSetGenerator;
 import net.capps.word.game.move.Move;
 import net.capps.word.heroku.SetupHelper;
+import net.capps.word.rest.models.ErrorModel;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,9 +63,9 @@ public class RandomAITest {
 
             LOG.info("Generated move: {}", move);
 
-            Optional<String> moveError = game.getMoveError(move);
+            Optional<ErrorModel> moveError = game.getMoveError(move);
             if (moveError.isPresent()) {
-                LOG.error("Invalid move generated: {}", moveError.get());
+                LOG.error("Invalid move generated: {}", moveError.get().getErrorMessage());
             }
             Assert.assertTrue("Expected move to be valid", !moveError.isPresent());
             game.playMove(move);
