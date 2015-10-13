@@ -395,7 +395,7 @@ public class TileSet implements Iterable<Pos> {
 
         // Must be a valid dictionary word
         if (!isValidWord(word, specialDict)) {
-            ErrorModel errorModel = new ErrorModel(format("\"%s\" is not in the dictionary for this game!", word));
+            ErrorModel errorModel = new ErrorModel(format("\"%s\" isn't in the dictionary!", word));
             ErrorWordModel errorWordModel = new ErrorWordModel(placement.getStart().toPosModel(), placement.getDir());
             errorModel.setErrorWord(errorWordModel);
             return Optional.of(errorModel);
