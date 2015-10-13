@@ -177,6 +177,7 @@ public class TileSet implements Iterable<Pos> {
             if (existing.isAbsent()) {
                 RackTile rackTile = tilesPlayed.get(rackIndex++);
                 set(p, rackTile.toTile(letter));
+                turnPerpWordToStone(p, dir);
             } else {
                 if (existing.getLetter() != letter) {
                     throw new IllegalStateException("Attempting to place invalid move: " + move);
@@ -188,6 +189,25 @@ public class TileSet implements Iterable<Pos> {
             throw new IllegalStateException("All the played tiles should have been used. Invalid move: " + move);
         }
 
+    }
+
+    private void turnPerpWordToStone(Pos base, Dir dir) {
+        Dir perpDir = dir.perp();
+
+        Pos start = getEndOfOccupied(base, perpDir.negate());
+        Pos end = getEndOfOccupied(base, perpDir);
+
+        if (start.equals(end)) {
+            return;
+        }
+
+        Pos afterEnd = end.go(perpDir);
+
+        for (Pos p = start; !p.equals(afterEnd); p = p.go(perpDir)) {
+            if (isOccupied(p)) {
+                set(p, Tile.playedTile(getLetterAt(p)));
+            }
+        }
     }
 
     public void playGrabTilesMove(Move move) {
