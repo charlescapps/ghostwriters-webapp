@@ -538,7 +538,7 @@ public class TileSet implements Iterable<Pos> {
             if (perpWord != null) {
                 if (!isValidWord(perpWord, specialDict)) {
                     // Return an ErrorModel with the position of the invalid word included.
-                    final String msg = "\"" + perpWord + "\" isn't in this game's dictionary.";
+                    final String msg = "\"" + perpWord + "\" isn't in the dictionary.";
                     ErrorModel errorModel = new ErrorModel(msg);
                     Dir perpDir = dir.perp();
                     Pos errStart = getEndOfOccupied(p, perpDir.negate());
