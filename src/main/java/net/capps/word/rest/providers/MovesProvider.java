@@ -137,7 +137,7 @@ public class MovesProvider {
     }
 
     public GameModel playAIMoves(AiType aiType, GameModel gameModel, MoveModel previousMove, Connection dbConn) throws Exception {
-        List<MoveModel> aiMoves = new ArrayList<>();
+        List<MoveModel> aiMoves = new ArrayList<>(1);
         // While the turn hasn't changed and the game is still in progress, continue playing AI moves.
         while (!gameModel.getPlayer1Turn() && gameModel.getGameResult() == GameResult.IN_PROGRESS) {
             gameModel = playOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
@@ -161,10 +161,10 @@ public class MovesProvider {
     public void populateLastMoves(GameModel gameModel, UserModel authUser, Connection dbConn) throws SQLException {
         // If it's the auth user's turn, then augment game model with move(s) played by opponent
         if (gameModel.getPlayer1Turn() && gameModel.getPlayer1().equals(authUser.getId())) {
-            List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(gameModel.getPlayer2(), gameModel.getId(), dbConn);
+            List<MoveModel> lastMoves = movesDAO.getPreviousMoveByPlayer(gameModel.getPlayer2(), gameModel.getId(), dbConn);
             gameModel.setLastMoves(lastMoves);
         } else if (!gameModel.getPlayer1Turn() && gameModel.getPlayer2().equals(authUser.getId())) {
-            List<MoveModel> lastMoves = movesDAO.getLastMovesByPlayer(gameModel.getPlayer1(), gameModel.getId(), dbConn);
+            List<MoveModel> lastMoves = movesDAO.getPreviousMoveByPlayer(gameModel.getPlayer1(), gameModel.getId(), dbConn);
             gameModel.setLastMoves(lastMoves);
         } else {
             gameModel.setLastMoves(ImmutableList.<MoveModel>of());

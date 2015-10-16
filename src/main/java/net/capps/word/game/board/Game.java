@@ -333,15 +333,6 @@ public class Game {
         return wordPoints;
     }
 
-    private boolean doChangeTurn() {
-        // If there are tiles left to grab, OR the other player's rack isn't empty, then swap whose turn it is
-        // Otherwise, it remains the same player's turn.
-        return getOpponentPlayerRack().hasPlayableTile() ||
-                gameResult != GameResult.IN_PROGRESS ||
-                !tileSet.areAllTilesPlayed();
-    }
-
-
     private int playWordMove(Move validatedMove) {
         int numPoints = computePoints(validatedMove);
         tileSet.playWordMove(validatedMove);
@@ -362,9 +353,7 @@ public class Game {
     private int playGrabTilesMove(Move validatedMove) {
         tileSet.playGrabTilesMove(validatedMove);
         getCurrentPlayerRack().addTiles(validatedMove.getTiles());
-        if (doChangeTurn()) {
-            player1Turn = !player1Turn;
-        }
+        player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
         return 0; // 0 points for a grab move.
     }
@@ -386,9 +375,8 @@ public class Game {
     private GameResult checkForGameEnd(Move validatedMove) {
         switch (validatedMove.getMoveType()) {
             case GRAB_TILES:
-                return gameResult; // Game cannot end immediately after grabbing tiles
             case PLAY_WORD:
-                // End game if both player's racks are empty and all tiles are played
+                // End game if the opponent's rack is empty and all tiles are played
                 if (player1Turn && !player2Rack.hasPlayableTile() ||
                         !player1Turn && !player1Rack.hasPlayableTile()) {
                     if (tileSet.areAllTilesPlayed()) {

@@ -63,14 +63,14 @@ public class MovesDAO {
 
         ResultSet result = stmt.getGeneratedKeys();
         if (!result.next()) {
-            throw new SQLException("There was no result returned after insterting a move!");
+            throw new SQLException("There was no result returned after inserting a move!");
         }
 
         return getMoveFromResult(result);
     }
 
-    public List<MoveModel> getLastMovesByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
-        List<MoveModel> recentMoves = getMostRecentMoves(gameId, 2, dbConn);
+    public List<MoveModel> getPreviousMoveByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
+        List<MoveModel> recentMoves = getMostRecentMoves(gameId, 1, dbConn);
         List<MoveModel> movesByPlayer = new ArrayList<>();
         for (MoveModel move: recentMoves) {
             if (move.getPlayerId().equals(playerId)) {
