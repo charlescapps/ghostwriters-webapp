@@ -342,6 +342,8 @@ public class Game {
         } else {
             player2Points += numPoints;
         }
+
+        // Check for game over, if opponent has no tiles and board is all stone
         gameResult = checkForGameEnd(validatedMove);
 
         player1Turn = !player1Turn;
@@ -353,6 +355,10 @@ public class Game {
     private int playGrabTilesMove(Move validatedMove) {
         tileSet.playGrabTilesMove(validatedMove);
         getCurrentPlayerRack().addTiles(validatedMove.getTiles());
+
+        // Check for game over, if opponent has no tiles and board is all stone
+        gameResult = checkForGameEnd(validatedMove);
+
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
         return 0; // 0 points for a grab move.
