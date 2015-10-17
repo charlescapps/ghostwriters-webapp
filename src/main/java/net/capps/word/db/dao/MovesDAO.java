@@ -1,9 +1,12 @@
 package net.capps.word.db.dao;
 
+import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.List;
  */
 public class MovesDAO {
     private static final MovesDAO INSTANCE = new MovesDAO();
+    private static final Logger LOG = LoggerFactory.getLogger(MovesDAO.class);
 
     public static MovesDAO getInstance() {
         return INSTANCE;
@@ -27,8 +31,9 @@ public class MovesDAO {
     private static final String GET_RECENT_MOVES =
             "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
 
-    private static final String GET_MOVES_IN_ORDER =
-            "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id ASC LIMIT ?";
+    private static final String DELETE_OLD_MOVES =
+            "DELETE FROM word_moves WHERE EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM date_played) > ?";
+
 
     public List<MoveModel> getMostRecentMoves(int gameId, int limit, Connection dbConn) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(GET_RECENT_MOVES);
@@ -81,6 +86,15 @@ public class MovesDAO {
         }
 
         return movesByPlayer;
+    }
+
+    public void deleteOldMoves(final int numberOfSecondsForExpiration) throws SQLException {
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            PreparedStatement stmt = dbConn.prepareStatement(DELETE_OLD_MOVES);
+            stmt.setInt(1, numberOfSecondsForExpiration);
+            int numAffected = stmt.executeUpdate();
+            LOG.info("====Deleted {} old moves from the word_moves table.", numAffected);
+        }
     }
 
     // ------------- Private --------------

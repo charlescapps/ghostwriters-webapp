@@ -16,6 +16,7 @@ public class WordServletContextListener implements ServletContextListener {
     private InitDictionariesThread initDictionariesThread;
     private ScheduledExecutorService incrementUserTokensService;
     private ScheduledExecutorService timeOutInactiveGamesService;
+    private ScheduledExecutorService deleteOldMovesService;
     private static final Logger LOG = LoggerFactory.getLogger(WordServletContextListener.class);
 
     @Override
@@ -28,6 +29,9 @@ public class WordServletContextListener implements ServletContextListener {
         }
         if (timeOutInactiveGamesService == null || timeOutInactiveGamesService.isShutdown() || timeOutInactiveGamesService.isTerminated()) {
             startScheduledTaskToTimeOutInactiveGames();
+        }
+        if (deleteOldMovesService == null || deleteOldMovesService.isShutdown() || deleteOldMovesService.isTerminated()) {
+            startScheduledTaskToDeleteOldMoves();
         }
     }
 
@@ -67,7 +71,14 @@ public class WordServletContextListener implements ServletContextListener {
     private void startScheduledTaskToTimeOutInactiveGames() {
         LOG.info("Scheduling task to time out inactive games!");
         timeOutInactiveGamesService = Executors.newSingleThreadScheduledExecutor();
-        // Attempt to timeout inactive days once per day
+        // Attempt to timeout inactive games once per day
         timeOutInactiveGamesService.scheduleAtFixedRate(new TimeOutInactiveGamesRunnable(), 1, 1, TimeUnit.DAYS);
+    }
+
+    private void startScheduledTaskToDeleteOldMoves() {
+        LOG.info("Scheduling task to time out old moves!");
+        deleteOldMovesService = Executors.newSingleThreadScheduledExecutor();
+        // Attempt to delete old moves once per day
+        deleteOldMovesService.scheduleAtFixedRate(new DeleteOldMovesRunnable(), 0, 1, TimeUnit.DAYS);
     }
 }
