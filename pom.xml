@@ -131,6 +131,14 @@
             <artifactId>javax.mail</artifactId>
             <version>1.5.2</version>
         </dependency>
+
+        <!-- New Relic - for now -->
+        <dependency>
+            <groupId>com.newrelic.agent.java</groupId>
+            <artifactId>newrelic-agent</artifactId>
+            <version>3.9.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
