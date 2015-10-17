@@ -80,11 +80,7 @@ public class MovesService {
 
                 dbConn.commit();
 
-                try {
-                    oneSignalProvider.sendPushNotificationForMove(originalGame, updatedGame);
-                } catch (Throwable t) {
-                    LOG.warn("An error occurred trying to send a push notification to One Signal:", t);
-                }
+                oneSignalProvider.sendPushNotificationForMoveAsync(originalGame, updatedGame);
 
                 return Response.ok(updatedGame).build();
             } catch (Exception e) {

@@ -1,7 +1,6 @@
 package net.capps.word.rest.providers;
 
 import com.google.common.collect.Lists;
-import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.models.*;
@@ -17,13 +16,15 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by charlescapps on 4/9/15.
  */
 public class OneSignalProvider {
     private static final OneSignalProvider INSTANCE = new OneSignalProvider();
-    private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(OneSignalProvider.class);
 
     private static final String ONE_SIGNAL_NOTIFICATIONS_URI = "https://onesignal.com/api/v1/notifications";
@@ -31,12 +32,30 @@ public class OneSignalProvider {
     private static final String ONE_SIGNAL_REST_KEY = "NDc5ZjM1OWEtZGJmYS0xMWU0LWFjOGYtNjdjZjBiMzEwYTk1";
     private static final String AUTHZ_HEADER = "Basic " + ONE_SIGNAL_REST_KEY;
 
+    private static final int NUM_THREADS = 10;
+    private ExecutorService pool = Executors.newFixedThreadPool(NUM_THREADS);
+
     private Client CLIENT = null;
 
     private OneSignalProvider() { }
 
     public static OneSignalProvider getInstance() {
         return INSTANCE;
+    }
+
+    public void sendPushNotificationForMoveAsync(GameModel originalGame, GameModel updatedGame) {
+        try {
+            Future<Void> future = pool.submit(
+                    () -> {
+                        sendPushNotificationForMove(originalGame, updatedGame);
+                        return null;
+                    }
+            );
+
+            future.get();
+        } catch (Exception e) {
+            LOG.error("Error sending push notification:", e);
+        }
     }
 
     public void sendPushNotificationForMove(GameModel originalGame, GameModel updatedGame) throws SQLException {
