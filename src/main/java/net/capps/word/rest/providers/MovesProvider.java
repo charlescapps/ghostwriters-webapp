@@ -119,12 +119,10 @@ public class MovesProvider {
                                     validatedMove.getGameId().equals(gameModel.getId()),
                                     "The game ID on the move must match the original game's ID");
 
-        List<MoveModel> prevMove = movesDAO.getMostRecentMoves(validatedMove.getGameId(), 1, dbConn);
-        Optional<Move> previousMoveOpt = prevMove.size() == 1 ?
-                Optional.of(new Move(prevMove.get(0))) :
-                Optional.empty();
+        Optional<MoveModel> prevMoveModelOpt = movesDAO.getMostRecentMove(validatedMove.getGameId(), dbConn);
+        Optional<Move> prevMoveOpt = prevMoveModelOpt.map(Move::new);
 
-        Game game = new Game(gameModel, previousMoveOpt);
+        Game game = new Game(gameModel, prevMoveOpt);
         Move move = new Move(validatedMove);
 
         int numPoints = game.playMove(move); // Play the move, updating the game state.

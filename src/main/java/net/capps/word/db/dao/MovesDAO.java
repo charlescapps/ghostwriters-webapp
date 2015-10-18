@@ -12,6 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 1/22/15.
@@ -31,6 +32,9 @@ public class MovesDAO {
     private static final String GET_RECENT_MOVES =
             "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
 
+    private static final String GET_MOST_RECENT_MOVE =
+            "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT 1";
+
     private static final String DELETE_OLD_MOVES =
             "DELETE FROM word_moves WHERE EXTRACT(EPOCH FROM NOW()) - EXTRACT(EPOCH FROM date_played) > ?";
 
@@ -45,6 +49,16 @@ public class MovesDAO {
             moves.add(getMoveFromResult(resultSet));
         }
         return moves;
+    }
+
+    public Optional<MoveModel> getMostRecentMove(int gameId, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_MOST_RECENT_MOVE);
+        stmt.setInt(1, gameId);
+        ResultSet resultSet = stmt.executeQuery();
+        if (resultSet.next()) {
+            return Optional.of(getMoveFromResult(resultSet));
+        }
+        return Optional.empty();
     }
 
     public MoveModel insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws SQLException {
@@ -75,17 +89,16 @@ public class MovesDAO {
     }
 
     public List<MoveModel> getPreviousMoveByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
-        List<MoveModel> recentMoves = getMostRecentMoves(gameId, 1, dbConn);
-        List<MoveModel> movesByPlayer = new ArrayList<>();
-        for (MoveModel move: recentMoves) {
-            if (move.getPlayerId().equals(playerId)) {
-                movesByPlayer.add(0, move);
-            } else {
-                break;
+        Optional<MoveModel> recentMoveOpt = getMostRecentMove(gameId, dbConn);
+        List<MoveModel> recentMoveSingleton = new ArrayList<>(1);
+        if (recentMoveOpt.isPresent()) {
+            MoveModel recentMove = recentMoveOpt.get();
+            if (recentMove.getPlayerId() == playerId) { // Integer will unbox
+                recentMoveSingleton.add(recentMove);
             }
         }
 
-        return movesByPlayer;
+        return recentMoveSingleton;
     }
 
     public void deleteOldMoves(final int numberOfSecondsForExpiration) throws SQLException {
