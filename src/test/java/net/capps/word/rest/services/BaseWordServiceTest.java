@@ -29,6 +29,7 @@ import java.util.logging.Level;
 public class BaseWordServiceTest extends JerseyTest {
     protected static UserModel fooUser;
     protected static UserModel barUser;
+    protected static final String PASS = "abcde";
 
     @BeforeClass
     public static void initWordServiceTest() throws Exception {
@@ -42,6 +43,7 @@ public class BaseWordServiceTest extends JerseyTest {
         setupHelper.initDatabase();
         setupHelper.initDictionaryDataStructures();
         setupHelper.initGameDataStructures();
+        setupHelper.createAiUsers();
 
         // Create 2 regular users
         final String fooUsername = "Foo_" + System.currentTimeMillis() / 1000;
@@ -52,6 +54,8 @@ public class BaseWordServiceTest extends JerseyTest {
         try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
             fooUser = UsersProvider.getInstance().createNewUser(dbConn, fooInput);
             barUser = UsersProvider.getInstance().createNewUser(dbConn, barInput);
+            UsersProvider.getInstance().updateUserPassword(fooUser.getId(), PASS, dbConn);
+            UsersProvider.getInstance().updateUserPassword(barUser.getId(), PASS, dbConn);
         }
     }
 
@@ -62,7 +66,20 @@ public class BaseWordServiceTest extends JerseyTest {
                         .header("Authorization", "Basic " + CryptoUtils.getBasicAuthHeader(username, password))
                         .build("POST")
                         .invoke();
-        return response.getHeaderString("Set-Cookie");
+        return parseCookie(response.getHeaderString("Set-Cookie"));
+    }
+
+    protected String parseCookie(String cookie) {
+        if (cookie == null) {
+            return null;
+        }
+
+        int index = cookie.indexOf(';');
+        if (index < 0) {
+            return cookie;
+        }
+
+        return cookie.substring(0, index);
     }
 
     @Override

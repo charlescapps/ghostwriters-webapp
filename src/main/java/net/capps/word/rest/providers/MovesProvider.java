@@ -106,7 +106,7 @@ public class MovesProvider {
             List<MoveModel> prevMoves = movesDAO.getMostRecentMoves(gameId, 2, dbConn);
             Optional<String> moveErrorMsg = gameState.getReplayGrabbedTilesError(inputMoveModel, prevMoves);
 
-            if (moveErrorOpt.isPresent()) {
+            if (moveErrorMsg.isPresent()) {
                 return ErrorOrResult.ofError(new ErrorModel(moveErrorMsg.get()));
             }
         }

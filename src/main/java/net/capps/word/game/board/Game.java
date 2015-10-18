@@ -185,14 +185,6 @@ public class Game {
             }
         }
 
-        // Check if player is playing the the same tiles they grabbed 1 turn ago,
-        // in the case that it's the end-of-the-game and they get an extra turn since opponent is out of tiles.
-        if (prevMove.getPlayerId() == currentPlayerId && prevMove.getMoveType() == MoveType.GRAB_TILES) {
-            if (didPlaySameTilesAsGrab(prevMove, moveModel)) {
-                return ERR_CANNOT_PLAY_GRABBED_TILES;
-            }
-        }
-
         return Optional.empty();
     }
     

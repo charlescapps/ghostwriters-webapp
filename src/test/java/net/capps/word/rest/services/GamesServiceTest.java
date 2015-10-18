@@ -1,11 +1,18 @@
 package net.capps.word.rest.services;
 
-import net.capps.word.game.common.BoardSize;
-import net.capps.word.game.common.BonusesType;
-import net.capps.word.game.common.GameDensity;
+import net.capps.word.db.WordDbManager;
+import net.capps.word.game.board.Game;
+import net.capps.word.game.board.TileSet;
+import net.capps.word.game.common.*;
+import net.capps.word.game.move.Move;
+import net.capps.word.game.move.MoveType;
 import net.capps.word.rest.filters.InitialUserAuthFilter;
 import net.capps.word.rest.filters.RegularUserAuthFilter;
+import net.capps.word.rest.models.ErrorModel;
 import net.capps.word.rest.models.GameModel;
+import net.capps.word.rest.models.MoveModel;
+import net.capps.word.rest.providers.MovesProvider;
+import net.capps.word.util.ErrorOrResult;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import java.sql.Connection;
+import java.util.Optional;
 
 /**
  * Created by charlescapps on 1/24/15.
@@ -22,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 public class GamesServiceTest extends BaseWordServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(GamesServiceTest.class);
+    private static final MovesProvider movesProvider = MovesProvider.getInstance();
 
     @Override
     protected Application configure() {
@@ -45,8 +55,101 @@ public class GamesServiceTest extends BaseWordServiceTest {
         }
     }
 
-    private void doTestCreateGame(BoardSize boardSize, BonusesType bonusesType, GameDensity gameDensity) {
-        String cookie = login(fooUser.getUsername(), "foo");
+    @Test
+    public void testPlayTilesYouGrabbed() throws Exception {
+        GameModel gameModel = doTestCreateGame(BoardSize.GRANDE, BonusesType.RANDOM_BONUSES, GameDensity.REGULAR);
+        Game game = new Game(gameModel, Optional.empty());
+
+        MoveModel grabMove = findGrabMove(game, gameModel.getPlayer1(), Optional.empty());
+
+        MoveModel player2Move = findGrabMove(game,
+                gameModel.getPlayer2(),
+                Optional.of(grabMove.getStart().toPos()));
+
+        MoveModel playMove = findPlayMoveFromGrabMove(game, grabMove);
+
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+
+            // Player 1: Grabs 1 tile
+            gameModel = movesProvider.playMove(grabMove, gameModel, dbConn);
+
+            // Player 2: Grabs 1 tile on a different row & column
+            gameModel = movesProvider.playMove(player2Move, gameModel, dbConn);
+
+            // Player 1: Play the same tile they just grabbed
+            ErrorOrResult<GameModel> errorOrResult = movesProvider.validateMove(playMove, fooUser, dbConn);
+            if (errorOrResult.isError()) {
+                LOG.info("Play move error: {}", errorOrResult.getErrorOpt().get().getErrorMessage());
+            }
+            Assert.assertTrue("Expect an error to be present when you try to play the tile you just grabbed.",
+                    errorOrResult.isError());
+        }
+    }
+
+    private MoveModel findGrabMove(Game game, int playerId, Optional<Pos> forbiddenPos) {
+        TileSet tileSet = game.getTileSet();
+        Pos p = null;
+        for (int i = 0; i < tileSet.N; ++i) {
+            for (int j = 0; j < tileSet.N; ++j) {
+                if (forbiddenPos.isPresent() &&
+                        (i == forbiddenPos.get().r || j == forbiddenPos.get().c)) {
+                    continue;
+                }
+                if (tileSet.isOccupied(Pos.of(i, j))) {
+                    p = Pos.of(i, j);
+                    break;
+                }
+            }
+        }
+        if (p == null) {
+            throw new IllegalStateException();
+        }
+
+        Dir dir;
+        if (tileSet.isOccupiedAndValid(p.e()) || tileSet.isOccupiedAndValid(p.w())) {
+            dir = Dir.E;
+        } else {
+            dir = Dir.S;
+        }
+
+        String letter = Character.toString(tileSet.getLetterAt(p));
+        return new MoveModel(game.getGameId(),
+                playerId,
+                MoveType.GRAB_TILES,
+                letter,
+                p.toPosModel(),
+                dir,
+                letter,
+                null,
+                null);
+    }
+
+    private MoveModel findPlayMoveFromGrabMove(Game game, MoveModel grabMove) {
+        final Dir dir = grabMove.getDir();
+
+        TileSet tileSet = game.getTileSet();
+        Pos start = tileSet.getEndOfOccupied(grabMove.getStart().toPos(), dir.negate());
+        Pos end = tileSet.getEndOfOccupied(grabMove.getStart().toPos(), dir);
+        String letters = tileSet.getWordWithMissingChar(start,
+                end,
+                grabMove.getStart().toPos(),
+                grabMove.getLetters().charAt(0));
+
+        LOG.info("Computed play move with letters = \"{}\" and tiles = \"{}\"", letters, grabMove.getTiles());
+
+        return new MoveModel(game.getGameId(),
+                grabMove.getPlayerId(),
+                MoveType.PLAY_WORD,
+                letters,
+                start.toPosModel(),
+                dir,
+                grabMove.getTiles(),
+                null,
+                null);
+    }
+
+    private GameModel doTestCreateGame(BoardSize boardSize, BonusesType bonusesType, GameDensity gameDensity) {
+        String cookie = login(fooUser.getUsername(), PASS);
         LOG.info("Cookie={}", cookie);
 
         GameModel input = new GameModel();
@@ -55,6 +158,7 @@ public class GamesServiceTest extends BaseWordServiceTest {
         input.setGameDensity(gameDensity);
         input.setPlayer1(fooUser.getId());
         input.setPlayer2(barUser.getId());
+        input.setGameType(GameType.TWO_PLAYER);
 
         GameModel result = target("games")
                 .request()
@@ -78,6 +182,8 @@ public class GamesServiceTest extends BaseWordServiceTest {
         Assert.assertEquals(N * N, result.getSquares().length());
         Assert.assertEquals(N * N, result.getTiles().length());
         Assert.assertTrue(result.getDateCreated() > 0);
+
+        return result;
     }
 
 
