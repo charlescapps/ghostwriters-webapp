@@ -107,6 +107,7 @@ PURLOINED
 PURLOINER            "Thief or burglar"
 QUAFF                "To drink a beverage heartily, with much enjoyment"
 RAPTURE
+RAVEN                "Quoth the raven \"Nevermore\""
 RENCONTRE            "A violent meeting, or combat"
 REVEL
 REVERIE
