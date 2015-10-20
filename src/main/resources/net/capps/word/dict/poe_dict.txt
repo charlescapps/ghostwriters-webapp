@@ -105,9 +105,11 @@ PUNCHEON             "A large cask of varying capacity"
 PURLOIN              "To take something wrongfully"
 PURLOINED
 PURLOINER            "Thief or burglar"
+PURLOINERS
 QUAFF                "To drink a beverage heartily, with much enjoyment"
 RAPTURE
 RAVEN                "Quoth the raven \"Nevermore\""
+RAVENS
 RENCONTRE            "A violent meeting, or combat"
 REVEL
 REVERIE
@@ -120,7 +122,6 @@ RUNES
 RUNIC               "Written in runes; having a secret meaning"
 SAGACITY
 SAGE                   "A wise person"
-SALLY
 SANGUINE               "Blood-red color, or bloody"
 SARCOPHAGUS            "A coffin"
 SATE                   "Old fashioned spelling of \"sat\", past tense of \"sit\""
