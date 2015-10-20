@@ -26,7 +26,7 @@ public enum SpecialDict {
             case POE:
             case LOVECRAFT:
             case MYTHOS:
-                return new SpecialDictGameGenerator(this, 0.25f);
+                return new SpecialDictGameGenerator(this, 0.5f);
         }
         throw new IllegalStateException("Invalid GameDict enum given...");
     }
