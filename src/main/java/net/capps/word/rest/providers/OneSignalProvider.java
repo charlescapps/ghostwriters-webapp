@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.models.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.SslConfigurator;
 import org.slf4j.Logger;
@@ -76,14 +78,46 @@ public class OneSignalProvider {
         }
 
         // Check for the first move being played on a newly created two-player game
-        if (originalGame.getGameResult() == GameResult.OFFERED && updatedGame.getGameResult() == GameResult.OFFERED) {
-            final String title = "A Challenger Awaits";
-            final String message = "Challenge by " + opponentUser.getUsername();
-            sendPushNotification(currentUser, updatedGame, title, message, true);
+        final GameResult ORIGINAL_RESULT = originalGame.getGameResult();
+        final GameResult UPDATED_RESULT = updatedGame.getGameResult();
+        Pair<String, String> titleAndMessage = getPushTitleAndMessage(originalGame, updatedGame);
+        sendPushNotification(currentUser,
+                             updatedGame,
+                             titleAndMessage.getLeft(),
+                             titleAndMessage.getRight(),
+                             ORIGINAL_RESULT == GameResult.OFFERED && UPDATED_RESULT == GameResult.OFFERED);
+    }
+
+    private Pair<String, String> getPushTitleAndMessage(GameModel originalGame, GameModel updatedGame) {
+        UserModel currentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer1Model() : updatedGame.getPlayer2Model();
+        UserModel opponentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer2Model() : updatedGame.getPlayer1Model();
+        final GameResult ORIGINAL_RESULT = originalGame.getGameResult();
+        final GameResult UPDATED_RESULT = updatedGame.getGameResult();
+
+        if (ORIGINAL_RESULT == GameResult.OFFERED && UPDATED_RESULT == GameResult.OFFERED) {
+            return ImmutablePair.of("A Challenger Awaits",
+                                    "Challenge by " + opponentUser.getUsername());
+        } else if (UPDATED_RESULT == GameResult.PLAYER1_WIN) {
+            if (currentUser.getId().equals(updatedGame.getPlayer1())) {
+                return ImmutablePair.of("You won!",
+                                        "You beat " + opponentUser.getUsername() + "!");
+            } else {
+                return ImmutablePair.of("Game Over",
+                                        "Game Over vs. " + opponentUser.getUsername());
+            }
+        } else if (UPDATED_RESULT == GameResult.PLAYER2_WIN) {
+            if (currentUser.getId().equals(updatedGame.getPlayer2())) {
+                return ImmutablePair.of("You won!",
+                                        "You beat " + opponentUser.getUsername() + "!");
+            } else {
+                return ImmutablePair.of("Game Over",
+                                        "Game Over vs. " + opponentUser.getUsername());
+            }
+        } else if (UPDATED_RESULT == GameResult.TIE) {
+            return ImmutablePair.of("It's a tie!", "You tied " + opponentUser.getUsername());
         } else {
-            final String title = "It's your move!";
-            final String message = "It's your move vs. " + opponentUser.getUsername();
-            sendPushNotification(currentUser, updatedGame, title, message, false);
+            return ImmutablePair.of("It's your move!",
+                                    "It's your move vs. " + opponentUser.getUsername());
         }
     }
 

@@ -10,9 +10,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static net.capps.word.game.common.BoardSize.GRANDE;
-import static net.capps.word.game.common.BoardSize.TALL;
-import static net.capps.word.game.common.BoardSize.VENTI;
+import static net.capps.word.game.common.BoardSize.*;
 
 /**
  * Created by charlescapps on 1/18/15.
