@@ -5,6 +5,7 @@ import net.capps.word.game.common.Dir;
 import net.capps.word.game.dict.DictType;
 import net.capps.word.game.move.MoveType;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,6 +22,7 @@ public class MoveModel {
     private Integer points;
     private Long datePlayed;
     private DictType dict;
+    private List<String> specialWordsPlayed;
 
     public MoveModel() {
 
@@ -116,6 +118,14 @@ public class MoveModel {
 
     public void setDict(DictType dict) {
         this.dict = dict;
+    }
+
+    public List<String> getSpecialWordsPlayed() {
+        return specialWordsPlayed;
+    }
+
+    public void setSpecialWordsPlayed(List<String> specialWordsPlayed) {
+        this.specialWordsPlayed = specialWordsPlayed;
     }
 
     @Override

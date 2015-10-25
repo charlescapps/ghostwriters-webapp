@@ -3,10 +3,12 @@ package net.capps.word.game.move;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import net.capps.word.game.board.PlayResult;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.Placement;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
+import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.tile.RackTile;
 import net.capps.word.rest.models.MoveModel;
 import net.capps.word.rest.models.PosModel;
@@ -102,6 +104,23 @@ public class Move {
                              getTilesAsString(),
                              points,
                              null);
+    }
+
+    public MoveModel toMoveModel(int playerId, PlayResult playResult, SpecialDict specialDict) {
+        MoveModel moveModel = new MoveModel(gameId,
+                playerId,
+                moveType,
+                letters,
+                start.toPosModel(),
+                dir,
+                getTilesAsString(),
+                playResult.getPoints(),
+                null);
+        moveModel.setSpecialWordsPlayed(playResult.getSpecialWordsPlayed());
+        if (!moveModel.getSpecialWordsPlayed().isEmpty() && specialDict != null) {
+            moveModel.setDict(specialDict.getDictType());
+        }
+        return moveModel;
     }
 
     public int getPoints() {

@@ -215,7 +215,6 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         MutableInt numPositionsChecked = new MutableInt(0);
         generateMoves(game, dictType, prefix, diff + 1, tileSet, start, originalStart, dir, placements, rackCopy, foundMoves, numPositionsChecked);
 
-  //      System.out.println("Positions checked: " + numPositionsChecked);
         // If no moves are found, return Optional.empty()
         if (foundMoves.isEmpty()) {
             return Optional.empty();
@@ -224,7 +223,7 @@ public class BestMoveFromRandomSampleAI implements GameAI {
         int bestScore = 0;
         Move bestMove = null;
         for (Move move: foundMoves) {
-            int score = game.computePoints(move);
+            int score = game.computeStandardPoints(move);
             move.setPoints(score);
             if (score > bestScore || bestMove == null) {
                 bestScore = score;

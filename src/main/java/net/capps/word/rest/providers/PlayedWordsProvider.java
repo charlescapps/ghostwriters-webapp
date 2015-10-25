@@ -14,6 +14,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -60,38 +61,52 @@ public class PlayedWordsProvider {
             return;
         }
         int userId = moveModel.getPlayerId();
-        String word = moveModel.getLetters();
-        registerPlayedWord(userId, word, specialDict, dbConn);
+        registerPlayedWords(userId, moveModel.getSpecialWordsPlayed(), specialDict, dbConn);
     }
 
     /**
-     * @param playedWord - Uppercase word that must be in the specialDict
+     * @param playedWords - list of words from specialDict that were played this move.
      */
-    public void registerPlayedWord(int userId, String playedWord, SpecialDict specialDict, Connection dbConn) throws SQLException {
-        LOG.info("Registering played word '{}' for dict '{}'", playedWord, specialDict);
-        if (!specialDict.getDictType().getDictionary().contains(playedWord)) {
-            LOG.error("ERROR - attempt to register a word '{}' that isn't in the given dict '{}'",
-                    playedWord, specialDict);
+    public void registerPlayedWords(int userId, List<String> playedWords, SpecialDict specialDict, Connection dbConn) throws SQLException {
+        if (playedWords.isEmpty()) {
+            return;
+        }
+        for (String playedWord: playedWords) {
+            if (!specialDict.getDictType().getDictionary().contains(playedWord)) {
+                LOG.error("ERROR - attempt to register a word '{}' that isn't in the given dict '{}'",
+                        playedWord, specialDict);
+                return;
+            }
+        }
+
+        Optional<String> existingHexMapOpt = playedWordsDAO.getWordMap(dbConn, userId, specialDict);
+        if (existingHexMapOpt.isPresent()) {
+            String hexMap = existingHexMapOpt.get();
+            for (String playedWord: playedWords) {
+                hexMap = updateExistingWordMap(hexMap, playedWord, specialDict);
+            }
+            playedWordsDAO.updateWordMap(dbConn, userId, specialDict, hexMap);
             return;
         }
 
-        Optional<String> existingHexMap = playedWordsDAO.getWordMap(dbConn, userId, specialDict);
-        if (existingHexMap.isPresent()) {
-            updateExistingWordMap(existingHexMap.get(), playedWord, userId, specialDict, dbConn);
-            return;
+        String hexMap = createNewWordMap(playedWords.get(0), specialDict);
+
+        for (int i = 1; i < playedWords.size(); ++i) {
+            String playedWord = playedWords.get(i);
+            hexMap = updateExistingWordMap(hexMap, playedWord, specialDict);
         }
-        insertNewWordMap(playedWord, userId, specialDict, dbConn);
+        playedWordsDAO.insertWordMap(dbConn, userId, specialDict, hexMap);
     }
 
     // ---------- Private ------------
-
-    private void insertNewWordMap(String playedWord, int userId, SpecialDict specialDict, Connection dbConn)
+    @Nonnull
+    private String createNewWordMap(String playedWord, SpecialDict specialDict)
             throws SQLException {
         final DictionarySet dict = specialDict.getDictType().getDictionary();
         Integer wordIndex = dict.getWordIndex(playedWord);
         if (wordIndex == null) {
             LOG.error("Bad attempt to insert word map - word '{}' wasn't in the special dict '{}'", playedWord, specialDict);
-            return;
+            return "";
         }
         int expectedLen = wordIndex + 1;
         if (expectedLen % 8 != 0) {
@@ -110,18 +125,16 @@ public class PlayedWordsProvider {
         }
 
         final String binaryString = sb.toString();
-        final String hexString = binaryStringToHexString(binaryString);
-        LOG.info("Inserting word '{}' to dict '{}' with index '{}' binary map {}", playedWord, specialDict, wordIndex, binaryString);
-        playedWordsDAO.insertWordMap(dbConn, userId, specialDict, hexString);
+        return binaryStringToHexString(binaryString);
     }
 
-    private void updateExistingWordMap(String existingHexMap, String playedWord, int userId, SpecialDict specialDict, Connection dbConn)
+    private String updateExistingWordMap(String existingHexMap, String playedWord, SpecialDict specialDict)
             throws SQLException {
         final DictionarySet dict = specialDict.getDictType().getDictionary();
         Integer wordIndex = dict.getWordIndex(playedWord);
         if (wordIndex == null) {
             LOG.error("Bad attempt to update word map - word '{}' wasn't in the special dict '{}'", playedWord, specialDict);
-            return;
+            return existingHexMap;
         }
 
         final String binaryMap = hexWordMapToBinaryString(existingHexMap);
@@ -137,10 +150,8 @@ public class PlayedWordsProvider {
             sb.append('0');
         }
         String updatedBinaryMap = sb.toString();
-        String updatedHexMap = binaryStringToHexString(updatedBinaryMap);
-        LOG.info("Updating wordmap with word '{}' for dict '{}' with index '{}' binary map of len {} = {}", playedWord, specialDict, wordIndex, updatedBinaryMap.length(), updatedBinaryMap);
+        return binaryStringToHexString(updatedBinaryMap);
 
-        playedWordsDAO.updateWordMap(dbConn, userId, specialDict, updatedHexMap);
     }
 
     private List<WordModel> getSortedWordsForWordMap(SpecialDict specialDict, String hexWordMap) {

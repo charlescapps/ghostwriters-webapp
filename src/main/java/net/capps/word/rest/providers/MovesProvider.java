@@ -7,6 +7,7 @@ import net.capps.word.db.dao.GamesDAO;
 import net.capps.word.db.dao.MovesDAO;
 import net.capps.word.game.ai.GameAI;
 import net.capps.word.game.board.Game;
+import net.capps.word.game.board.PlayResult;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.dict.DictType;
@@ -125,11 +126,18 @@ public class MovesProvider {
         Game game = new Game(gameModel, prevMoveOpt);
         Move move = new Move(validatedMove);
 
-        int numPoints = game.playMove(move); // Play the move, updating the game state.
+        PlayResult playResult = game.playMove(move); // Play the move, updating the game state.
 
-        GameModel updatedGame = gamesDAO.updateGame(game, validatedMove, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(game, validatedMove, playResult.getPoints(), dbConn);
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
+
+        // Update the input move by adding the points earned, and the special words played.
+        validatedMove.setPoints(playResult.getPoints());
+        validatedMove.setSpecialWordsPlayed(playResult.getSpecialWordsPlayed());
+        if (!validatedMove.getSpecialWordsPlayed().isEmpty()) {
+           validatedMove.setDict(game.getSpecialDict().getDictType());
+        }
 
         return updatedGame;
     }
@@ -141,18 +149,12 @@ public class MovesProvider {
             gameModel = playOneAIMove(aiType, gameModel, previousMove, aiMoves, dbConn);
         }
 
-        // Store the dictionary used on the Move, so we can have a modal dialog saying the AI played a bonus word.
-        for (MoveModel move: aiMoves) {
-            addSpecialDictUsageToMove(gameModel, move);
-        }
-
         gameModel.setLastMoves(aiMoves);
 
         return gameModel;
     }
 
     public void populateMyMove(GameModel newGame, MoveModel playedMove) throws Exception {
-        addSpecialDictUsageToMove(newGame, playedMove);
         newGame.setMyMove(playedMove);
     }
 
@@ -196,11 +198,11 @@ public class MovesProvider {
         Game game = new Game(gameModel, Optional.of(new Move(lastMove)));
         Move aiMove = gameAI.getNextMove(game);
 
-        int numPoints = game.playMove(aiMove);
+        PlayResult playResult = game.playMove(aiMove);
 
-        MoveModel aiMoveModel = aiMove.toMoveModel(gameAiId, numPoints);
+        MoveModel aiMoveModel = aiMove.toMoveModel(gameAiId, playResult, game.getSpecialDict());
 
-        GameModel updatedGame = gamesDAO.updateGame(game, aiMoveModel, numPoints, dbConn);
+        GameModel updatedGame = gamesDAO.updateGame(game, aiMoveModel, playResult.getPoints(), dbConn);
         updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
         updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 

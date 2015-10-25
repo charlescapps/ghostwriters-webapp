@@ -2,12 +2,12 @@ package net.capps.word.game.board;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import net.capps.word.exceptions.InvalidBoardException;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.common.Pos;
 import net.capps.word.game.common.Rack;
-import net.capps.word.game.dict.DictType;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -240,7 +241,12 @@ public class Game {
         return ImmutablePair.of(startPlayTiles, p);
     }
 
-    public int playMove(Move validatedMove) {
+    /**
+     * Return the number of points, and the special dictionary words played.
+     * @param validatedMove
+     * @return
+     */
+    public PlayResult playMove(Move validatedMove) {
         if (gameResult != GameResult.IN_PROGRESS && gameResult != GameResult.OFFERED) {
             throw new IllegalStateException("Can't play a move for a finished game!");
         }
@@ -248,17 +254,20 @@ public class Game {
             case PLAY_WORD:
                 return playWordMove(validatedMove);
             case GRAB_TILES:
-                return playGrabTilesMove(validatedMove);
+                playGrabTilesMove(validatedMove);
+                return PlayResult.NON_PLAY_WORD_RESULT;
             case PASS:
-                return playPassMove(validatedMove);
+                playPassMove(validatedMove);
+                return PlayResult.NON_PLAY_WORD_RESULT;
             case RESIGN:
-                return playResignMove(validatedMove);
+                playResignMove(validatedMove);
+                return PlayResult.NON_PLAY_WORD_RESULT;
             default:
                 throw new IllegalStateException();
         }
     }
 
-    public int computePoints(Move move) {
+    public int computeStandardPoints(Move move) {
         if (move.getMoveType() != MoveType.PLAY_WORD) {
             return 0;
         }
@@ -285,24 +294,43 @@ public class Game {
             }
         }
 
-        int totalPoints = wordPoints + perpWordPoints + computeBonusPointsForSpecialDictionaryPlay(move);
+        int totalPoints = wordPoints + perpWordPoints;
         if (totalPoints <= 0) {
             throw new IllegalStateException("Something went wrong computing the points - any move must earn > 0 points!");
         }
         return totalPoints;
     }
 
-    private int computeBonusPointsForSpecialDictionaryPlay(Move move) {
-        final String word = move.getLetters();
+    /**
+     * Precondition: move.getMoveType == MoveType.PLAY_WORD_MOVE
+     */
+    public List<String> getSpecialWordsPlayed(Move move) {
         if (specialDict == null) {
-            return 0;
+            return ImmutableList.of();
         }
-        DictType primaryDict = specialDict.getDictType();
-        if (primaryDict.getDictionary().contains(word)) {
-            return primaryDict.getBonusPoints();
+        List<String> specialWords = new ArrayList<>();
+
+        final String word = move.getLetters();
+        // Add the primary word played, iff it's in the Special Dictionary for this game.
+        if (specialDict.contains(word)) {
+            specialWords.add(word);
         }
 
-        return 0;
+        final Pos start = move.getStart();
+        final Dir dir = move.getDir();
+
+        // Compute the points
+        Pos p = start;
+        for (int i = 0; i < word.length(); ++i, p = p.go(dir)) {
+            char c = word.charAt(i);
+            Tile tile = tileSet.get(p);
+            // If there was no tile already on the board, then check the perpendicular word
+            if (tile.isAbsent()) {
+                addSpecialDictWordFromPerpWord(specialWords, p, dir, c);
+            }
+        }
+
+        return specialWords;
     }
 
     private int computePerpWordPoints(Pos baseWordPos, Dir d, char playChar, int letterScale) {
@@ -325,14 +353,40 @@ public class Game {
         return wordPoints;
     }
 
-    private int playWordMove(Move validatedMove) {
-        int numPoints = computePoints(validatedMove);
+    private void addSpecialDictWordFromPerpWord(List<String> specialWords, Pos baseWordPos, Dir d, char playChar) {
+        if (specialDict == null) {
+            return;
+        }
+        final Dir perp = d.perp();
+        Pos end = tileSet.getEndOfOccupied(baseWordPos, perp);
+        Pos p = tileSet.getEndOfOccupied(baseWordPos, perp.negate());
+        if (p.equals(end)) {
+            return; // There's no perpendicular word
+        }
+        String perpWord = tileSet.getWordWithMissingChar(p, end, baseWordPos, playChar);
+        if (specialDict.contains(perpWord)) {
+            specialWords.add(perpWord);
+        }
+    }
+
+    private PlayResult playWordMove(Move validatedMove) {
+        // Compute the base points earned from words formed on board + bonus squares
+        int points = computeStandardPoints(validatedMove);
+
+        // Get the list of "special" dictionary words played
+        List<String> specialWordsPlayed = getSpecialWordsPlayed(validatedMove);
+
+        // Award a bonus if a special dictionary word is played -- players can't earn this bonus twice w/ one play
+        if (!specialWordsPlayed.isEmpty()) {
+            points += specialDict.getDictType().getBonusPoints();
+        }
+
         tileSet.playWordMove(validatedMove);
         getCurrentPlayerRack().removeTiles(validatedMove.getTiles());
         if (player1Turn) {
-            player1Points += numPoints;
+            player1Points += points;
         } else {
-            player2Points += numPoints;
+            player2Points += points;
         }
 
         // Check for game over, if opponent has no tiles and board is all stone
@@ -341,10 +395,10 @@ public class Game {
         player1Turn = !player1Turn;
 
         previousMoveOpt = Optional.of(validatedMove);
-        return numPoints;
+        return new PlayResult(points, specialWordsPlayed);
     }
 
-    private int playGrabTilesMove(Move validatedMove) {
+    private void playGrabTilesMove(Move validatedMove) {
         tileSet.playGrabTilesMove(validatedMove);
         getCurrentPlayerRack().addTiles(validatedMove.getTiles());
 
@@ -353,21 +407,18 @@ public class Game {
 
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
-        return 0; // 0 points for a grab move.
     }
 
-    private int playPassMove(Move validatedMove) {
+    private void playPassMove(Move validatedMove) {
         gameResult = checkForGameEnd(validatedMove);
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
-        return 0;
     }
 
-    private int playResignMove(Move validatedMove) {
+    private void playResignMove(Move validatedMove) {
         gameResult = player1Turn ? GameResult.PLAYER1_RESIGN : GameResult.PLAYER2_RESIGN;
         player1Turn = !player1Turn;
         previousMoveOpt = Optional.of(validatedMove);
-        return 0;
     }
 
     private GameResult checkForGameEnd(Move validatedMove) {

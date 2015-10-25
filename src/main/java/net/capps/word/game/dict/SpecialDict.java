@@ -13,11 +13,11 @@ public enum SpecialDict {
     LOVECRAFT(DictType.LOVECRAFT, 0),
     MYTHOS(DictType.MYTHOS, 0);
 
-    private final DictType primaryDict;
+    private final DictType dictType;
     private final int tokenCost;
 
-    SpecialDict(DictType primaryDict, int tokenCost) {
-        this.primaryDict = primaryDict;
+    SpecialDict(DictType dictType, int tokenCost) {
+        this.dictType = dictType;
         this.tokenCost = tokenCost;
     }
 
@@ -36,12 +36,16 @@ public enum SpecialDict {
     }
 
     public DictType getDictType() {
-        return primaryDict;
+        return dictType;
+    }
+
+    public boolean contains(String word) {
+        return dictType.getDictionary().contains(word);
     }
 
     public DictType getDictForWord(String word) {
-        if (primaryDict.getDictionary().contains(word)) {
-            return primaryDict;
+        if (dictType.getDictionary().contains(word)) {
+            return dictType;
         }
         return null;
     }

@@ -70,7 +70,6 @@ public class OneSignalProvider {
             return;
         }
         UserModel currentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer1Model() : updatedGame.getPlayer2Model();
-        UserModel opponentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer2Model() : updatedGame.getPlayer1Model();
 
         if (Boolean.TRUE.equals(currentUser.getSystemUser())) {
             // Don't send notifications to the AI players...but this should never happen.
