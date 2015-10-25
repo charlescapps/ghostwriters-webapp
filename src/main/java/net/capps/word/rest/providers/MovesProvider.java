@@ -10,8 +10,6 @@ import net.capps.word.game.board.Game;
 import net.capps.word.game.board.PlayResult;
 import net.capps.word.game.common.AiType;
 import net.capps.word.game.common.GameResult;
-import net.capps.word.game.dict.DictType;
-import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.Move;
 import net.capps.word.game.move.MoveType;
 import net.capps.word.game.tile.RackTile;
@@ -128,16 +126,14 @@ public class MovesProvider {
 
         PlayResult playResult = game.playMove(move); // Play the move, updating the game state.
 
-        GameModel updatedGame = gamesDAO.updateGame(game, validatedMove, playResult.getPoints(), dbConn);
-        updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
-        updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
-
         // Update the input move by adding the points earned, and the special words played.
         validatedMove.setPoints(playResult.getPoints());
         validatedMove.setSpecialWordsPlayed(playResult.getSpecialWordsPlayed());
-        if (!validatedMove.getSpecialWordsPlayed().isEmpty()) {
-           validatedMove.setDict(game.getSpecialDict().getDictType());
-        }
+
+        // Update the game in the database, and this also inserts the move
+        GameModel updatedGame = gamesDAO.updateGame(game, validatedMove, playResult.getPoints(), dbConn);
+        updatedGame.setPlayer1Model(gameModel.getPlayer1Model());
+        updatedGame.setPlayer2Model(gameModel.getPlayer2Model());
 
         return updatedGame;
     }
@@ -169,29 +165,11 @@ public class MovesProvider {
         } else {
             gameModel.setLastMoves(ImmutableList.<MoveModel>of());
         }
-
-        // Populate the last opponent moves with the dictionary the word was played from.
-        for (MoveModel move: gameModel.getLastMoves()) {
-            addSpecialDictUsageToMove(gameModel, move);
-        }
     }
 
     // ------------ Private --------------
 
-    private void addSpecialDictUsageToMove(GameModel gameModel, MoveModel move) {
-        SpecialDict gameSpecialDict = gameModel.getSpecialDict();
-        if (gameSpecialDict == null) {
-            return;
-        }
-        if (move.getMoveType() != MoveType.PLAY_WORD) {
-            return;
-        }
-        DictType dictForWord = gameSpecialDict.getDictForWord(move.getLetters());
-        move.setDict(dictForWord);
-    }
-
     private GameModel playOneAIMove(AiType aiType, GameModel gameModel, MoveModel lastHumanMove, List<MoveModel> aiMoves, Connection dbConn) throws Exception {
-
         GameAI gameAI = aiType.getGameAiInstance(gameModel.getBoardSize());
         int gameAiId = gameModel.getPlayer1Turn() ? gameModel.getPlayer1() : gameModel.getPlayer2();
         MoveModel lastMove = aiMoves.isEmpty() ? lastHumanMove : aiMoves.get(aiMoves.size() - 1);
@@ -209,7 +187,6 @@ public class MovesProvider {
         aiMoves.add(aiMoveModel);
 
         return updatedGame;
-
     }
 
     private Optional<ErrorModel> validateFieldsArePresent(MoveModel inputMoveModel) {

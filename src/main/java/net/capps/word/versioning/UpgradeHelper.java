@@ -24,6 +24,7 @@ public class UpgradeHelper {
 
     private final ImmutableList<UpgradeTask> REGISTERED_UPGRADE_TASKS;
 
+    // TODO: use reflection instead of manually listing upgrade tasks?
     private static final String UPGRADE_TASKS_PACKAGE = "net.capps.word.versioning.upgrade_tasks";
 
     private UpgradeHelper() {

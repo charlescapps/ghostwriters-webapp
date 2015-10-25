@@ -76,7 +76,7 @@ public class MovesService {
 
                 ratingsProvider.updatePlayerRatings(updatedGame, dbConn);
 
-                playedWordsProvider.registerPlayedWordForMove(updatedGame.getMyMove(), dbConn);
+                playedWordsProvider.registerPlayedWordForMove(updatedGame.getSpecialDict(), updatedGame.getMyMove(), dbConn);
 
                 dbConn.commit();
 

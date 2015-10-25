@@ -1,5 +1,6 @@
 package net.capps.word.db.dao;
 
+import com.google.common.collect.ImmutableList;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.game.common.Dir;
 import net.capps.word.game.move.MoveType;
@@ -26,8 +27,8 @@ public class MovesDAO {
     }
 
     private static final String INSERT_MOVE =
-            "INSERT INTO word_moves (game_id, player_id, move_type, start_row, start_col, direction, word, tiles_played, points, date_played) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+            "INSERT INTO word_moves (game_id, player_id, move_type, start_row, start_col, direction, word, tiles_played, points, date_played, special_word) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     private static final String GET_RECENT_MOVES =
             "SELECT * FROM word_moves WHERE game_id = ? ORDER BY id DESC LIMIT ?";
@@ -61,8 +62,8 @@ public class MovesDAO {
         return Optional.empty();
     }
 
-    public MoveModel insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws SQLException {
-        PreparedStatement stmt = dbConn.prepareStatement(INSERT_MOVE, Statement.RETURN_GENERATED_KEYS);
+    public void insertMove(MoveModel inputMove, int numPoints, Connection dbConn) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(INSERT_MOVE);
         inputMove.setPoints(numPoints);
         stmt.setInt(1, inputMove.getGameId());
         stmt.setInt(2, inputMove.getPlayerId());
@@ -75,17 +76,20 @@ public class MovesDAO {
         stmt.setInt(9, numPoints);
         stmt.setTimestamp(10, new Timestamp(new Date().getTime()));
 
-        int rowCount = stmt.executeUpdate();
-        if (rowCount != 1) {
-            throw new SQLException("Row count wasn't 1 after inserting a move. Row count was: " + rowCount);
+        String specialWord = inputMove.getSpecialWordsPlayed() != null && !inputMove.getSpecialWordsPlayed().isEmpty() ?
+                inputMove.getSpecialWordsPlayed().get(0) :
+                null;
+
+        if (specialWord == null) {
+            stmt.setNull(11, Types.VARCHAR);
+        } else {
+            stmt.setString(11, specialWord);
         }
 
-        ResultSet result = stmt.getGeneratedKeys();
-        if (!result.next()) {
-            throw new SQLException("There was no result returned after inserting a move!");
+        int updated = stmt.executeUpdate();
+        if (updated != 1) {
+            throw new SQLException("Row count updated wasn't 1 after inserting a move. Updated was: " + updated);
         }
-
-        return getMoveFromResult(result);
     }
 
     public List<MoveModel> getPreviousMoveByPlayer(int playerId, int gameId, Connection dbConn) throws SQLException {
@@ -112,7 +116,7 @@ public class MovesDAO {
 
     // ------------- Private --------------
     private MoveModel getMoveFromResult(ResultSet result) throws SQLException {
-        return new MoveModel(result.getInt("game_id"),
+        MoveModel moveModel = new MoveModel(result.getInt("game_id"),
                 result.getInt("player_id"),
                 MoveType.values()[result.getShort("move_type")],
                 result.getString("word"),
@@ -121,6 +125,14 @@ public class MovesDAO {
                 result.getString("tiles_played"),
                 result.getInt("points"),
                 result.getTimestamp("date_played").getTime());
+
+        String specialWord = result.getString("special_word");
+        if (specialWord == null) {
+            moveModel.setSpecialWordsPlayed(ImmutableList.of());
+        } else {
+            moveModel.setSpecialWordsPlayed(ImmutableList.of(specialWord));
+        }
+        return moveModel;
     }
 
 

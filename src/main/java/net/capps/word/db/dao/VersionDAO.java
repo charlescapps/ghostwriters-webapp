@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.Optional;
 
-import static java.lang.String.format;
-
 /**
  * Created by charlescapps on 10/24/15.
  */

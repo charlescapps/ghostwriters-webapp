@@ -117,9 +117,6 @@ public class Move {
                 playResult.getPoints(),
                 null);
         moveModel.setSpecialWordsPlayed(playResult.getSpecialWordsPlayed());
-        if (!moveModel.getSpecialWordsPlayed().isEmpty() && specialDict != null) {
-            moveModel.setDict(specialDict.getDictType());
-        }
         return moveModel;
     }
 

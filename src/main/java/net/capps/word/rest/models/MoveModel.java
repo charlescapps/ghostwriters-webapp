@@ -2,7 +2,6 @@ package net.capps.word.rest.models;
 
 import com.google.common.base.MoreObjects;
 import net.capps.word.game.common.Dir;
-import net.capps.word.game.dict.DictType;
 import net.capps.word.game.move.MoveType;
 
 import java.util.List;
@@ -21,7 +20,6 @@ public class MoveModel {
     private MoveType moveType;
     private Integer points;
     private Long datePlayed;
-    private DictType dict;
     private List<String> specialWordsPlayed;
 
     public MoveModel() {
@@ -110,14 +108,6 @@ public class MoveModel {
 
     public void setDatePlayed(Long datePlayed) {
         this.datePlayed = datePlayed;
-    }
-
-    public DictType getDict() {
-        return dict;
-    }
-
-    public void setDict(DictType dict) {
-        this.dict = dict;
     }
 
     public List<String> getSpecialWordsPlayed() {

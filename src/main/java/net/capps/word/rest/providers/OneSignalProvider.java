@@ -47,16 +47,19 @@ public class OneSignalProvider {
 
     public void sendPushNotificationForMoveAsync(GameModel originalGame, GameModel updatedGame) {
         try {
-            Future<Void> future = pool.submit(
+            pool.submit(
                     () -> {
-                        sendPushNotificationForMove(originalGame, updatedGame);
+                        try {
+                            sendPushNotificationForMove(originalGame, updatedGame);
+                        } catch (Exception e) {
+                            LOG.error("Error sending push notification:", e);
+                        }
                         return null;
                     }
             );
 
-            future.get();
         } catch (Exception e) {
-            LOG.error("Error sending push notification:", e);
+            LOG.error("Error submitting task to send push notification:", e);
         }
     }
 

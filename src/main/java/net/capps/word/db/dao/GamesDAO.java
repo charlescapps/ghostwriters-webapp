@@ -27,6 +27,7 @@ import static java.lang.String.format;
  */
 public class GamesDAO {
     private static final GamesDAO INSTANCE = new GamesDAO();
+    private static final MovesDAO movesDAO = MovesDAO.getInstance();
     private static final WordDbManager WORD_DB_MANAGER = WordDbManager.getInstance();
     private static final Logger LOG = LoggerFactory.getLogger(GamesDAO.class);
 
@@ -216,7 +217,7 @@ public class GamesDAO {
         GameModel updatedGameModel = getGameByResultSetRow(result);
 
         // Now insert the Move.
-        MovesDAO.getInstance().insertMove(validatedMove, numPoints, dbConn);
+        movesDAO.insertMove(validatedMove, numPoints, dbConn);
 
         return updatedGameModel;
     }

@@ -2,7 +2,6 @@ package net.capps.word.rest.providers;
 
 import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.PlayedWordsDAO;
-import net.capps.word.game.dict.DictType;
 import net.capps.word.game.dict.DictionarySet;
 import net.capps.word.game.dict.SpecialDict;
 import net.capps.word.game.move.MoveType;
@@ -47,16 +46,10 @@ public class PlayedWordsProvider {
         return getSortedWordsForWordMap(specialDict, hexWordMap);
     }
 
-    public void registerPlayedWordForMove(MoveModel moveModel, Connection dbConn) throws SQLException {
+    public void registerPlayedWordForMove(SpecialDict specialDict, MoveModel moveModel, Connection dbConn) throws SQLException {
         if (moveModel.getMoveType() != MoveType.PLAY_WORD) {
             return;
         }
-        DictType dictType = moveModel.getDict();
-        if (dictType == null) {
-            return;
-        }
-
-        SpecialDict specialDict = SpecialDict.ofDictType(dictType);
         if (specialDict == null) {
             return;
         }
