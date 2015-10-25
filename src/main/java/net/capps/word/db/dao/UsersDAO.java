@@ -250,6 +250,7 @@ public class UsersDAO {
 
     public Optional<String> getOneSignalIdOpt(Connection dbConn, int userId) throws SQLException {
         PreparedStatement stmt = dbConn.prepareStatement(GET_USER_ONE_SIGNAL_ID);
+        stmt.setInt(1, userId);
         ResultSet resultSet = stmt.executeQuery();
 
         if (resultSet.next()) {
