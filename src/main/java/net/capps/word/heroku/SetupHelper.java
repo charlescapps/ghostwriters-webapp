@@ -11,6 +11,7 @@ import net.capps.word.game.gen.PositionLists;
 import net.capps.word.game.tile.LetterPoints;
 import net.capps.word.rest.models.UserModel;
 import net.capps.word.rest.providers.UsersProvider;
+import net.capps.word.versioning.UpgradeHelper;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -51,6 +52,9 @@ public class SetupHelper {
             createPlayedWordsTable(dbConn);
 
             createWordVersionInfoTable(dbConn);
+
+            // Perform upgrades...
+            UpgradeHelper.getInstance().performNeededUpgrades();
         }
     }
 

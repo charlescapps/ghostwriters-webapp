@@ -127,7 +127,8 @@ public class TableDefinitions {
                       "word VARCHAR(32) NOT NULL," +
                       "tiles_played VARCHAR(16) NOT NULL," +
                       "points INTEGER NOT NULL," +
-                      "date_played TIMESTAMP WITH TIME ZONE NOT NULL" +
+                      "date_played TIMESTAMP WITH TIME ZONE NOT NULL," +
+                      "special_word VARCHAR(16)" +
                     ");";
 
     public static final String CREATE_GAME_ID_FOR_MOVES_TABLE_IDX =
