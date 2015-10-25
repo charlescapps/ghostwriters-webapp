@@ -181,13 +181,17 @@ public class OneSignalProvider {
                 include_player_ids);
 
         PushData pushData = new PushData(Integer.toString(updatedGame.getId()));
+
+        // Set the target user ID so the app can verify the push notification isn't for some other user that
+        // was previously logged in on the same device.
+        pushData.setTargetUserId(currentUser.getId().toString());
+
         if (isGameOffer) {
             pushData.setIsGameOffer(Boolean.TRUE.toString()); // Only strings are allowed for this additional data...
             pushData.setBoardSize(toStringOrNull(updatedGame.getBoardSize()));
             pushData.setSpecialDict(toStringOrNull(updatedGame.getSpecialDict()));
             pushData.setGameDensity(toStringOrNull(updatedGame.getGameDensity()));
             pushData.setBonusesType(toStringOrNull(updatedGame.getBonusesType()));
-            pushData.setPlayer2(Integer.toString(currentUser.getId()));
         }
 
         notification.setData(pushData);
