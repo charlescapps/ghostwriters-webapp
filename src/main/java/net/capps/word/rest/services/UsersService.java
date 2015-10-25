@@ -9,9 +9,11 @@ import net.capps.word.game.dict.RandomUsernamePicker;
 import net.capps.word.rest.auth.AuthHelper;
 import net.capps.word.rest.filters.Filters;
 import net.capps.word.rest.models.*;
+import net.capps.word.rest.providers.OneSignalProvider;
 import net.capps.word.rest.providers.RatingsProvider;
 import net.capps.word.rest.providers.SessionProvider;
 import net.capps.word.rest.providers.UsersProvider;
+import net.capps.word.util.RestUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -39,6 +41,7 @@ public class UsersService {
     private static final UsersDAO usersDAO = UsersDAO.getInstance();
     private static final SessionProvider sessionProvider = SessionProvider.getInstance();
     private static final RatingsProvider ratingsProvider = RatingsProvider.getInstance();
+    private static final OneSignalProvider oneSignalProvider = OneSignalProvider.getInstance();
     private static final WordDbManager wordDbManager = WordDbManager.getInstance();
     
     private static final int MAX_COUNT = 200;
@@ -242,9 +245,7 @@ public class UsersService {
                                             @QueryParam("maxResults") int maxResults)
             throws Exception {
         if (maxResults <= 0 || maxResults > MAX_COUNT) {
-            return Response.status(BAD_REQUEST)
-                    .entity(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT))
-                    .build();
+            return RestUtil.badRequest(new ErrorModel("Must provide the query param \"maxResults\" and it must be > 0 and <= " + MAX_COUNT));
         }
         try (Connection dbConn = wordDbManager.getConnection()) {
             List<UserModel> results = ratingsProvider.getUsersWithRankAroundMe(dbConn, WordConstants.BOOKWORM_AI_USER.get(), maxResults);
@@ -326,6 +327,27 @@ public class UsersService {
         }
 
         return Response.ok(new GenericOkModel("Password set successfully")).build();
+    }
+
+    @Path("me/oneSignal")
+    @POST
+    @Filters.RegularUserAuthRequired
+    public Response updateOneSignalId(@Context HttpServletRequest request, OneSignalInfoModel oneSignalInfoModel) throws SQLException {
+        UserModel authUser = (UserModel) request.getAttribute(AuthHelper.AUTH_USER_PROPERTY);
+        if (authUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        Optional<ErrorModel> errorOpt = oneSignalProvider.validateOneSignalInfo(authUser, oneSignalInfoModel);
+        if (errorOpt.isPresent()) {
+            return RestUtil.badRequest(errorOpt.get());
+        }
+
+        try (Connection dbConn = wordDbManager.getConnection()) {
+            usersDAO.updateUserOneSignalId(dbConn, authUser.getId(), oneSignalInfoModel.getOneSignalPlayerId());
+        }
+
+        return Response.ok(new GenericOkModel("Updated OneSignal played id successfully.")).build();
     }
 
     // ------ Helpers ----

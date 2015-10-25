@@ -1,5 +1,6 @@
 package net.capps.word.db.dao;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.exceptions.ConflictException;
@@ -33,6 +34,12 @@ public class UsersDAO {
 
     private static final String UPDATE_USER_PASSWORD =
             "UPDATE word_users SET (hashpass, salt) = (?, ?) WHERE id = ?";
+
+    private static final String UPDATE_USER_ONE_SIGNAL_ID =
+            "UPDATE word_users SET one_signal_user_id = ? WHERE id = ?";
+
+    private static final String GET_USER_ONE_SIGNAL_ID =
+            "SELECT one_signal_user_id FROM word_users WHERE id = ?";
 
     private static final String IS_USER_PASSWORD_DEFINED =
             "SELECT (hashpass IS NOT NULL) AS is_pass_defined FROM word_users WHERE id = ?";
@@ -225,6 +232,31 @@ public class UsersDAO {
         }
 
         return resultSet.getBoolean("is_pass_defined");
+    }
+
+    public void updateUserOneSignalId(Connection dbConn, int userId, String oneSignalId) throws SQLException {
+        Preconditions.checkNotNull(oneSignalId, "Cannot set the oneSignalId to null.");
+        PreparedStatement stmt = dbConn.prepareStatement(UPDATE_USER_ONE_SIGNAL_ID);
+
+        stmt.setString(1, oneSignalId);
+        stmt.setInt(2, userId);
+
+        int updated = stmt.executeUpdate();
+
+        if (updated != 1) {
+            throw new SQLException("Expected 1 row to be updated when updating one_signal_user_id, but updated = " + updated);
+        }
+    }
+
+    public Optional<String> getOneSignalIdOpt(Connection dbConn, int userId) throws SQLException {
+        PreparedStatement stmt = dbConn.prepareStatement(GET_USER_ONE_SIGNAL_ID);
+        ResultSet resultSet = stmt.executeQuery();
+
+        if (resultSet.next()) {
+            return Optional.ofNullable(resultSet.getString("one_signal_user_id"));
+        }
+
+        return Optional.empty();
     }
 
     public void updateUserRating(Connection dbConn, int userId, int newRating, UserRecordChange userRecordChange) throws SQLException {

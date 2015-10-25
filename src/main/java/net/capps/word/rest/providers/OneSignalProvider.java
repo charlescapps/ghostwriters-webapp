@@ -1,6 +1,9 @@
 package net.capps.word.rest.providers;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import net.capps.word.db.WordDbManager;
+import net.capps.word.db.dao.UsersDAO;
 import net.capps.word.game.common.GameResult;
 import net.capps.word.game.common.GameType;
 import net.capps.word.rest.models.*;
@@ -17,10 +20,12 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Created by charlescapps on 4/9/15.
@@ -28,6 +33,8 @@ import java.util.concurrent.Future;
 public class OneSignalProvider {
     private static final OneSignalProvider INSTANCE = new OneSignalProvider();
     private static final Logger LOG = LoggerFactory.getLogger(OneSignalProvider.class);
+
+    private static final UsersDAO usersDAO = UsersDAO.getInstance();
 
     private static final String ONE_SIGNAL_NOTIFICATIONS_URI = "https://onesignal.com/api/v1/notifications";
     private static final String ONE_SIGNAL_APP_ID = "479f3518-dbfa-11e4-ac8e-a310507ee73c";
@@ -72,12 +79,24 @@ public class OneSignalProvider {
             // Do nothing if the turn didn't change
             return;
         }
+
         UserModel currentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer1Model() : updatedGame.getPlayer2Model();
 
         if (Boolean.TRUE.equals(currentUser.getSystemUser())) {
             // Don't send notifications to the AI players...but this should never happen.
             return;
         }
+
+        Optional<String> oneSignalIdOpt;
+        try (Connection dbConn = WordDbManager.getInstance().getConnection()) {
+            oneSignalIdOpt = usersDAO.getOneSignalIdOpt(dbConn, currentUser.getId());
+        }
+
+        if (!oneSignalIdOpt.isPresent()) {
+            // Don't send notifications if we never received a OneSignal player id from the client
+            return;
+        }
+        final String oneSignalId = oneSignalIdOpt.get();
 
         // Check for the first move being played on a newly created two-player game
         final GameResult ORIGINAL_RESULT = originalGame.getGameResult();
@@ -87,8 +106,29 @@ public class OneSignalProvider {
                              updatedGame,
                              titleAndMessage.getLeft(),
                              titleAndMessage.getRight(),
-                             ORIGINAL_RESULT == GameResult.OFFERED && UPDATED_RESULT == GameResult.OFFERED);
+                             ORIGINAL_RESULT == GameResult.OFFERED && UPDATED_RESULT == GameResult.OFFERED,
+                             oneSignalId);
     }
+
+    public Optional<ErrorModel> validateOneSignalInfo(UserModel authUser, OneSignalInfoModel oneSignalInfoModel) {
+        if (oneSignalInfoModel == null) {
+            return Optional.of(new ErrorModel("Must provide One Signal info"));
+        }
+        if (oneSignalInfoModel.getUserId() == null) {
+            return Optional.of(new ErrorModel("Must provide userId field."));
+        }
+        if (Strings.isNullOrEmpty(oneSignalInfoModel.getOneSignalPlayerId())) {
+            return Optional.of(new ErrorModel("Must provide oneSignalPlayerId field."));
+        }
+        if (!oneSignalInfoModel.getUserId().equals(authUser.getId())) {
+            return Optional.of(new ErrorModel("The userId must match the currently authenticated user!"));
+        }
+
+        return Optional.empty();
+    }
+
+
+    // ------------- PRIVATE ------------
 
     private Pair<String, String> getPushTitleAndMessage(GameModel originalGame, GameModel updatedGame) {
         UserModel currentUser = updatedGame.getPlayer1Turn() ? updatedGame.getPlayer1Model() : updatedGame.getPlayer2Model();
@@ -124,12 +164,12 @@ public class OneSignalProvider {
     }
 
     // -------- Private ----------
-    private void sendPushNotification(UserModel currentUser, GameModel updatedGame, String title, String message, boolean isGameOffer) {
+    private void sendPushNotification(UserModel currentUser, GameModel updatedGame, String title, String message, boolean isGameOffer, String oneSignalId) {
         if (CLIENT == null) {
             CLIENT = createOneSignalClient();
         }
 
-        final PushTagModel tag = new PushTagModel("ghostwriters_id", Integer.toString(currentUser.getId()), "=");
+        final List<String> include_player_ids = Lists.newArrayList(oneSignalId);
         final PushContentModel contents = new PushContentModel(message);
         final PushContentModel headings = new PushContentModel(title);
 
@@ -137,7 +177,8 @@ public class OneSignalProvider {
                 ONE_SIGNAL_APP_ID,
                 contents,
                 headings,
-                Lists.newArrayList(tag));
+                null,
+                include_player_ids);
 
         PushData pushData = new PushData(Integer.toString(updatedGame.getId()));
         if (isGameOffer) {
@@ -165,7 +206,7 @@ public class OneSignalProvider {
         if (response.getStatusInfo().getStatusCode() != HttpStatus.OK_200) {
             LOG.error("FAIL - Received non-200 response from OneSignal: {}", response.getStatusInfo().getStatusCode());
         } else {
-            LOG.info("SUCCESS - Received 200 response from sending push notification to player {} ({})", currentUser.getUsername(), currentUser.getId());
+            LOG.debug("SUCCESS - Received 200 response from sending push notification to player {} ({})", currentUser.getUsername(), currentUser.getId());
         }
         LOG.info("Response body: {}", responseBody);
     }

@@ -14,15 +14,17 @@ public class OneSignalNotificationModel {
     private Boolean isIos;
     private String small_icon;
     private List<PushTagModel> tags;
+    private List<String> include_player_ids;
 
     public OneSignalNotificationModel() {
     }
 
-    public OneSignalNotificationModel(String app_id, PushContentModel contents, PushContentModel headings, List<PushTagModel> tags) {
+    public OneSignalNotificationModel(String app_id, PushContentModel contents, PushContentModel headings, List<PushTagModel> tags, List<String> include_player_ids) {
         this.app_id = app_id;
         this.contents = contents;
         this.headings = headings;
         this.tags = tags;
+        this.include_player_ids = include_player_ids;
     }
 
     public String getApp_id() {
@@ -87,5 +89,13 @@ public class OneSignalNotificationModel {
 
     public void setTags(List<PushTagModel> tags) {
         this.tags = tags;
+    }
+
+    public List<String> getInclude_player_ids() {
+        return include_player_ids;
+    }
+
+    public void setInclude_player_ids(List<String> include_player_ids) {
+        this.include_player_ids = include_player_ids;
     }
 }
