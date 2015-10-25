@@ -12,6 +12,7 @@ public class PushData {
     private String gameDensity;
     private String bonusesType;
     private String targetUserId;
+    private String targetUsername;
 
     public PushData() {
 
@@ -75,5 +76,13 @@ public class PushData {
 
     public void setTargetUserId(String targetUserId) {
         this.targetUserId = targetUserId;
+    }
+
+    public String getTargetUsername() {
+        return targetUsername;
+    }
+
+    public void setTargetUsername(String targetUsername) {
+        this.targetUsername = targetUsername;
     }
 }

@@ -185,6 +185,7 @@ public class OneSignalProvider {
         // Set the target user ID so the app can verify the push notification isn't for some other user that
         // was previously logged in on the same device.
         pushData.setTargetUserId(currentUser.getId().toString());
+        pushData.setTargetUsername(currentUser.getUsername());
 
         if (isGameOffer) {
             pushData.setIsGameOffer(Boolean.TRUE.toString()); // Only strings are allowed for this additional data...
