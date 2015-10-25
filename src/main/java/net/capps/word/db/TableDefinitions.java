@@ -37,7 +37,8 @@ public class TableDefinitions {
             "losses INTEGER NOT NULL DEFAULT 0," +
             "ties INTEGER NOT NULL DEFAULT 0," +
             "tokens INTEGER NOT NULL DEFAULT 10," +
-            "infinite_books BOOLEAN NOT NULL DEFAULT FALSE" +
+            "infinite_books BOOLEAN NOT NULL DEFAULT FALSE," +
+            "one_signal_user_id VARCHAR(64)" +
             ");";
 
     public static final String CREATE_DEVICE_ID_IDX =

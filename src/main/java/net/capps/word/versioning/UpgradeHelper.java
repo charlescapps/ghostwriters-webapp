@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.VersionDAO;
 import net.capps.word.versioning.upgrade_tasks.Version2UpgradeMovesTable;
+import net.capps.word.versioning.upgrade_tasks.Version3AddOneSignalIdColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public class UpgradeHelper {
         // ADD UPGRADE TASKS HERE
          REGISTERED_UPGRADE_TASKS = ImmutableList.<UpgradeTask>builder()
                  .add(new Version2UpgradeMovesTable())
+                 .add(new Version3AddOneSignalIdColumn())
                  .build();
     }
 
