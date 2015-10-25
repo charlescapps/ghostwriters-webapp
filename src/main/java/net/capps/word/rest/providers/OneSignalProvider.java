@@ -187,6 +187,7 @@ public class OneSignalProvider {
             pushData.setSpecialDict(toStringOrNull(updatedGame.getSpecialDict()));
             pushData.setGameDensity(toStringOrNull(updatedGame.getGameDensity()));
             pushData.setBonusesType(toStringOrNull(updatedGame.getBonusesType()));
+            pushData.setPlayer2(Integer.toString(currentUser.getId()));
         }
 
         notification.setData(pushData);

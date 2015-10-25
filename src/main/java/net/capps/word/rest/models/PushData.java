@@ -11,6 +11,7 @@ public class PushData {
     private String specialDict;
     private String gameDensity;
     private String bonusesType;
+    private String player2;
 
     public PushData() {
 
@@ -66,5 +67,13 @@ public class PushData {
 
     public void setBonusesType(String bonusesType) {
         this.bonusesType = bonusesType;
+    }
+
+    public String getPlayer2() {
+        return player2;
+    }
+
+    public void setPlayer2(String player2) {
+        this.player2 = player2;
     }
 }
