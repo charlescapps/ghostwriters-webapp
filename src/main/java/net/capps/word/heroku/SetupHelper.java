@@ -4,6 +4,7 @@ import net.capps.word.constants.WordConstants;
 import net.capps.word.db.TableDefinitions;
 import net.capps.word.db.WordDbManager;
 import net.capps.word.db.dao.UsersDAO;
+import net.capps.word.db.dao.VersionDAO;
 import net.capps.word.game.board.FixedLayouts;
 import net.capps.word.game.dict.Dictionaries;
 import net.capps.word.game.gen.PositionLists;
@@ -15,6 +16,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
@@ -36,90 +38,124 @@ public class SetupHelper {
     public void initDatabase() throws Exception {
         WordDbManager wordDbManager = WordDbManager.getInstance();
 
-        try(Connection connection = wordDbManager.getConnection()) {
-            Statement stmt = connection.createStatement();
+        try(Connection dbConn = wordDbManager.getConnection()) {
 
-            // --------- word_users table ----------
-            stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
+            createWordUsersTable(dbConn);
 
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_DEVICE_ID_IDX);
+            createWordGamesTable(dbConn);
 
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_DEVICE_ID_IDX);
+            createWordMovesTable(dbConn);
 
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_USERNAME_IDX);
+            createWordSessionsTable(dbConn);
 
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_USERNAME_IDX);
+            createPlayedWordsTable(dbConn);
 
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_LOWERCASE_USERNAME_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_LOWERCASE_USERNAME_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_USER_RATING_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_USER_RATING_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_RATING_DESC_AND_ID_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_RATING_DESC_AND_ID_IDX);
-
-            // -------- word_games table --------
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_GAMES_TABLE);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_PLAYER1_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_PLAYER1_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_PLAYER2_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_PLAYER2_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_LAST_ACTIVITY_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_LAST_ACTIVITY_IDX);
-
-            // -------- word_moves table -------
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_GAME_ID_FOR_MOVES_TABLE_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_GAME_ID_FOR_MOVES_TABLE_IDX);
-
-            // -------- word_sessions table
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
-
-            // --------- played_words table ------
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_TABLE);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.DROP_PLAYED_WORDS_USER_ID_IDX);
-
-            stmt = connection.createStatement();
-            stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_USER_ID_IDX);
-
+            createWordVersionInfoTable(dbConn);
         }
+    }
+
+    private void createWordUsersTable(Connection dbConn) throws SQLException {
+        // --------- word_users table ----------
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_WORD_USERS_TABLE);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_DEVICE_ID_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_DEVICE_ID_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_USERNAME_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_USERNAME_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_LOWERCASE_USERNAME_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_LOWERCASE_USERNAME_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_USER_RATING_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_USER_RATING_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_RATING_DESC_AND_ID_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_RATING_DESC_AND_ID_IDX);
+    }
+
+    private void createWordGamesTable(Connection dbConn) throws SQLException {
+        // -------- word_games table --------
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_GAMES_TABLE);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_PLAYER1_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_PLAYER1_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_PLAYER2_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_PLAYER2_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_LAST_ACTIVITY_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_LAST_ACTIVITY_IDX);
+    }
+
+    private void createWordMovesTable(Connection dbConn) throws SQLException {
+        // -------- word_moves table -------
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_MOVES_TABLE);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_GAME_ID_FOR_MOVES_TABLE_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_GAME_ID_FOR_MOVES_TABLE_IDX);
+    }
+
+    private void createWordSessionsTable(Connection dbConn) throws SQLException {
+        // -------- word_sessions table
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_SESSION_TABLE);
+    }
+
+    private void createPlayedWordsTable(Connection dbConn) throws SQLException {
+        // --------- played_words table ------
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_TABLE);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_PLAYED_WORDS_USER_ID_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_PLAYED_WORDS_USER_ID_IDX);
+    }
+
+    private void createWordVersionInfoTable(Connection dbConn) throws SQLException {
+        // --------- played_words table ------
+        Statement stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_VERSION_INFO_TABLE);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.DROP_VERSION_IDX);
+
+        stmt = dbConn.createStatement();
+        stmt.executeUpdate(TableDefinitions.CREATE_VERSION_INDEX);
+
+        VersionDAO.getInstance().insertCurrentVersionIfNotPresent(dbConn);
     }
 
     public void createAiUsers() throws Exception {

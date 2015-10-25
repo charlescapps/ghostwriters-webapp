@@ -1,9 +1,26 @@
 package net.capps.word.db;
 
+import net.capps.word.versioning.CurrentVersion;
+
+import static java.lang.String.format;
+
 /**
  * Created by charlescapps on 12/26/14.
  */
 public class TableDefinitions {
+    // -------- Version Info table --------
+    public static final String CREATE_VERSION_INFO_TABLE =
+            format("CREATE TABLE IF NOT EXISTS word_version_info (" +
+                    "id SERIAL PRIMARY KEY, " +
+                    "version_code INTEGER NOT NULL DEFAULT %d);", CurrentVersion.VERSION_CODE);
+
+    public static final String CREATE_VERSION_INDEX =
+            "CREATE UNIQUE INDEX db_version_one_row ON word_version_info((version_code IS NOT NULL));";
+
+    public static final String DROP_VERSION_IDX =
+            "DROP INDEX IF EXISTS db_version_one_row;";
+
+
     // -------- Users table ---------
     public static final String CREATE_WORD_USERS_TABLE =
             "CREATE TABLE IF NOT EXISTS word_users (" +
