@@ -112,9 +112,7 @@ public class GamesService {
             Optional<GameModel> gameOpt = gamesDAO.getGameWithPlayerModelsById(id, dbConn);
 
             if (!gameOpt.isPresent()) {
-                return Response.status(Status.NOT_FOUND)
-                        .entity(new ErrorModel(String.format("No game found with id %d", id)))
-                        .build();
+                return RestUtil.notFound(new ErrorModel(String.format("No game found with id %d", id)));
             }
 
             GameModel gameModel = gameOpt.get();
@@ -141,11 +139,9 @@ public class GamesService {
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> error = gamesSearchProvider.validateSearchParams(count, page, inProgress);
-        if (error.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(error.get())
-                    .build();
+        Optional<ErrorModel> errorOpt = gamesSearchProvider.validateSearchParams(count, page, inProgress);
+        if (errorOpt.isPresent()) {
+            return RestUtil.badRequest(errorOpt.get());
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             boolean doIncludeMoves = Boolean.TRUE.equals(includeMoves);
@@ -163,11 +159,9 @@ public class GamesService {
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> error = gamesSearchProvider.validateCountAndPage(count, page);
-        if (error.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(error.get())
-                    .build();
+        Optional<ErrorModel> errorOpt = gamesSearchProvider.validateCountAndPage(count, page);
+        if (errorOpt.isPresent()) {
+            return RestUtil.badRequest(errorOpt.get());
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             GameListModel games = gamesSearchProvider.getGamesOfferedToUserLastActivityDesc(authUser, count, page, dbConn);
@@ -183,11 +177,9 @@ public class GamesService {
         if (authUser == null) {
             return Response.status(Status.UNAUTHORIZED).build();
         }
-        Optional<ErrorModel> error = gamesSearchProvider.validateCount(count);
-        if (error.isPresent()) {
-            return Response.status(Status.BAD_REQUEST)
-                    .entity(error.get())
-                    .build();
+        Optional<ErrorModel> errorOpt = gamesSearchProvider.validateCount(count);
+        if (errorOpt.isPresent()) {
+            return RestUtil.badRequest(errorOpt.get());
         }
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
             List<GameModel> games = gamesDAO.getGamesOfferedByUserLastActivityDesc(authUser.getId(), count, dbConn);
@@ -209,18 +201,14 @@ public class GamesService {
 
             ErrorOrResult<GameModel> gameOrError = gamesProvider.validateAcceptGameOffer(id, rack, authUser, dbConn);
             if (gameOrError.isError()) {
-                return Response.status(Status.BAD_REQUEST)
-                        .entity(gameOrError.getErrorOpt().get())
-                        .build();
+                return RestUtil.badRequest(gameOrError.getErrorOpt().get());
             }
 
             GameModel gameModel = gameOrError.getResultOpt().get();
 
-            Optional<ErrorModel> canAffordError = tokensProvider.validateCanAffordAcceptGameError(authUser, rack);
-            if (canAffordError.isPresent()) {
-                return Response.status(Status.BAD_REQUEST)
-                        .entity(canAffordError.get())
-                        .build();
+            Optional<ErrorModel> canAffordErrorOpt = tokensProvider.validateCanAffordAcceptGameError(authUser, rack);
+            if (canAffordErrorOpt.isPresent()) {
+                return RestUtil.badRequest(canAffordErrorOpt.get());
             }
 
             // Code that writes to the database.
@@ -257,11 +245,9 @@ public class GamesService {
         }
 
         try (Connection dbConn = WORD_DB_MANAGER.getConnection()) {
-            ErrorOrResult<GameModel> validationErrorOpt = gamesProvider.validateRejectGameOffer(id, authUser, dbConn);
-            if (validationErrorOpt.isError()) {
-                return Response.status(Status.BAD_REQUEST)
-                        .entity(validationErrorOpt.getErrorOpt().get())
-                        .build();
+            ErrorOrResult<GameModel> errorOrResult = gamesProvider.validateRejectGameOffer(id, authUser, dbConn);
+            if (errorOrResult.isError()) {
+                return RestUtil.badRequest(errorOrResult.getErrorOpt().get());
             }
 
             gamesDAO.rejectGame(id, dbConn);

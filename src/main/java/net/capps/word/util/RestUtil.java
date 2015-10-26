@@ -15,4 +15,10 @@ public class RestUtil {
                 .entity(errorModel)
                 .build();
     }
+
+    public static Response notFound(ErrorModel errorModel) {
+        return Response.status(Status.NOT_FOUND)
+                .entity(errorModel)
+                .build();
+    }
 }
