@@ -5,6 +5,7 @@ ADDLING       "Muddled, confused; rotten"
 AEGIPAN       "Creature from Greek mythology who was half man, half goat"
 AFRASIAB      "A character from the great Persian epic, 'Shahnama'"
 AGHAST        "Struck with overwhelming shock or horror"
+AMONTILLADO   "Poe wrote a short story entitled \"The Cask of Amontillado\""
 ANOMALOUS     "Abnormal or supernatural"
 ANTEDILUVIAN  "People living before the flood described in the Bible"
 AQUAREGIA     "Aqua regia. An acid that can dissolve gold"
@@ -24,14 +25,16 @@ DECAMP        "To depart suddenly in secret"
 DECAMPED
 DECREPITUDE    "Feebleness, especially from old age"
 DERISION
+DISCONCERT     "To upset the composure of; to confuse; to frustrate"
 DISINTER       "To remove a body from its grave"
 DONJON         "Dungeon; the inner keep of a castle"
 ECLAT          "A flashy display"
+EDUCE          "To draw forth or bring out"
 EDUCED
 EIDOLON         "Phantom or apparition; an astral double of a living being"
 EMACIATE        "To waste away and become unusually thin"
 EMACIATED
-ENTRAILS
+ENTRAILS            "The intestines of a person or animal; the insides of anything"
 EPITHET             "A word or phrase used to describe a person"
 EREBUS              "In Greek mythology, a region of the underworld where the dead pass after dying"
 ERUDITION           "Learning, extensive knowledge"
@@ -39,7 +42,7 @@ ESCUTCHEON          "A shield on which a coat of arms is displayed"
 ETHER               "A substance thought to permeate vacant space"
 ETHEREAL            "Airy, celestial"
 EVANESCENT          "Something that vanishes or fades away; fleeting"
-EVINCE
+EVINCE              "To make evident or clear"
 EVINCED
 FETE                "Fancy outdoor party"
 FETID               "Having an offensive odor"
@@ -48,9 +51,10 @@ FLAMBEAU            "A flaming torch"
 FOOLSCAP            "A paper size that was formerly the standard in Great Britain"
 FOOTPAD             "Thief or mugger who robs passerby"
 FOOTPADS
-FOREDOOM            "Synonym for doom"
+FOREDOOM            "To doom beforehand; predestined doom"
 FOREDOOMED
-FRIEZE
+FORTUNATO           "A famous victim from the short story by Poe, \"The Cask of Amontillado\""
+FRIEZE              "A decorative band on an outside wall"
 FUSTIAN             "Excessively embellished writing or speech"
 GALVANIC            "Producing electric current"
 GELATINOUS
@@ -73,17 +77,19 @@ LACONIC
 LETHE               "Forgetfulness. In Greek mythology, a river running through Hades"
 LUXOR               "A temple in the ancient Egyptian city of Thebes"
 MAISON              "French word for house or building"
+MASQUE              "Mask. Poe wrote a story entitled \"The Masque of the Red Death\""
 MATTOCK             "A digging tool that combines an axe and a pick."
 MEERSCHAUM          "A tobacco pipe"
 MENDICANT           "Beggar"
 MENDICANTS
 MOIETY              "A half of something"
 MONOMANIA           "An obsessive interest in a single object or idea"
-MONOMANIAC
+MONOMANIAC          "One who is obsessed with a single goal or object"
 MUMMER              "A person who wears a mask or costume while merrymaking"
 MUMMERS
 NECROMANCY          "Sorcery; using spells to conjure the dead or evil spirits"
 NEPENTHE
+NEVERMORE           "Never again; never thereafter"
 NIHILITY            "Nothingness or nonexistence"
 NITRE               "A clear or white mineral crystal, found as effervescent growths on cavern walls"
 OCCIPUT             "The back part of the skull"
@@ -91,28 +97,29 @@ OCULAR
 OUTRE               "Bizarre, against convention"
 PALL                "A heavy cloth draped over a coffin; anything that covers with darkness or gloom"
 PALLID              "Pale"
-PARADOX
+PARADOX             "A statement that is self-contradictory or absurd"
 PENDULOUS           "Held up without any visible support"
 PERFORATION
-PETULANT
+PETULANT             "Characterized by rude behavior, or being easily upset by a trifle"
 PETULANTLY
 PHTHISIS             "A wasting condition, such as tuberculosis"
-PINE
-PLACID
+PINE                 "To yearn for something that one strongly desires"
+PLACID               "Peaceful, gentle, undisturbed"
 PLUTO                "The Roman god of the underworld"
-PRODIGIOUS
+PRODIGIOUS           "Extraordinary in scale or importance"
 PUNCHEON             "A large cask of varying capacity"
 PURLOIN              "To take something wrongfully"
 PURLOINED
 PURLOINER            "Thief or burglar"
 PURLOINERS
 QUAFF                "To drink a beverage heartily, with much enjoyment"
+QUOTH                "Antiquated form of \"said\" or \"spoke\""
 RAPTURE
 RAVEN                "Quoth the raven \"Nevermore\""
 RAVENS
 RENCONTRE            "A violent meeting, or combat"
-REVEL
-REVERIE
+REVEL                "To take great delight in something, or to celebrate and be festive"
+REVERIE              "A state of fanciful musing or meditation"
 RUBICUND             "Ruddy; having a healthy, red complexion"
 RUE                  "French word for street"
 RUMINATE
@@ -120,7 +127,7 @@ RUMINATING
 RUNE                "Characters used by the Germanic peoples until the 13th century"
 RUNES
 RUNIC               "Written in runes; having a secret meaning"
-SAGACITY
+SAGACITY            "Wisdom"
 SAGE                   "A wise person"
 SANGUINE               "Blood-red color, or bloody"
 SARCOPHAGUS            "A coffin"
@@ -145,7 +152,7 @@ SYBILS
 SYLPH                            "An immortal yet soulless (elemental) being that inhabits the air"
 TARN                             "A bog or marsh"
 TARNS
-TREPIDATION
+TREPIDATION                      "Tremulous fear or agitation; trembling or quivering"
 TYPHUS                           "A disease causing headache, fever, chills, exhaustion, and rash. Also known as \"prison fever\" and \"ship fever\""
 VIAND                            "An article of food"
 WAYLAID                          "Ambushed, attacked by surprise"
