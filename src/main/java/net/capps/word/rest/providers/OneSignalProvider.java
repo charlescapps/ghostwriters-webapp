@@ -214,7 +214,7 @@ public class OneSignalProvider {
         } else {
             LOG.debug("SUCCESS - Received 200 response from sending push notification to player {} ({})", currentUser.getUsername(), currentUser.getId());
         }
-        LOG.info("Response body: {}", responseBody);
+        LOG.debug("Response body: {}", responseBody);
     }
 
     private static String toStringOrNull(Object o) {

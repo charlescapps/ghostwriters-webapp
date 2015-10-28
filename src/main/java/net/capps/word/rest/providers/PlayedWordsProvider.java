@@ -105,7 +105,6 @@ public class PlayedWordsProvider {
         if (expectedLen % 8 != 0) {
             expectedLen += (8 - (expectedLen % 8));
         }
-        LOG.info("WordIndex + 1 = {}, expectedLen = {}", wordIndex + 1, expectedLen);
         StringBuilder sb = new StringBuilder(expectedLen);
         while (sb.length() < wordIndex) {
             sb.append('0');
